@@ -67,7 +67,7 @@
 		</div>
 	</div>
 
-	<p>Not registered? <a href="#" class="text-brand underline">Create an account</a></p>
+	<p>Not registered? <a href="/register" class="text-brand underline">Create an account</a></p>
 </div>
 
 <style lang="postcss">
