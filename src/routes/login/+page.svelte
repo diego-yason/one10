@@ -1,11 +1,19 @@
 <script lang="ts">
 	import { z } from 'zod/v4';
+	import { auth } from '$lib/firebase';
+	import { signInWithEmailAndPassword } from 'firebase/auth';
 
 	// TODO: implement form validation
 	const schema = z.object({
 		email: z.email('Invalid email address'),
 		password: z.string().min(6, 'Password must be at least 6 characters long')
 	});
+
+	let email = '';
+	let password = '';
+	const emailLogin = async () => {
+		await signInWithEmailAndPassword(auth, email, password);
+	};
 </script>
 
 <!-- <div class="text-white"> -->
@@ -29,6 +37,7 @@
 			id=""
 			placeholder="Please enter your email"
 			class="bg-white p-3 text-gray-800"
+			bind:value={email}
 		/>
 		<input
 			type="password"
@@ -36,6 +45,7 @@
 			id=""
 			placeholder="Enter password"
 			class="bg-white p-3 text-gray-800"
+			bind:value={password}
 		/>
 		<button class="bg-amber-600 text-white py-2">Login</button>
 	</form>
