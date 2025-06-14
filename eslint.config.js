@@ -32,5 +32,12 @@ export default ts.config(
 				svelteConfig
 			}
 		}
+	},
+	{
+		// our custom rules
+		rules: {
+			'no-unused-vars': 'off',
+			'@typescript-eslint/no-unused-vars': 'warn'
+		}
 	}
 );
