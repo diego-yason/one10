@@ -2,7 +2,7 @@
 	let { children } = $props();
 </script>
 
-<nav class="flex justify-between py-10 px-32 font-poppins">
+<nav class="flex justify-between py-10 px-32 font-poppins w-full absolute">
 	<div class="flex flex-row gap-20 items-center">
 		<a href="/">
 			<img src="https://placehold.co/100x60" alt="" />
@@ -19,3 +19,11 @@
 </nav>
 
 {@render children()}
+
+<!-- footer -->
+<footer class="bg-gray-950 text-gray-500 flex flex-row justify-between pt-12 pb-20 px-44">
+	<p>One 10 Studio Lab | Muntinlupa City, Metro Manila</p>
+	<p>
+		Copyright © 2025, <span class="text-amber-300">One 10 Studio Lab</span> | All rights reserved.
+	</p>
+</footer>
