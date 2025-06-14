@@ -3,12 +3,12 @@
 	let { children } = $props();
 </script>
 
-<nav class="flex justify-between py-10 px-32 font-poppins w-full absolute">
+<nav class="flex justify-between py-10 px-32 font-poppins text-white w-full absolute">
 	<div class="flex flex-row gap-20 items-center">
 		<a href="/">
 			<img src="https://placehold.co/100x60" alt="" />
 		</a>
-		<a href="/" class:font-bold={page.url.pathname === '/'}>Home</a>
+		<a href="/" class:font-semibold={page.url.pathname === '/'}>Home</a>
 		<a href="#">Services</a>
 		<a href="#">Track</a>
 		<a href="#">FAQs</a>
@@ -22,7 +22,9 @@
 {@render children()}
 
 <!-- footer -->
-<footer class="bg-gray-950 text-gray-500 flex flex-row justify-between pt-12 pb-20 px-44">
+<footer
+	class="bg-[#333] font-roboto text-[#7A7A7A] flex flex-row justify-between pt-12 pb-20 px-44"
+>
 	<p>One 10 Studio Lab | Muntinlupa City, Metro Manila</p>
 	<p>
 		Copyright © 2025, <span class="text-amber-300">One 10 Studio Lab</span> | All rights reserved.
