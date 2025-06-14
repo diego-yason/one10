@@ -44,6 +44,7 @@
 		"firebase": "^11.8.1",
 		"svelte-firekit": "^0.0.25",
 		"tailwindcss": "^4.1.8",
-		"zod": "^3.25.64"
+		"zod": "^3.25.64",
+		"tailwindcss": "^4.1.8"
 	}
 }
