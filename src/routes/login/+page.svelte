@@ -27,7 +27,7 @@
 			placeholder="Enter password"
 			class="bg-white p-3 text-gray-800"
 		/>
-		<button class="bg-amber-600 text-white">Login</button>
+		<button class="bg-amber-600 text-white py-2">Login</button>
 	</form>
 	<a href="#" class="text-[#F2C94C] underline">Forgot password?</a>
 
