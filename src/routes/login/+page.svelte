@@ -28,3 +28,17 @@
 
 	<p>Not registered? <a href="#" class="bg">Create an account</a></p>
 </div>
+
+<style lang="postcss">
+	:global(body) {
+		background-image: url('https://www.pbs.org/wnet/nature/files/2021/01/pexels-denis-linine-714258.png');
+		background-size: cover;
+		background-position: center;
+		background-repeat: no-repeat;
+		height: 100vh;
+
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+</style>
