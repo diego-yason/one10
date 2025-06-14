@@ -1,3 +1,13 @@
+<script lang="ts">
+	import { z } from 'zod/v4';
+
+	// TODO: implement form validation
+	const schema = z.object({
+		email: z.email('Invalid email address'),
+		password: z.string().min(6, 'Password must be at least 6 characters long')
+	});
+</script>
+
 <!-- <div class="text-white"> -->
 <!-- Use the div with class once there is an image -->
 <div class="mx-auto w-96 text-gray-100">
