@@ -7,6 +7,7 @@
 		signInWithEmailAndPassword,
 		signInWithPopup
 	} from 'firebase/auth';
+	import { goto } from '$app/navigation';
 
 	// TODO: implement form validation
 	const schema = z.object({
@@ -16,16 +17,11 @@
 
 	let email = '';
 	let password = '';
-	const emailLogin = async () => {
-		await signInWithEmailAndPassword(auth, email, password);
-	};
+	const emailLogin = () => signInWithEmailAndPassword(auth, email, password).then(() => goto('/'));
 
-	const googleLogin = async () => {
-		await signInWithPopup(auth, new GoogleAuthProvider());
-	};
-	const facebookLogin = async () => {
-		await signInWithPopup(auth, new FacebookAuthProvider());
-	};
+	const googleLogin = () => signInWithPopup(auth, new GoogleAuthProvider()).then(() => goto('/'));
+	const facebookLogin = () =>
+		signInWithPopup(auth, new FacebookAuthProvider()).then(() => goto('/'));
 </script>
 
 <!-- <div class="text-white"> -->
