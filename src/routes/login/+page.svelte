@@ -1,7 +1,12 @@
 <script lang="ts">
 	import { z } from 'zod/v4';
 	import { auth } from '$lib/firebase';
-	import { signInWithEmailAndPassword } from 'firebase/auth';
+	import {
+		FacebookAuthProvider,
+		GoogleAuthProvider,
+		signInWithEmailAndPassword,
+		signInWithPopup
+	} from 'firebase/auth';
 
 	// TODO: implement form validation
 	const schema = z.object({
@@ -13,6 +18,13 @@
 	let password = '';
 	const emailLogin = async () => {
 		await signInWithEmailAndPassword(auth, email, password);
+	};
+
+	const googleLogin = async () => {
+		await signInWithPopup(auth, new GoogleAuthProvider());
+	};
+	const facebookLogin = async () => {
+		await signInWithPopup(auth, new FacebookAuthProvider());
 	};
 </script>
 
@@ -30,7 +42,7 @@
 		<p class="text-xs">Welcome back</p>
 		<h1 class="font-spaceGrotesk text-3xl font-bold">Login to your account</h1>
 	</div>
-	<form action="" class="flex flex-col gap-6 mb-5">
+	<form action="" class="flex flex-col gap-6 mb-5" onsubmit={emailLogin}>
 		<input
 			type="email"
 			name=""
@@ -54,8 +66,8 @@
 	<div class="mt-16 mb-11">
 		<p>Or login using</p>
 		<div class="flex gap-2.5">
-			<button class=""><img src="https://placehold.co/40" alt="" /></button>
-			<button class=""><img src="https://placehold.co/40" alt="" /></button>
+			<button onclick={googleLogin} class=""><img src="https://placehold.co/40" alt="" /></button>
+			<button onclick={facebookLogin} class=""><img src="https://placehold.co/40" alt="" /></button>
 		</div>
 	</div>
 
