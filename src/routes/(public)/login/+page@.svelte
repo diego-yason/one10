@@ -31,7 +31,7 @@
 	<!-- TODO: add "Studio" outline -->
 	<span class="text-4xl font-spaceGrotesk font-bold">
 		<img src="https://placehold.co/60x50" alt="" class="inline" />
-		<span class="logoOutline text-transparent">Studio</span> Lab
+		<span class="textOutline text-transparent">Studio</span> Lab
 	</span>
 
 	<div class="mb-7 mt-20">
@@ -81,9 +81,5 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
-	}
-
-	.logoOutline {
-		-webkit-text-stroke: 1px #fff;
 	}
 </style>
