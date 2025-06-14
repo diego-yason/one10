@@ -285,3 +285,8 @@ class FirebaseService {
  * const auth = firebaseService.getAuthInstance();
  */
 export const firebase = FirebaseService.getInstance();
+export const auth = firebase.getAuthInstance();
+export const db = firebase.getDbInstance();
+export const functions = firebase.getFunctionsInstance();
+export const database = firebase.getDatabaseInstance();
+export const storage = firebase.getStorageInstance();
