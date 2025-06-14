@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { page } from '$app/state';
 	let { children } = $props();
 </script>
 
@@ -7,14 +8,14 @@
 		<a href="/">
 			<img src="https://placehold.co/100x60" alt="" />
 		</a>
-		<a href="#">Home</a>
+		<a href="/" class:font-bold={page.url.pathname === '/'}>Home</a>
 		<a href="#">Services</a>
 		<a href="#">Track</a>
 		<a href="#">FAQs</a>
 	</div>
 	<div class="flex flex-row gap-14 items-center">
 		<a href="#">Cart</a>
-		<a href="#">Log In</a>
+		<a href="/login">Log In</a>
 	</div>
 </nav>
 
