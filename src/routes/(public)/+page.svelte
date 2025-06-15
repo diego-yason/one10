@@ -49,6 +49,10 @@
 		</div>
 	</div>
 </div>
+<div class="text-center py-24 bg-gray-300">
+	<h2 class="font-spaceGrotesk font-bold text-4xl mb-6">Got some questions?</h2>
+	<a href="#" class="border-2 border-white rounded-4xl px-6 py-2">Read our FAQs</a>
+</div>
 <!-- TODO: add signed in detection -->
 <div class="py-48 flex justify-between px-40">
 	<div>
