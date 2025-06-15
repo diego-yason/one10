@@ -49,6 +49,36 @@
 		</div>
 	</div>
 </div>
+<div class="py-24">
+	<h2>Need some fresh rolls?</h2>
+	<div class="flex gap-7 justify-center">
+		<div class="overflow-hidden rounded-2xl bg-gray-400">
+			<img src="https://placehold.co/333x214" alt="" />
+			<div class="mb-10 mx-8 text-center pt-10">
+				<p class="uppercase text-xs font-spaceGrotesk mb-3.5">Films</p>
+				<p class="font-spaceGrotesk text-xl font-bold mb-3.5">Lorem ipsum dolor sit amet.</p>
+				<button class="px-6 py-2 outline-2 outline-black rounded-4xl">Add to cart</button>
+			</div>
+		</div>
+		<div class="overflow-hidden rounded-2xl bg-gray-400">
+			<img src="https://placehold.co/333x214" alt="" />
+			<div class="mb-10 mx-8 text-center pt-10">
+				<p class="uppercase text-xs font-spaceGrotesk mb-3.5">Films</p>
+				<p class="font-spaceGrotesk text-xl font-bold mb-3.5">Lorem ipsum dolor sit.</p>
+				<button class="px-6 py-2 outline-2 outline-black rounded-4xl">Add to cart</button>
+			</div>
+		</div>
+		<div class="overflow-hidden rounded-2xl bg-gray-400">
+			<img src="https://placehold.co/333x214" alt="" />
+			<div class="mb-10 mx-8 text-center pt-10">
+				<p class="uppercase text-xs font-spaceGrotesk mb-3.5">Films</p>
+				<p class="font-spaceGrotesk text-xl font-bold mb-3.5">Lorem, ipsum dolor.</p>
+				<button class="px-6 py-2 outline-2 outline-black rounded-4xl">Add to cart</button>
+			</div>
+		</div>
+	</div>
+	<a href="#" class="bg-amber-300 px-6 py-2 rounded-4xl inline-block">View all</a>
+</div>
 <div class="text-center py-24 bg-gray-300">
 	<h2 class="font-spaceGrotesk font-bold text-4xl mb-6">Got some questions?</h2>
 	<a href="#" class="border-2 border-white rounded-4xl px-6 py-2">Read our FAQs</a>
