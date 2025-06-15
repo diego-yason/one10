@@ -4,7 +4,7 @@
         <span class="logoOutline text-transparent">Studio</span> Lab
     </span>
 
-    <div class="mb-7 mt-20">
+    <div class="mb-7 mt-10">
         <h1 class="font-spaceGrotesk text-3xl font-bold">Create your account</h1>
     </div>
     <form action="" class="flex flex-col gap-6 mb-5">
