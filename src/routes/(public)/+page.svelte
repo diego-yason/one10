@@ -49,3 +49,15 @@
 		</div>
 	</div>
 </div>
+<!-- TODO: add signed in detection -->
+<div class="py-48 flex justify-between px-40">
+	<div>
+		<h2 class="font-spaceGrotesk font-bold text-8xl text-white mb-7">
+			<span class="block textOutline text-transparent">Sign up</span> and save
+		</h2>
+		<p class="text-white font-roboto">Register and Subscribe to get special offers</p>
+	</div>
+	<a href="#" class="bg-amber-300 font-roboto rounded-4xl px-6 py-2 h-min self-center"
+		>Register / Log in</a
+	>
+</div>
