@@ -3,7 +3,11 @@
 	let { children } = $props();
 </script>
 
-<nav class="flex justify-between py-10 px-32 font-poppins text-white w-full absolute">
+<!-- DEVNOTE: absolute as a conditional class is done since it seems to only be needed for landing page -->
+<nav
+	class="flex justify-between py-10 px-32 font-poppins text-white w-full"
+	class:absolute={page.url.pathname === '/'}
+>
 	<div class="flex flex-row gap-20 items-center">
 		<a href="/">
 			<img src="https://placehold.co/100x60" alt="" />
@@ -19,7 +23,7 @@
 	</div>
 </nav>
 
-{@render children()}
+<main class="min-h-screen">{@render children()}</main>
 
 <!-- footer -->
 <footer
