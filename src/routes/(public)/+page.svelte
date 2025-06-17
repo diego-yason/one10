@@ -50,8 +50,8 @@
 	</div>
 </div>
 <div class="py-24">
-	<h2>Need some fresh rolls?</h2>
-	<div class="flex gap-7 justify-center">
+	<h2 class="text-center font-spaceGrotesk text-4xl font-bold mb-20">Need some fresh rolls?</h2>
+	<div class="flex gap-7 justify-center mb-16">
 		<div class="overflow-hidden rounded-2xl bg-gray-400">
 			<img src="https://placehold.co/333x214" alt="" />
 			<div class="mb-10 mx-8 text-center pt-10">
@@ -77,7 +77,9 @@
 			</div>
 		</div>
 	</div>
-	<a href="#" class="bg-amber-300 px-6 py-2 rounded-4xl inline-block">View all</a>
+	<a href="#" class="bg-amber-300 px-6 py-2 rounded-4xl block w-min whitespace-nowrap mx-auto">
+		View all
+	</a>
 </div>
 <div class="text-center py-24 bg-gray-300">
 	<h2 class="font-spaceGrotesk font-bold text-4xl mb-6">Got some questions?</h2>
