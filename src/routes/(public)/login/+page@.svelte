@@ -57,7 +57,7 @@
 		/>
 		<button class="bg-amber-600 text-white py-2">Login</button>
 	</form>
-	<a href="/forgot-password" class="text-[#F2C94C] underline">Forgot password?</a>
+	<a href="/login/reset" class="text-[#F2C94C] underline">Forgot password?</a>
 
 	<div class="mt-16 mb-11">
 		<p>Or login using</p>
