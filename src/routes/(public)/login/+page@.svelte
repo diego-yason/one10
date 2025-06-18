@@ -9,19 +9,50 @@
 	} from 'firebase/auth';
 	import { goto } from '$app/navigation';
 
-	// TODO: implement form validation
 	const schema = z.object({
-		email: z.email('Invalid email address'),
+		email: z.string().email('Invalid email address'),
 		password: z.string().min(6, 'Password must be at least 6 characters long')
 	});
 
 	let email = '';
 	let password = '';
-	const emailLogin = () => signInWithEmailAndPassword(auth, email, password).then(() => goto('/'));
+	let error = '';
 
-	const googleLogin = () => signInWithPopup(auth, new GoogleAuthProvider()).then(() => goto('/'));
-	const facebookLogin = () =>
-		signInWithPopup(auth, new FacebookAuthProvider()).then(() => goto('/'));
+	const handleEmailLogin = async (e: SubmitEvent) => {
+		e.preventDefault();
+		error = '';
+		
+		try {
+			const result = schema.safeParse({ email, password });
+			if (!result.success) {
+				error = result.error.errors[0].message;
+				return;
+			}
+			
+			await signInWithEmailAndPassword(auth, email, password);
+			goto('/');
+		} catch (err) {
+			error = err instanceof Error ? err.message : 'An error occurred during login';
+		}
+	};
+
+	const googleLogin = async () => {
+		try {
+			await signInWithPopup(auth, new GoogleAuthProvider());
+			goto('/');
+		} catch (err) {
+			error = err instanceof Error ? err.message : 'An error occurred during Google login';
+		}
+	};
+
+	const facebookLogin = async () => {
+		try {
+			await signInWithPopup(auth, new FacebookAuthProvider());
+			goto('/');
+		} catch (err) {
+			error = err instanceof Error ? err.message : 'An error occurred during Facebook login';
+		}
+	};
 </script>
 
 <div class="login-container">
@@ -33,36 +64,43 @@
 			<span class="textOutline text-transparent">Studio</span> Lab
 		</span>
 
-		<div class="mb-7 mt-8">
+		<div class="mb-7 mt-20">
 			<p class="text-xs">Welcome back</p>
 			<h1 class="font-spaceGrotesk text-3xl font-bold">Login to your account</h1>
 		</div>
-		<form action="" class="flex flex-col gap-6 mb-5" onsubmit={emailLogin}>
+
+		{#if error}
+			<div class="bg-red-500/10 border border-red-500 text-red-500 p-3 mb-5 rounded">
+				{error}
+			</div>
+		{/if}
+
+		<form on:submit={handleEmailLogin} class="flex flex-col gap-6 mb-5">
 			<input
 				type="email"
-				name=""
-				id=""
+				name="email"
 				placeholder="Please enter your email"
 				class="bg-white p-3 text-gray-800"
 				bind:value={email}
 			/>
 			<input
 				type="password"
-				name=""
-				id=""
+				name="password"
 				placeholder="Enter password"
 				class="bg-white p-3 text-gray-800"
 				bind:value={password}
 			/>
-			<button class="bg-amber-600 text-white py-2">Login</button>
+			<button type="submit" class="bg-amber-600 text-white py-2 hover:bg-amber-700 transition-colors">
+				Login
+			</button>
 		</form>
 		<a href="/login/reset" class="text-[#F2C94C] underline">Forgot password?</a>
 
-		<div class="mt-8 mb-11">
+		<div class="mt-16 mb-11">
 			<p>Or login using</p>
 			<div class="flex gap-2.5">
-				<button onclick={googleLogin} class=""><img src="https://placehold.co/40" alt="" /></button>
-				<button onclick={facebookLogin} class=""><img src="https://placehold.co/40" alt="" /></button>
+				<button on:click={googleLogin} class=""><img src="https://placehold.co/40" alt="Login with Google" /></button>
+				<button on:click={facebookLogin} class=""><img src="https://placehold.co/40" alt="Login with Facebook" /></button>
 			</div>
 		</div>
 

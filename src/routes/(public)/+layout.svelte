@@ -1,6 +1,11 @@
 <script lang="ts">
 	import { page } from '$app/state';
+	import { user } from '$lib/stores/auth';
+	import { signOut } from 'firebase/auth';
+	import { auth } from '$lib/firebase';
 	let { children } = $props();
+
+	const handleSignOut = () => signOut(auth);
 </script>
 
 <nav class="flex justify-between py-10 px-32 font-poppins text-white w-full absolute">
@@ -14,8 +19,13 @@
 		<a href="/faq">FAQs</a>
 	</div>
 	<div class="flex flex-row gap-14 items-center">
-		<a href="/cart">Cart</a>
-		<a href="/login">Log In</a>
+		{#if $user}
+			<span class="text-sm">Welcome, {$user.email}</span>
+			<a href="/cart">Cart</a>
+			<button on:click={handleSignOut} class="hover:text-amber-300 transition-colors">Sign Out</button>
+		{:else}
+			<a href="/login">Log In</a>
+		{/if}
 	</div>
 </nav>
 
