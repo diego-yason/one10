@@ -11,10 +11,10 @@
 		<a href="/" class:font-semibold={page.url.pathname === '/'}>Home</a>
 		<a href="#">Services</a>
 		<a href="#">Track</a>
-		<a href="#">FAQs</a>
+		<a href="/faq">FAQs</a>
 	</div>
 	<div class="flex flex-row gap-14 items-center">
-		<a href="#">Cart</a>
+		<a href="/cart">Cart</a>
 		<a href="/login">Log In</a>
 	</div>
 </nav>
