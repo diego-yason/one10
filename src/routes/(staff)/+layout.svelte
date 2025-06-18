@@ -1,12 +1,18 @@
 <script>
-    // You can add logic for active links or user info here if needed
+    import { page } from '$app/stores';
 </script>
 
 <style>
+    :global(body) {
+        background: #ddd;
+        margin: 0;
+        min-height: 100vh;
+    }
     .layout-container {
         display: flex;
         min-height: 100vh;
-        background: #222;
+        /* Remove the dark background */
+        background: transparent;
     }
     .sidebar {
         width: 260px;
@@ -57,13 +63,15 @@
 <div class="layout-container">
     <div class="sidebar">
         <div>
-            <div style="font-size:2rem;font-weight:bold;margin-bottom:2rem;">110°</div>
+            <a href="/dashboard">
+			<img src="https://placehold.co/100x60" alt="" />
+		    </a>
             <hr style="margin-bottom:2rem;">
             <nav>
-                <a href="/(staff)/dashboard" class:active={$page.url.pathname === '/(staff)/dashboard'}>Dashboard</a>
-                <a href="/(staff)/orders" class:active={$page.url.pathname.startsWith('/(staff)/orders')}>Manage Orders</a>
-                <a href="/(staff)/products" class:active={$page.url.pathname.startsWith('/(staff)/products')}>Manage Prices</a>
-                <a href="/(staff)/messages" class:active={$page.url.pathname.startsWith('/(staff)/messages')}>Messages</a>
+                <a href="/dashboard" class:active={$page.url.pathname === '/dashboard'}>Dashboard</a>
+                <a href="/orders" class:active={$page.url.pathname.startsWith('/orders')}>Manage Orders</a>
+                <a href="/products" class:active={$page.url.pathname.startsWith('/products')}>Manage Prices</a>
+                <a href="/messages" class:active={$page.url.pathname.startsWith('/messages')}>Messages</a>
             </nav>
         </div>
         <button>Log out</button>
