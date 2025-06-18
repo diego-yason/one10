@@ -6,4 +6,6 @@
 	import '../app.css';
 </script>
 
-{@render children()}
+<div class="font-openSans bg-gray-500">
+	{@render children()}
+</div>
