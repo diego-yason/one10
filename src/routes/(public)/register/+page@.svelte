@@ -1,8 +1,7 @@
 <script lang="ts">
-	import { createUserWithEmailAndPassword } from 'firebase/auth';
+	import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth';
 	import { auth } from '$lib/firebase';
 	import { goto } from '$app/navigation';
-	import { createOrUpdateUser } from '$lib/stores/auth';
 	import { z } from 'zod/v4';
 
 	const schema = z.object({
@@ -25,19 +24,36 @@
 		try {
 			const result = schema.safeParse({ firstName, lastName, email, password });
 			if (!result.success) {
-				error = result.error.errors[0].message;
+				error = result.error.errors?.map(e => e.message).join(', ') || 'Invalid input';
 				return;
 			}
 
 			const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-			await createOrUpdateUser(userCredential.user, {
-				firstName,
-				lastName,
-				email
-			});
 			goto('/');
 		} catch (err) {
 			error = err instanceof Error ? err.message : 'An error occurred during registration';
+		}
+	};
+
+	const handleGoogleSignIn = async () => {
+		error = '';
+		try {
+			const provider = new GoogleAuthProvider();
+			await signInWithPopup(auth, provider);
+			goto('/');
+		} catch (err) {
+			error = err instanceof Error ? err.message : 'An error occurred during Google sign-in';
+		}
+	};
+
+	const handleFacebookSignIn = async () => {
+		error = '';
+		try {
+			const provider = new FacebookAuthProvider();
+			await signInWithPopup(auth, provider);
+			goto('/');
+		} catch (err) {
+			error = err instanceof Error ? err.message : 'An error occurred during Facebook sign-in';
 		}
 	};
 </script>
@@ -100,8 +116,8 @@
 		<div class="mt-16 mb-11">
 			<p>Or create an account using</p>
 			<div class="flex gap-2.5">
-				<button class=""><img src="https://placehold.co/40" alt="Sign up with Google" /></button>
-				<button class=""><img src="https://placehold.co/40" alt="Sign up with Facebook" /></button>
+				<button type="button" on:click={handleGoogleSignIn}><img src="https://placehold.co/40" alt="Sign up with Google" /></button>
+				<button type="button" on:click={handleFacebookSignIn}><img src="https://placehold.co/40" alt="Sign up with Facebook" /></button>
 			</div>
 		</div>
 		<p>

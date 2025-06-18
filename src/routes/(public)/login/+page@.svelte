@@ -25,7 +25,7 @@
 		try {
 			const result = schema.safeParse({ email, password });
 			if (!result.success) {
-				error = result.error.errors[0].message;
+				error = result.error.errors?.[0]?.message || 'Invalid input';
 				return;
 			}
 			

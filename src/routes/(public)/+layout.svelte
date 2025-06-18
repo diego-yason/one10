@@ -20,7 +20,6 @@
 	</div>
 	<div class="flex flex-row gap-14 items-center">
 		{#if $user}
-			<span class="text-sm">Welcome, {$user.email}</span>
 			<a href="/cart">Cart</a>
 			<button on:click={handleSignOut} class="hover:text-amber-300 transition-colors">Sign Out</button>
 		{:else}
