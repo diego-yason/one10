@@ -64,16 +64,18 @@
 			<span class="textOutline text-transparent">Studio</span> Lab
 		</span>
 
-		<div class="mb-7 mt-20">
+		<div class="mb-7 mt-10">
 			<p class="text-xs">Welcome back</p>
 			<h1 class="font-spaceGrotesk text-3xl font-bold">Login to your account</h1>
 		</div>
 
-		{#if error}
-			<div class="bg-red-500/10 border border-red-500 text-red-500 p-3 mb-5 rounded">
-				{error}
-			</div>
-		{/if}
+		<div style="min-height: 56px; margin-bottom: 20px;">
+			{#if error}
+				<div class="bg-red-500/10 border border-red-500 text-red-500 p-3 mb-5 rounded">
+					{error}
+				</div>
+			{/if}
+		</div>
 
 		<form on:submit={handleEmailLogin} class="flex flex-col gap-6 mb-5">
 			<input
@@ -96,15 +98,15 @@
 		</form>
 		<a href="/login/reset" class="text-[#F2C94C] underline">Forgot password?</a>
 
-		<div class="mt-16 mb-11">
+		<div class="mt-5 mb-11">
 			<p>Or login using</p>
-			<div class="flex gap-2.5">
+			<div class="flex gap-2.5 mb-5">
 				<button on:click={googleLogin} class=""><img src="https://placehold.co/40" alt="Login with Google" /></button>
 				<button on:click={facebookLogin} class=""><img src="https://placehold.co/40" alt="Login with Facebook" /></button>
 			</div>
-		</div>
 
-		<p>Not registered? <a href="/register" class="text-brand underline">Create an account</a></p>
+			Not registered? <a href="/register" class="text-brand underline">Create an account</a>
+		</div>
 	</div>
 </div>
 
