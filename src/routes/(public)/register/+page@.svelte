@@ -4,56 +4,83 @@
 	import { goto } from '$app/navigation';
 	import { z } from 'zod/v4';
 
-	const schema = z.object({
-		firstName: z.string().min(1, 'First name is required'),
-		lastName: z.string().min(1, 'Last name is required'),
-		email: z.string().email('Invalid email address'),
-		password: z.string().min(6, 'Password must be at least 6 characters long')
+	const registerSchema = z.object({
+		firstName: z.string().min(1, "First name is required."),
+		lastName: z.string().min(1, "Last name is required."),
+		email: z.string().email("Please enter a valid email address."),
+		password: z.string().min(6, "Password must be at least 6 characters."),
 	});
 
 	let firstName = '';
 	let lastName = '';
 	let email = '';
 	let password = '';
-	let error = '';
+	let errorMessages: string[] = [];
+
+	function getFirebaseErrorMessage(error: any): string {
+		if (!error || typeof error.code !== 'string') return 'An unknown error occurred.';
+
+		switch (error.code) {
+			case 'auth/email-already-in-use':
+				return 'This email is already registered.';
+			case 'auth/invalid-email':
+				return 'The email address is invalid.';
+			case 'auth/user-not-found':
+				return 'No account found with this email.';
+			case 'auth/wrong-password':
+				return 'Incorrect password.';
+			case 'auth/weak-password':
+				return 'Password should be at least 6 characters.';
+			case 'auth/popup-closed-by-user':
+				return 'The sign-in popup was closed before completing the sign in.';
+			case 'auth/popup-blocked':
+				return 'The sign-in popup was blocked by your browser.';
+			case 'auth/network-request-failed':
+				return 'Network error. Please check your connection and try again.';
+			default:
+				return error.message || 'An unknown error occurred.';
+		}
+	}
 
 	const handleRegister = async (e: SubmitEvent) => {
 		e.preventDefault();
-		error = '';
-		
-		try {
-			const result = schema.safeParse({ firstName, lastName, email, password });
-			if (!result.success) {
-				error = result.error.errors?.map(e => e.message).join(', ') || 'Invalid input';
-				return;
-			}
+		errorMessages = [];
 
-			const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+		const result = registerSchema.safeParse({ firstName, lastName, email, password });
+		if (!result.success) {
+			errorMessages = result.error && Array.isArray(result.error.errors)
+				? result.error.errors.map(e => e.message)
+				: ['Invalid input'];
+			return;
+		}
+
+		try {
+			await createUserWithEmailAndPassword(auth, email, password);
 			goto('/');
 		} catch (err) {
-			error = err instanceof Error ? err.message : 'An error occurred during registration';
+			errorMessages = [getFirebaseErrorMessage(err)];
 		}
 	};
 
 	const handleGoogleSignIn = async () => {
-		error = '';
+		errorMessages = [];
 		try {
 			const provider = new GoogleAuthProvider();
 			await signInWithPopup(auth, provider);
 			goto('/');
 		} catch (err) {
-			error = err instanceof Error ? err.message : 'An error occurred during Google sign-in';
+			errorMessages = [getFirebaseErrorMessage(err)];
 		}
 	};
 
 	const handleFacebookSignIn = async () => {
-		error = '';
+		errorMessages = [];
 		try {
 			const provider = new FacebookAuthProvider();
 			await signInWithPopup(auth, provider);
 			goto('/');
 		} catch (err) {
-			error = err instanceof Error ? err.message : 'An error occurred during Facebook sign-in';
+			errorMessages = [getFirebaseErrorMessage(err)];
 		}
 	};
 </script>
@@ -70,9 +97,13 @@
 		</div>
 
 		<div style="min-height: 56px; margin-bottom: 20px;">
-			{#if error}
+			{#if errorMessages.length}
 				<div class="bg-red-500/10 border border-red-500 text-red-500 p-3 mb-5 rounded">
-					{error}
+					<ul>
+						{#each errorMessages as errMsg}
+							<li>{errMsg}</li>
+						{/each}
+					</ul>
 				</div>
 			{/if}
 		</div>
@@ -84,7 +115,6 @@
 				placeholder="First name"
 				class="bg-white p-3 text-gray-800"
 				bind:value={firstName}
-				required
 			/>
 			<input
 				type="text"
@@ -92,15 +122,13 @@
 				placeholder="Last name"
 				class="bg-white p-3 text-gray-800"
 				bind:value={lastName}
-				required
 			/>
 			<input
-				type="email"
+				type="text"
 				name="email"
 				placeholder="Please enter your email"
 				class="bg-white p-3 text-gray-800"
 				bind:value={email}
-				required
 			/>
 			<input
 				type="password"
@@ -108,7 +136,6 @@
 				placeholder="Enter password"
 				class="bg-white p-3 text-gray-800"
 				bind:value={password}
-				required
 			/>
 			<button type="submit" class="bg-amber-600 text-white py-2 hover:bg-amber-700 transition-colors">
 				Sign up

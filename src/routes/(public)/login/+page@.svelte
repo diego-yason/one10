@@ -9,30 +9,57 @@
 	} from 'firebase/auth';
 	import { goto } from '$app/navigation';
 
-	const schema = z.object({
-		email: z.string().email('Invalid email address'),
-		password: z.string().min(6, 'Password must be at least 6 characters long')
+	const loginSchema = z.object({
+		email: z.string().email("Please enter a valid email address."),
+		password: z.string().min(6, "Password must be at least 6 characters."),
 	});
 
 	let email = '';
 	let password = '';
-	let error = '';
+	let errorMessages: string[] = [];
+
+	function getFirebaseErrorMessage(error: any): string {
+		if (!error || typeof error.code !== 'string') return 'An unknown error occurred.';
+
+		switch (error.code) {
+			case 'auth/email-already-in-use':
+				return 'This email is already registered.';
+			case 'auth/invalid-email':
+				return 'The email address is invalid.';
+			case 'auth/user-not-found':
+				return 'No account found with this email.';
+			case 'auth/wrong-password':
+				return 'Incorrect password.';
+			case 'auth/weak-password':
+				return 'Password should be at least 6 characters.';
+			case 'auth/popup-closed-by-user':
+				return 'The sign-in popup was closed before completing the sign in.';
+			case 'auth/popup-blocked':
+				return 'The sign-in popup was blocked by your browser.';
+			case 'auth/network-request-failed':
+				return 'Network error. Please check your connection and try again.';
+			default:
+				return error.message || 'An unknown error occurred.';
+		}
+	}
 
 	const handleEmailLogin = async (e: SubmitEvent) => {
 		e.preventDefault();
-		error = '';
-		
+		errorMessages = [];
+
+		const result = loginSchema.safeParse({ email, password });
+		if (!result.success) {
+			errorMessages = result.error && Array.isArray(result.error.errors)
+				? result.error.errors.map(e => e.message)
+				: ['Invalid input'];
+			return;
+		}
+
 		try {
-			const result = schema.safeParse({ email, password });
-			if (!result.success) {
-				error = result.error.errors?.[0]?.message || 'Invalid input';
-				return;
-			}
-			
 			await signInWithEmailAndPassword(auth, email, password);
 			goto('/');
 		} catch (err) {
-			error = err instanceof Error ? err.message : 'An error occurred during login';
+			errorMessages = [getFirebaseErrorMessage(err)];
 		}
 	};
 
@@ -41,7 +68,7 @@
 			await signInWithPopup(auth, new GoogleAuthProvider());
 			goto('/');
 		} catch (err) {
-			error = err instanceof Error ? err.message : 'An error occurred during Google login';
+			errorMessages = [getFirebaseErrorMessage(err)];
 		}
 	};
 
@@ -50,7 +77,7 @@
 			await signInWithPopup(auth, new FacebookAuthProvider());
 			goto('/');
 		} catch (err) {
-			error = err instanceof Error ? err.message : 'An error occurred during Facebook login';
+			errorMessages = [getFirebaseErrorMessage(err)];
 		}
 	};
 </script>
@@ -70,16 +97,20 @@
 		</div>
 
 		<div style="min-height: 56px; margin-bottom: 20px;">
-			{#if error}
+			{#if errorMessages.length}
 				<div class="bg-red-500/10 border border-red-500 text-red-500 p-3 mb-5 rounded">
-					{error}
+					<ul>
+						{#each errorMessages as errMsg}
+							<li>{errMsg}</li>
+						{/each}
+					</ul>
 				</div>
 			{/if}
 		</div>
 
 		<form on:submit={handleEmailLogin} class="flex flex-col gap-6 mb-5">
 			<input
-				type="email"
+				type="text"
 				name="email"
 				placeholder="Please enter your email"
 				class="bg-white p-3 text-gray-800"
