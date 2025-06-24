@@ -1,21 +1,41 @@
 <script lang="ts">
+	import { page } from '$app/state';
+	import { user } from '$lib/stores/auth';
+	import { signOut } from 'firebase/auth';
+	import { auth } from '$lib/firebase';
 	let { children } = $props();
+
+	const handleSignOut = () => signOut(auth);
 </script>
 
-<nav class="flex justify-between py-10 px-32 font-poppins">
+<nav class="flex justify-between py-10 px-32 font-poppins text-white w-full absolute">
 	<div class="flex flex-row gap-20 items-center">
 		<a href="/">
 			<img src="https://placehold.co/100x60" alt="" />
 		</a>
-		<a href="#">Home</a>
+		<a href="/" class:font-semibold={page.url.pathname === '/'}>Home</a>
 		<a href="#">Services</a>
 		<a href="#">Track</a>
-		<a href="#">FAQs</a>
+		<a href="/faq">FAQs</a>
 	</div>
 	<div class="flex flex-row gap-14 items-center">
-		<a href="#">Cart</a>
-		<a href="#">Log In</a>
+		{#if $user}
+			<a href="/cart">Cart</a>
+			<button on:click={handleSignOut} class="hover:text-amber-300 transition-colors">Sign Out</button>
+		{:else}
+			<a href="/login">Log In</a>
+		{/if}
 	</div>
 </nav>
 
 {@render children()}
+
+<!-- footer -->
+<footer
+	class="bg-[#333] font-roboto text-[#7A7A7A] flex flex-row justify-between pt-12 pb-20 px-44"
+>
+	<p>One 10 Studio Lab | Muntinlupa City, Metro Manila</p>
+	<p>
+		Copyright © 2025, <span class="text-amber-300">One 10 Studio Lab</span> | All rights reserved.
+	</p>
+</footer>
