@@ -1,43 +1,169 @@
-<div class="mx-auto w-96 text-gray-100">
-	<span class="text-4xl font-spaceGrotesk font-bold">
-		<img src="https://placehold.co/60x50" alt="" class="inline" />
-		<span class="textOutline text-transparent">Studio</span> Lab
-	</span>
+<script lang="ts">
+	import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth';
+	import { auth } from '$lib/firebase';
+	import { goto } from '$app/navigation';
+	import { z } from 'zod/v4';
 
-	<div class="mb-7 mt-20">
-		<h1 class="font-spaceGrotesk text-3xl font-bold">Create your account</h1>
-	</div>
-	<form action="" class="flex flex-col gap-6 mb-5">
-		<input type="text" placeholder="First name" class="bg-white p-3 text-gray-800" />
-		<input type="text" placeholder="Last name" class="bg-white p-3 text-gray-800" />
-		<input type="email" placeholder="Please enter your email" class="bg-white p-3 text-gray-800" />
-		<input type="password" placeholder="Enter password" class="bg-white p-3 text-gray-800" />
-		<button class="bg-amber-600 text-white py-2">Sign up</button>
-	</form>
+	const registerSchema = z.object({
+		firstName: z.string().min(1, "First name is required."),
+		lastName: z.string().min(1, "Last name is required."),
+		email: z.string().email("Please enter a valid email address."),
+		password: z.string().min(6, "Password must be at least 6 characters."),
+	});
 
-	<div class="mt-16 mb-11">
-		<p>Or create an account using</p>
-		<div class="flex gap-2.5">
-			<button class=""><img src="https://placehold.co/40" alt="" /></button>
-			<button class=""><img src="https://placehold.co/40" alt="" /></button>
+	let firstName = '';
+	let lastName = '';
+	let email = '';
+	let password = '';
+	let errorMessages: string[] = [];
+
+	function getFirebaseErrorMessage(error: any): string {
+		if (!error || typeof error.code !== 'string') return 'An unknown error occurred.';
+
+		switch (error.code) {
+			case 'auth/email-already-in-use':
+				return 'This email is already registered.';
+			case 'auth/invalid-email':
+				return 'The email address is invalid.';
+			case 'auth/user-not-found':
+				return 'No account found with this email.';
+			case 'auth/wrong-password':
+				return 'Incorrect password.';
+			case 'auth/weak-password':
+				return 'Password should be at least 6 characters.';
+			case 'auth/popup-closed-by-user':
+				return 'The sign-in popup was closed before completing the sign in.';
+			case 'auth/popup-blocked':
+				return 'The sign-in popup was blocked by your browser.';
+			case 'auth/network-request-failed':
+				return 'Network error. Please check your connection and try again.';
+			default:
+				return error.message || 'An unknown error occurred.';
+		}
+	}
+
+	const handleRegister = async (e: SubmitEvent) => {
+		e.preventDefault();
+		errorMessages = [];
+
+		const result = registerSchema.safeParse({ firstName, lastName, email, password });
+		if (!result.success) {
+			if (result.error && Array.isArray(result.error.errors)) {
+				errorMessages = result.error.errors.map(e => e.message);
+			} else {
+				errorMessages = ['Invalid input.'];
+			}
+			return;
+		}
+
+		try {
+			await createUserWithEmailAndPassword(auth, email, password);
+			goto('/');
+		} catch (err) {
+			errorMessages = [getFirebaseErrorMessage(err)];
+		}
+	};
+
+	const handleGoogleSignIn = async () => {
+		errorMessages = [];
+		try {
+			const provider = new GoogleAuthProvider();
+			await signInWithPopup(auth, provider);
+			goto('/');
+		} catch (err) {
+			errorMessages = [getFirebaseErrorMessage(err)];
+		}
+	};
+
+	const handleFacebookSignIn = async () => {
+		errorMessages = [];
+		try {
+			const provider = new FacebookAuthProvider();
+			await signInWithPopup(auth, provider);
+			goto('/');
+		} catch (err) {
+			errorMessages = [getFirebaseErrorMessage(err)];
+		}
+	};
+</script>
+
+<div class="register-container">
+	<div class="mx-auto w-96 text-gray-100 mt-5">
+		<span class="text-4xl font-spaceGrotesk font-bold">
+			<img src="https://placehold.co/60x50" alt="" class="inline" />
+			<span class="textOutline text-transparent">Studio</span> Lab
+		</span>
+
+		<div class="mb-7 mt-8">
+			<h1 class="font-spaceGrotesk text-3xl font-bold">Create your account</h1>
+		</div>
+
+		{#if errorMessages.length}
+			<div class="bg-red-500/10 border border-red-500 text-red-500 p-3 mb-5 rounded">
+				<ul>
+					{#each errorMessages as errMsg}
+						<li>{errMsg}</li>
+					{/each}
+				</ul>
+			</div>
+		{/if}
+
+		<form on:submit={handleRegister} class="flex flex-col gap-6 mb-5">
+			<input
+				type="text"
+				name="firstName"
+				placeholder="First name"
+				class="bg-white p-3 text-gray-800"
+				bind:value={firstName}
+			/>
+			<input
+				type="text"
+				name="lastName"
+				placeholder="Last name"
+				class="bg-white p-3 text-gray-800"
+				bind:value={lastName}
+			/>
+			<input
+				type="text"
+				name="email"
+				placeholder="Please enter your email"
+				class="bg-white p-3 text-gray-800"
+				bind:value={email}
+			/>
+			<input
+				type="password"
+				name="password"
+				placeholder="Enter password"
+				class="bg-white p-3 text-gray-800"
+				bind:value={password}
+			/>
+			<button type="submit" class="bg-amber-600 text-white py-2 hover:bg-amber-700 transition-colors">
+				Sign up
+			</button>
+		</form>
+
+		<div class="mt-5 mb-11">
+			<p>Or create an account using</p>
+			<div class="flex gap-2.5 mb-5">
+				<button type="button" on:click={handleGoogleSignIn}><img src="https://placehold.co/40" alt="Sign up with Google" /></button>
+				<button type="button" on:click={handleFacebookSignIn}><img src="https://placehold.co/40" alt="Sign up with Facebook" /></button>
+			</div>
+
+			Already have an account?
+			<a href="/login" class="text-brand underline">Log in</a>
 		</div>
 	</div>
-	<p>
-		Already have an account?
-		<a href="/login" class="text-brand underline">Log in</a>
-	</p>
 </div>
 
 <style lang="postcss">
-	:global(body) {
+	.register-container {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		min-height: 100vh;
 		background-image: url('https://www.pbs.org/wnet/nature/files/2021/01/pexels-denis-linine-714258.png');
 		background-size: cover;
 		background-position: center;
 		background-repeat: no-repeat;
-		height: 100vh;
-
-		display: flex;
-		justify-content: center;
-		align-items: center;
 	}
 </style>
