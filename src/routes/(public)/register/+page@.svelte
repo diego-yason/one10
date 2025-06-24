@@ -48,9 +48,11 @@
 
 		const result = registerSchema.safeParse({ firstName, lastName, email, password });
 		if (!result.success) {
-			errorMessages = result.error && Array.isArray(result.error.errors)
-				? result.error.errors.map(e => e.message)
-				: ['Invalid input'];
+			if (result.error && Array.isArray(result.error.errors)) {
+				errorMessages = result.error.errors.map(e => e.message);
+			} else {
+				errorMessages = ['Invalid input.'];
+			}
 			return;
 		}
 
@@ -96,17 +98,15 @@
 			<h1 class="font-spaceGrotesk text-3xl font-bold">Create your account</h1>
 		</div>
 
-		<div style="min-height: 56px; margin-bottom: 20px;">
-			{#if errorMessages.length}
-				<div class="bg-red-500/10 border border-red-500 text-red-500 p-3 mb-5 rounded">
-					<ul>
-						{#each errorMessages as errMsg}
-							<li>{errMsg}</li>
-						{/each}
-					</ul>
-				</div>
-			{/if}
-		</div>
+		{#if errorMessages.length}
+			<div class="bg-red-500/10 border border-red-500 text-red-500 p-3 mb-5 rounded">
+				<ul>
+					{#each errorMessages as errMsg}
+						<li>{errMsg}</li>
+					{/each}
+				</ul>
+			</div>
+		{/if}
 
 		<form on:submit={handleRegister} class="flex flex-col gap-6 mb-5">
 			<input

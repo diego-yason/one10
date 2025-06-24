@@ -1,9 +1,19 @@
 <script lang="ts">
+    import { sendPasswordResetEmail } from 'firebase/auth';
+    import { auth } from '$lib/firebase';
     let email = '';
-    function handleSubmit(event: Event) {
+    let errorMessage: string = '';
+    let successMessage: string = '';
+    async function handleSubmit(event: Event) {
         event.preventDefault();
-        // TODO: Add your password reset logic here
-        alert(`Password reset link sent to ${email}`);
+        errorMessage = '';
+        successMessage = '';
+        try {
+            await sendPasswordResetEmail(auth, email);
+            successMessage = `Password reset link sent to ${email}`;
+        } catch (error) {
+            errorMessage = 'Failed to send password reset email: ' + (error instanceof Error ? error.message : error);
+        }
     }
 </script>
 
@@ -16,10 +26,21 @@
 
         <div class="mt-10"></div>
         <h1 class="font-spaceGrotesk text-3xl font-bold mb-6">Forgot Password</h1>
+        {#if errorMessage}
+            <div class="bg-red-500/10 border border-red-500 text-red-500 p-3 mb-5 rounded">
+                {errorMessage}
+            </div>
+        {/if}
+        {#if successMessage}
+            <div class="bg-green-500/10 border border-green-500 text-green-500 p-3 mb-5 rounded">
+                {successMessage}
+            </div>
+        {/if}
         <form on:submit|preventDefault={handleSubmit} class="flex flex-col gap-6 mb-5">
             <input
                 type="email"
                 bind:value={email}
+                on:input={() => { errorMessage = ''; successMessage = ''; }}
                 placeholder="Enter your email"
                 class="bg-white p-3 text-gray-800"
                 required
