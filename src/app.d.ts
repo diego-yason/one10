@@ -6,7 +6,17 @@ declare global {
 		// interface Locals {}
 		// interface PageData {}
 		// interface PageState {}
-		// interface Platform {}
+		interface Platform {
+			env: {
+				COUNTER: DurableObjectNamespace;
+			};
+			context: {
+				// this is provided by cloudflare
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				waitUntil(promise: Promise<any>): void;
+			};
+			caches: CacheStorage & { default: Cache };
+		}
 	}
 }
 
