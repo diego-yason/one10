@@ -61,7 +61,7 @@
 			const userCredential = await signInWithEmailAndPassword(auth, email, password);
 			const user = userCredential.user;
 			if (user.email && user.email.endsWith('@one10.com')) {
-				goto('/staff-design');
+				goto('/dashboard');
 			} else {
 				goto('/');
 			}
@@ -75,7 +75,7 @@
 			const result = await signInWithPopup(auth, new GoogleAuthProvider());
 			const user = result.user;
 			if (user.email && user.email.endsWith('@one10.com')) {
-				goto('/staff-design');
+				goto('/dashboard');
 			} else {
 				goto('/');
 			}
@@ -89,7 +89,7 @@
 			const result = await signInWithPopup(auth, new FacebookAuthProvider());
 			const user = result.user;
 			if (user.email && user.email.endsWith('@one10.com')) {
-				goto('/staff-design');
+				goto('/dashboard');
 			} else {
 				goto('/');
 			}
