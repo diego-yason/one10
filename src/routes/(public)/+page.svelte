@@ -1,3 +1,16 @@
+<script lang="ts">
+	import { products, loading, error } from '$lib/stores/products';
+	import { onMount } from 'svelte';
+	import { loadProducts } from '$lib/stores/products';
+
+	onMount(() => {
+		loadProducts();
+	});
+
+	// Get available products for display
+	$: availableProducts = $products.filter(product => product.status === 'available').slice(0, 3);
+</script>
+
 <div class="h-screen flex flex-col items-center justify-center">
 	<span class="text-4xl font-spaceGrotesk font-bold text-white">
 		<img src="https://placehold.co/60x50" alt="" class="inline" />
@@ -51,32 +64,47 @@
 </div>
 <div class="py-24">
 	<h2 class="text-center font-spaceGrotesk text-4xl font-bold mb-20">Need some fresh rolls?</h2>
-	<div class="flex gap-7 justify-center mb-16">
-		<div class="overflow-hidden rounded-2xl bg-gray-400">
-			<img src="https://placehold.co/333x214" alt="" />
-			<div class="mb-10 mx-8 text-center pt-10">
-				<p class="uppercase text-xs font-spaceGrotesk mb-3.5">Films</p>
-				<p class="font-spaceGrotesk text-xl font-bold mb-3.5">Lorem ipsum dolor sit amet.</p>
-				<button class="px-6 py-2 outline-2 outline-black rounded-4xl">Add to cart</button>
+	
+	{#if $loading}
+		<div class="flex justify-center items-center py-20">
+			<p class="text-lg">Loading products...</p>
+		</div>
+	{:else if $error}
+		<div class="flex justify-center items-center py-20">
+			<p class="text-lg text-red-600">Error loading products: {$error}</p>
+		</div>
+	{:else if availableProducts.length === 0}
+		<div class="flex gap-7 justify-center mb-16">
+			<div class="overflow-hidden rounded-2xl bg-gray-400">
+				<img src="https://placehold.co/333x214" alt="" />
+				<div class="mb-10 mx-8 text-center pt-10">
+					<p class="uppercase text-xs font-spaceGrotesk mb-3.5">Films</p>
+					<p class="font-spaceGrotesk text-xl font-bold mb-3.5">No products available</p>
+					<button class="px-6 py-2 outline-2 outline-black rounded-4xl" disabled>Add to cart</button>
+				</div>
 			</div>
 		</div>
-		<div class="overflow-hidden rounded-2xl bg-gray-400">
-			<img src="https://placehold.co/333x214" alt="" />
-			<div class="mb-10 mx-8 text-center pt-10">
-				<p class="uppercase text-xs font-spaceGrotesk mb-3.5">Films</p>
-				<p class="font-spaceGrotesk text-xl font-bold mb-3.5">Lorem ipsum dolor sit.</p>
-				<button class="px-6 py-2 outline-2 outline-black rounded-4xl">Add to cart</button>
-			</div>
+	{:else}
+		<div class="flex gap-7 justify-center mb-16">
+			{#each availableProducts as product}
+				<div class="overflow-hidden rounded-2xl bg-gray-400">
+					{#if product.imageUrl}
+						<img src={product.imageUrl} alt={product.name} class="w-full h-48 object-cover" />
+					{:else}
+						<img src="https://placehold.co/333x214" alt="" />
+					{/if}
+					<div class="mb-10 mx-8 text-center pt-10">
+						<p class="uppercase text-xs font-spaceGrotesk mb-3.5">{product.category}</p>
+						<p class="font-spaceGrotesk text-xl font-bold mb-3.5">{product.name}</p>
+						<p class="text-sm text-gray-600 mb-3.5">{product.description}</p>
+						<p class="font-semibold text-lg mb-3.5">₱{product.price}</p>
+						<button class="px-6 py-2 outline-2 outline-black rounded-4xl hover:bg-black hover:text-white transition-colors">Add to cart</button>
+					</div>
+				</div>
+			{/each}
 		</div>
-		<div class="overflow-hidden rounded-2xl bg-gray-400">
-			<img src="https://placehold.co/333x214" alt="" />
-			<div class="mb-10 mx-8 text-center pt-10">
-				<p class="uppercase text-xs font-spaceGrotesk mb-3.5">Films</p>
-				<p class="font-spaceGrotesk text-xl font-bold mb-3.5">Lorem, ipsum dolor.</p>
-				<button class="px-6 py-2 outline-2 outline-black rounded-4xl">Add to cart</button>
-			</div>
-		</div>
-	</div>
+	{/if}
+	
 	<a href="#" class="bg-amber-300 px-6 py-2 rounded-4xl block w-min whitespace-nowrap mx-auto">
 		View all
 	</a>

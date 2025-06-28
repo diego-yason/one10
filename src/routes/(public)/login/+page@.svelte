@@ -59,12 +59,8 @@
 
 		try {
 			const userCredential = await signInWithEmailAndPassword(auth, email, password);
-			const user = userCredential.user;
-			if (user.email && user.email.endsWith('@one10.com')) {
-				goto('/dashboard');
-			} else {
-				goto('/');
-			}
+			// Always redirect to homepage, regardless of user type
+			goto('/');
 		} catch (err) {
 			errorMessages = [getFirebaseErrorMessage(err)];
 		}
@@ -73,12 +69,8 @@
 	const googleLogin = async () => {
 		try {
 			const result = await signInWithPopup(auth, new GoogleAuthProvider());
-			const user = result.user;
-			if (user.email && user.email.endsWith('@one10.com')) {
-				goto('/dashboard');
-			} else {
-				goto('/');
-			}
+			// Always redirect to homepage, regardless of user type
+			goto('/');
 		} catch (err) {
 			errorMessages = [getFirebaseErrorMessage(err)];
 		}
@@ -87,12 +79,8 @@
 	const facebookLogin = async () => {
 		try {
 			const result = await signInWithPopup(auth, new FacebookAuthProvider());
-			const user = result.user;
-			if (user.email && user.email.endsWith('@one10.com')) {
-				goto('/dashboard');
-			} else {
-				goto('/');
-			}
+			// Always redirect to homepage, regardless of user type
+			goto('/');
 		} catch (err) {
 			errorMessages = [getFirebaseErrorMessage(err)];
 		}

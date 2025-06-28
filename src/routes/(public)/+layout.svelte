@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { user } from '$lib/stores/auth';
+	import { user, isStaffUser } from '$lib/stores/auth';
 	import { signOut } from 'firebase/auth';
 	import { auth } from '$lib/firebase';
 	let { children } = $props();
@@ -20,7 +20,11 @@
 	</div>
 	<div class="flex flex-row gap-14 items-center">
 		{#if $user}
-			<a href="/cart">Cart</a>
+			{#if isStaffUser($user)}
+				<a href="/dashboard">Staff</a>
+			{:else}
+				<a href="/cart">Cart</a>
+			{/if}
 			<button on:click={handleSignOut} class="hover:text-amber-300 transition-colors">Sign Out</button>
 		{:else}
 			<a href="/login">Log In</a>
