@@ -2,7 +2,7 @@
     <div class="flex flex-col px-32 py-24">
         <h1 class="services-font">Services</h1>
                 
-        <div class="flex flex-wrap gap-6 py-10">
+        <div class="grid grid-cols-3 gap-10 py-10">
             <div class="products flex flex-col w-full sm:w-[349px]">
                 <div class="image bg-white flex items-center justify-center">Placeholder</div>
                         
@@ -48,14 +48,24 @@
             Shop
         </h1>
 
-        <div class="flex flex-wrap py-10">
+        <div class="grid grid-cols-4 gap-10 py-10">
             <div class="product-2 flex flex-col">
                 <div class="image-2 flex items-center justify-center">Placeholder</div>
                         
                 <div class="flex flex-col justify-center items-center py-10">
                     <p class="product-2-description">Films</p>
                     <p class="product-2-font">Lorem ipsum dolor sit amet</p>
-                    <button class="border rounded-lg px-6 py-7 font-spaceGrotesk mt-10">Add to cart</button>
+                    <button class="border rounded-lg px-6 py-2 font-spaceGrotesk mt-10">Add to cart</button>
+                </div>
+            </div>
+
+            <div class="product-2 justify-between flex flex-col">
+                <div class="image-2 flex items-center justify-center">Placeholder</div>
+                        
+                <div class="flex flex-col justify-center items-center py-10">
+                    <p class="product-2-description">Films</p>
+                    <p class="product-2-font">Lorem ipsum dolor sit amet</p>
+                    <button class="border rounded-lg px-6 py-2 font-spaceGrotesk mt-10">Add to cart</button>
                 </div>
             </div>
 
@@ -65,7 +75,7 @@
                 <div class="flex flex-col justify-center items-center py-10">
                     <p class="product-2-description">Films</p>
                     <p class="product-2-font">Lorem ipsum dolor sit amet</p>
-                    <button class="border rounded-lg px-6 py-7 font-spaceGrotesk mt-10">Add to cart</button>
+                    <button class="border rounded-lg px-6 py-2 font-spaceGrotesk mt-10">Add to cart</button>
                 </div>
             </div>
 
@@ -75,24 +85,53 @@
                 <div class="flex flex-col justify-center items-center py-10">
                     <p class="product-2-description">Films</p>
                     <p class="product-2-font">Lorem ipsum dolor sit amet</p>
-                    <button class="border rounded-lg px-6 py-7 font-spaceGrotesk mt-10">Add to cart</button>
+                    <button class="border rounded-lg px-6 py-2 font-spaceGrotesk mt-10">Add to cart</button>
+                </div>
+            </div>
+
+            <div class="product-2 flex flex-col">
+                <div class="image-2 flex items-center justify-center">Placeholder</div>
+                        
+                <div class="flex flex-col justify-center items-center py-10">
+                    <p class="product-2-description">Films</p>
+                    <p class="product-2-font">Lorem ipsum dolor sit amet</p>
+                    <button class="border rounded-lg px-6 py-2 font-spaceGrotesk mt-10">Add to cart</button>
+                </div>
+            </div>
+
+            <div class="product-2 flex flex-col">
+                <div class="image-2 flex items-center justify-center">Placeholder</div>
+                        
+                <div class="flex flex-col justify-center items-center py-10">
+                    <p class="product-2-description">Films</p>
+                    <p class="product-2-font">Lorem ipsum dolor sit amet</p>
+                    <button class="border rounded-lg px-6 py-2 font-spaceGrotesk mt-10">Add to cart</button>
+                </div>
+            </div>
+
+            <div class="product-2 flex flex-col">
+                <div class="image-2 flex items-center justify-center">Placeholder</div>
+                        
+                <div class="flex flex-col justify-center items-center py-10">
+                    <p class="product-2-description">Films</p>
+                    <p class="product-2-font">Lorem ipsum dolor sit amet</p>
+                    <button class="border rounded-lg px-6 py-2 font-spaceGrotesk mt-10">Add to cart</button>
+                </div>
+            </div>
+
+            <div class="product-2 flex flex-col">
+                <div class="image-2 flex items-center justify-center">Placeholder</div>
+                        
+                <div class="flex flex-col justify-center items-center py-10">
+                    <p class="product-2-description">Films</p>
+                    <p class="product-2-font">Lorem ipsum dolor sit amet</p>
+                    <button class="border rounded-lg px-6 py-2 font-spaceGrotesk mt-10">Add to cart</button>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<div class="py-48 flex justify-between px-40">
-	<div>
-		<h2 class="font-spaceGrotesk font-bold text-8xl text-white mb-7">
-			<span class="block textOutline text-transparent">Sign up</span> and save
-		</h2>
-		<p class="text-white font-roboto">Register and Subscribe to get special offers</p>
-	</div>
-	<a href="#" class="bg-amber-300 font-roboto rounded-4xl px-6 py-2 h-min self-center"
-		>Register / Log in</a
-	>
-</div>
 
     <style>
         .services-font{
