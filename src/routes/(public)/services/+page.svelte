@@ -1,9 +1,9 @@
-<div class="py-10 h-screen">
-    <div class="flex flex-col px-32 py-24">
+<div class="py-10 h-screen mb-8">
+    <div class="flex flex-col px-32 py-24 mt-10">
         <h1 class="services-font">Services</h1>
                 
-        <div class="grid grid-cols-3 gap-10 py-10">
-            <div class="products flex flex-col w-full sm:w-[349px]">
+        <div class="grid grid-cols-4 gap-18 py-10">
+            <div class="products flex flex-col">
                 <div class="image bg-white flex items-center justify-center">Placeholder</div>
                         
                 <div class="flex flex-col justify-center items-center py-10">
@@ -12,7 +12,7 @@
                 </div>
             </div>
 
-            <div class="products flex flex-col w-full sm:w-[349px]">
+            <div class="products flex flex-col w-349px">
                 <div class="image bg-white flex items-center justify-center">Placeholder</div>
                         
                 <div class="flex flex-col justify-center items-center py-10">
@@ -21,7 +21,7 @@
                 </div>
                 </div>
 
-            <div class="products flex flex-col w-full sm:w-[349px]">
+            <div class="products flex flex-col w-349px">
                 <div class="image bg-white flex items-center justify-center">Placeholder</div>
                         
                 <div class="flex flex-col justify-center items-center py-10">
@@ -30,7 +30,7 @@
                 </div>
             </div>
 
-            <div class="products flex flex-col w-full sm:w-[349px]">
+            <div class="products flex flex-col w-349px">
                 <div class="image bg-white flex items-center justify-center">Placeholder</div>
                         
                 <div class="flex flex-col justify-center items-center py-10">
@@ -42,8 +42,8 @@
     </div>
 </div>
 
-<div class="py-10 h-screen">
-    <div class="flex flex-col px-32 py-24">
+<div class="py-10 mb-20">
+    <div class="flex flex-col px-32 py-24 mt-15 h-screen">
         <h1 class="services-font">
             Shop
         </h1>
@@ -132,6 +132,18 @@
     </div>
 </div>
 
+<div class="py-48 flex justify-between px-40 mt-150 bg-gray-600">
+	<div>
+		<h2 class="font-spaceGrotesk font-bold text-8xl text-white mb-7">
+			<span class="block textOutline text-transparent">Sign up</span> and save
+		</h2>
+		<p class="text-white font-roboto">Register and Subscribe to get special offers</p>
+	</div>
+	<a href="#" class="bg-amber-300 font-roboto rounded-4xl px-6 py-2 h-min self-center"
+		>Register / Log in</a
+	>
+</div>
+
 
     <style>
         .services-font{
@@ -148,6 +160,7 @@
         }
 
         .products{
+            width: 349px;
             height: 391px;
             border-radius: 16px;
             background: var(--Yellow, #F2C94C);
@@ -217,14 +230,14 @@
             font-size: 12px;
             font-style: normal;
             font-weight: 600;
-            line-height: 24px; /* 200% */
+            line-height: 24px;
             text-transform: uppercase;
         }
 
         .image-2{
             height: 214px;
             align-self: stretch;
-            background-color: #F2C94C;
+            background-color: #333;
         }
     </style>
 
