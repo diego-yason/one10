@@ -68,7 +68,7 @@
 							</button>
 							<button 
 								class="flex-1 border border-red-500 text-red-500 px-4 py-2 rounded-full hover:cursor-pointer hover:bg-red-500 hover:text-white transition-colors" 
-								on:click={() => deleteProduct(product)}
+								on:click={() => askDeleteProduct(product)}
 							>
 								Delete
 							</button>
@@ -244,11 +244,21 @@
 	</div>
 </Modal>
 
+<ConfirmModal
+	show={showConfirmModal}
+	message={`Are you sure you want to delete "${productToDelete?.name}"? This action cannot be undone.`}
+	confirmText="Delete"
+	cancelText="Cancel"
+	onConfirm={handleConfirmDelete}
+	onCancel={handleCancelDelete}
+/>
+
 <script lang="ts">
 	import Modal from '$lib/components/Modal.svelte';
 	import { ProductService, type Product } from '$lib/firebase';
 	import { products, loading, error, loadProducts } from '$lib/stores/products';
 	import { onMount } from 'svelte';
+	import ConfirmModal from '$lib/components/ConfirmModal.svelte';
 
 	const productService = ProductService.getInstance();
 
@@ -257,6 +267,8 @@
 	let selectedProduct: Product | null = null;
 	let searchTerm = '';
 	let errorMessage = '';
+	let showConfirmModal = false;
+	let productToDelete: Product | null = null;
 
 	// Form data for adding/editing products
 	let formData = {
@@ -366,18 +378,34 @@
 		}
 	}
 
+	function askDeleteProduct(product: Product) {
+		productToDelete = product;
+		showConfirmModal = true;
+	}
+
+	function handleConfirmDelete() {
+		if (productToDelete) {
+			deleteProduct(productToDelete);
+		}
+		showConfirmModal = false;
+		productToDelete = null;
+	}
+
+	function handleCancelDelete() {
+		showConfirmModal = false;
+		productToDelete = null;
+	}
+
 	async function deleteProduct(product: Product) {
-		if (confirm(`Are you sure you want to delete "${product.name}"?`)) {
-			try {
-				await productService.deleteProduct(product.id!);
-				if (product.imageUrl) {
-					await productService.deleteProductImage(product.imageUrl);
-				}
-				await loadProducts();
-			} catch (error) {
-				console.error('Error deleting product:', error);
-				errorMessage = 'Failed to delete product';
+		try {
+			await productService.deleteProduct(product.id!);
+			if (product.imageUrl) {
+				await productService.deleteProductImage(product.imageUrl);
 			}
+			await loadProducts();
+		} catch (error) {
+			console.error('Error deleting product:', error);
+			errorMessage = 'Failed to delete product';
 		}
 	}
 
