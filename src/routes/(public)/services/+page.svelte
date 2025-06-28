@@ -132,7 +132,7 @@
     </div>
 </div>
 
-<div class="py-48 flex justify-between px-40 mt-150 bg-gray-600">
+<div class="py-48 flex justify-between px-40 mt-150 background-color">
 	<div>
 		<h2 class="font-spaceGrotesk font-bold text-8xl text-white mb-7">
 			<span class="block textOutline text-transparent">Sign up</span> and save
@@ -238,6 +238,10 @@
             height: 214px;
             align-self: stretch;
             background-color: #333;
+        }
+
+        .background-color{
+           background: var(--Gray-2, #4F4F4F);
         }
     </style>
 
