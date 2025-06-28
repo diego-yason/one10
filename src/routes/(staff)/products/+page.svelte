@@ -3,7 +3,7 @@
 		<div class="flex space-y-6 flex-col">
 			<input 
 				type="text" 
-				placeholder="Search Product Name" 
+				placeholder="Search Product Code" 
 				class="px-5 py-3 rounded-lg bg-white border-0 w-110"
 				bind:value={searchTerm}
 			>
@@ -73,6 +73,7 @@
 								Delete
 							</button>
 						</div>
+						<p class="text-xs text-gray-500 mb-1">Code: {product.itemCode}</p>
 					</div>
 				</div>
 			{/each}
@@ -418,9 +419,6 @@
 
 	// Filter products based on search term
 	$: filteredProducts = $products.filter(product =>
-		product.itemCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
-		product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-		product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-		product.category.toLowerCase().includes(searchTerm.toLowerCase())
+		product.itemCode.toLowerCase().includes(searchTerm.toLowerCase())
 	);
 </script>

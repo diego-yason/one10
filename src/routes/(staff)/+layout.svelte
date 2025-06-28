@@ -70,7 +70,7 @@
             <nav>
                 <a href="/dashboard" class:active={$page.url.pathname === '/dashboard'}>Dashboard</a>
                 <a href="/orders" class:active={$page.url.pathname.startsWith('/orders')}>Manage Orders</a>
-                <a href="/products" class:active={$page.url.pathname.startsWith('/products')}>Manage Prices</a>
+                <a href="/products" class:active={$page.url.pathname.startsWith('/products')}>Manage Products</a>
                 <a href="/messages" class:active={$page.url.pathname.startsWith('/messages')}>Messages</a>
             </nav>
         </div>
