@@ -1,5 +1,9 @@
 <script>
     import { page } from '$app/stores';
+    import { goto } from '$app/navigation';
+    function returnToNormalView() {
+        goto('/');
+    }
 </script>
 
 <style>
@@ -74,7 +78,7 @@
                 <a href="/messages" class:active={$page.url.pathname.startsWith('/messages')}>Messages</a>
             </nav>
         </div>
-        <button>Log out</button>
+        <button on:click={returnToNormalView}>Back</button>
     </div>
     <div class="main-content">
         <slot />
