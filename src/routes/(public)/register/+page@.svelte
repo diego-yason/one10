@@ -2,54 +2,45 @@
 	import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth';
 	import { auth } from '$lib/firebase';
 	import { goto } from '$app/navigation';
-	import { z } from 'zod/v4';
-
-	const registerSchema = z.object({
-		firstName: z.string().min(1, "First name is required."),
-		lastName: z.string().min(1, "Last name is required."),
-		email: z.string().email("Please enter a valid email address."),
-		password: z.string().min(6, "Password must be at least 6 characters."),
-	});
+	import { registerSchema, getFirebaseErrorMessage, validateField } from '$lib/validation';
 
 	let firstName = '';
 	let lastName = '';
 	let email = '';
 	let password = '';
 	let errorMessages: string[] = [];
+	let fieldErrors: Record<string, string> = {};
 
-	function getFirebaseErrorMessage(error: any): string {
-		if (!error || typeof error.code !== 'string') return 'An unknown error occurred.';
-
-		switch (error.code) {
-			case 'auth/email-already-in-use':
-				return 'This email is already registered.';
-			case 'auth/invalid-email':
-				return 'The email address is invalid.';
-			case 'auth/user-not-found':
-				return 'No account found with this email.';
-			case 'auth/wrong-password':
-				return 'Incorrect password.';
-			case 'auth/weak-password':
-				return 'Password should be at least 6 characters.';
-			case 'auth/popup-closed-by-user':
-				return 'The sign-in popup was closed before completing the sign in.';
-			case 'auth/popup-blocked':
-				return 'The sign-in popup was blocked by your browser.';
-			case 'auth/network-request-failed':
-				return 'Network error. Please check your connection and try again.';
-			default:
-				return error.message || 'An unknown error occurred.';
+	// Real-time validation function
+	function handleFieldChange(field: string, value: string) {
+		// Clear general errors when user starts typing
+		if (errorMessages.length > 0) {
+			errorMessages = [];
+		}
+		
+		// Validate the specific field
+		const error = validateField(registerSchema, field as keyof typeof registerSchema.shape, value);
+		if (error) {
+			fieldErrors = { ...fieldErrors, [field]: error };
+		} else {
+			const { [field]: _, ...rest } = fieldErrors;
+			fieldErrors = rest;
 		}
 	}
 
 	const handleRegister = async (e: SubmitEvent) => {
 		e.preventDefault();
 		errorMessages = [];
+		fieldErrors = {};
 
 		const result = registerSchema.safeParse({ firstName, lastName, email, password });
 		if (!result.success) {
 			if (result.error && Array.isArray(result.error.errors)) {
-				errorMessages = result.error.errors.map(e => e.message);
+				// Group errors by field
+				result.error.errors.forEach(error => {
+					const field = error.path[0] as string;
+					fieldErrors[field] = error.message;
+				});
 			} else {
 				errorMessages = ['Invalid input.'];
 			}
@@ -66,6 +57,7 @@
 
 	const handleGoogleSignIn = async () => {
 		errorMessages = [];
+		fieldErrors = {};
 		try {
 			const provider = new GoogleAuthProvider();
 			await signInWithPopup(auth, provider);
@@ -77,6 +69,7 @@
 
 	const handleFacebookSignIn = async () => {
 		errorMessages = [];
+		fieldErrors = {};
 		try {
 			const provider = new FacebookAuthProvider();
 			await signInWithPopup(auth, provider);
@@ -109,34 +102,62 @@
 		{/if}
 
 		<form on:submit={handleRegister} class="flex flex-col gap-6 mb-5">
-			<input
-				type="text"
-				name="firstName"
-				placeholder="First name"
-				class="bg-white p-3 text-gray-800"
-				bind:value={firstName}
-			/>
-			<input
-				type="text"
-				name="lastName"
-				placeholder="Last name"
-				class="bg-white p-3 text-gray-800"
-				bind:value={lastName}
-			/>
-			<input
-				type="text"
-				name="email"
-				placeholder="Please enter your email"
-				class="bg-white p-3 text-gray-800"
-				bind:value={email}
-			/>
-			<input
-				type="password"
-				name="password"
-				placeholder="Enter password"
-				class="bg-white p-3 text-gray-800"
-				bind:value={password}
-			/>
+			<div>
+				<input
+					type="text"
+					name="firstName"
+					placeholder="First name"
+					class="bg-white p-3 text-gray-800 w-full {fieldErrors.firstName ? 'border-2 border-red-500' : ''}"
+					bind:value={firstName}
+					on:input={(e) => handleFieldChange('firstName', e.currentTarget.value)}
+				/>
+				{#if fieldErrors.firstName}
+					<p class="text-red-500 text-sm mt-1">{fieldErrors.firstName}</p>
+				{/if}
+			</div>
+			
+			<div>
+				<input
+					type="text"
+					name="lastName"
+					placeholder="Last name"
+					class="bg-white p-3 text-gray-800 w-full {fieldErrors.lastName ? 'border-2 border-red-500' : ''}"
+					bind:value={lastName}
+					on:input={(e) => handleFieldChange('lastName', e.currentTarget.value)}
+				/>
+				{#if fieldErrors.lastName}
+					<p class="text-red-500 text-sm mt-1">{fieldErrors.lastName}</p>
+				{/if}
+			</div>
+			
+			<div>
+				<input
+					type="email"
+					name="email"
+					placeholder="Please enter your email"
+					class="bg-white p-3 text-gray-800 w-full {fieldErrors.email ? 'border-2 border-red-500' : ''}"
+					bind:value={email}
+					on:input={(e) => handleFieldChange('email', e.currentTarget.value)}
+				/>
+				{#if fieldErrors.email}
+					<p class="text-red-500 text-sm mt-1">{fieldErrors.email}</p>
+				{/if}
+			</div>
+			
+			<div>
+				<input
+					type="password"
+					name="password"
+					placeholder="Enter password"
+					class="bg-white p-3 text-gray-800 w-full {fieldErrors.password ? 'border-2 border-red-500' : ''}"
+					bind:value={password}
+					on:input={(e) => handleFieldChange('password', e.currentTarget.value)}
+				/>
+				{#if fieldErrors.password}
+					<p class="text-red-500 text-sm mt-1">{fieldErrors.password}</p>
+				{/if}
+			</div>
+			
 			<button type="submit" class="bg-amber-600 text-white py-2 hover:bg-amber-700 transition-colors">
 				Sign up
 			</button>

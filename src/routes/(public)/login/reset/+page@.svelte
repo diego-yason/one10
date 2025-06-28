@@ -1,18 +1,58 @@
 <script lang="ts">
     import { sendPasswordResetEmail } from 'firebase/auth';
     import { auth } from '$lib/firebase';
+    import { resetSchema, getFirebaseErrorMessage, validateField } from '$lib/validation';
+    
     let email = '';
     let errorMessage: string = '';
     let successMessage: string = '';
+    let fieldErrors: Record<string, string> = {};
+    
+    // Real-time validation function
+    function handleFieldChange(field: string, value: string) {
+        // Clear general errors when user starts typing
+        if (errorMessage) {
+            errorMessage = '';
+        }
+        if (successMessage) {
+            successMessage = '';
+        }
+        
+        // Validate the specific field
+        const error = validateField(resetSchema, field as keyof typeof resetSchema.shape, value);
+        if (error) {
+            fieldErrors = { ...fieldErrors, [field]: error };
+        } else {
+            const { [field]: _, ...rest } = fieldErrors;
+            fieldErrors = rest;
+        }
+    }
+    
     async function handleSubmit(event: Event) {
         event.preventDefault();
         errorMessage = '';
         successMessage = '';
+        fieldErrors = {};
+        
+        const result = resetSchema.safeParse({ email });
+        if (!result.success) {
+            if (result.error && Array.isArray(result.error.errors)) {
+                // Group errors by field
+                result.error.errors.forEach(error => {
+                    const field = error.path[0] as string;
+                    fieldErrors[field] = error.message;
+                });
+            } else {
+                errorMessage = 'Invalid input.';
+            }
+            return;
+        }
+        
         try {
             await sendPasswordResetEmail(auth, email);
             successMessage = `Password reset link sent to ${email}`;
         } catch (error) {
-            errorMessage = 'Failed to send password reset email: ' + (error instanceof Error ? error.message : error);
+            errorMessage = getFirebaseErrorMessage(error);
         }
     }
 </script>
@@ -37,14 +77,18 @@
             </div>
         {/if}
         <form on:submit|preventDefault={handleSubmit} class="flex flex-col gap-6 mb-5">
-            <input
-                type="email"
-                bind:value={email}
-                on:input={() => { errorMessage = ''; successMessage = ''; }}
-                placeholder="Enter your email"
-                class="bg-white p-3 text-gray-800"
-                required
-            />
+            <div>
+                <input
+                    type="email"
+                    bind:value={email}
+                    on:input={(e) => handleFieldChange('email', e.currentTarget.value)}
+                    placeholder="Enter your email"
+                    class="bg-white p-3 text-gray-800 w-full {fieldErrors.email ? 'border-2 border-red-500' : ''}"
+                />
+                {#if fieldErrors.email}
+                    <p class="text-red-500 text-sm mt-1">{fieldErrors.email}</p>
+                {/if}
+            </div>
             <button class="bg-amber-600 text-white py-2">Send Reset Link</button>
         </form>
         <a href="/login" class="text-brand underline">Back to Log in</a>
