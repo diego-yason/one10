@@ -42,7 +42,7 @@
     </div>
 </div>
 
-<div class="py-10 mb-20">
+<div class="mb-20">
     <div class="flex flex-col px-32 py-24 mt-15 h-screen">
         <h1 class="services-font">
             Shop
