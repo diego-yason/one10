@@ -1,5 +1,9 @@
 <script>
     import { page } from '$app/stores';
+    import { goto } from '$app/navigation';
+    function returnToNormalView() {
+        goto('/');
+    }
 </script>
 
 <style>
@@ -70,11 +74,11 @@
             <nav>
                 <a href="/dashboard" class:active={$page.url.pathname === '/dashboard'}>Dashboard</a>
                 <a href="/orders" class:active={$page.url.pathname.startsWith('/orders')}>Manage Orders</a>
-                <a href="/products" class:active={$page.url.pathname.startsWith('/products')}>Manage Prices</a>
+                <a href="/products" class:active={$page.url.pathname.startsWith('/products')}>Manage Products</a>
                 <a href="/messages" class:active={$page.url.pathname.startsWith('/messages')}>Messages</a>
             </nav>
         </div>
-        <button>Log out</button>
+        <button on:click={returnToNormalView}>Back</button>
     </div>
     <div class="main-content">
         <slot />

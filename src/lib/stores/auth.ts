@@ -5,6 +5,11 @@ import { browser } from '$app/environment';
 
 export const user = writable<User | null>(null);
 
+// Function to check if a user is staff
+export function isStaffUser(user: User | null): boolean {
+	return user?.email?.endsWith('@one10.com') ?? false;
+}
+
 if (browser) {
     onAuthStateChanged(auth, (newUser) => {
         user.set(newUser);
