@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { z } from 'zod/v4';
 	import { auth } from '$lib/firebase';
 	import {
 		FacebookAuthProvider,
@@ -8,49 +7,43 @@
 		signInWithPopup
 	} from 'firebase/auth';
 	import { goto } from '$app/navigation';
-
-	const loginSchema = z.object({
-		email: z.string().email("Please enter a valid email address."),
-		password: z.string().min(6, "Password must be at least 6 characters."),
-	});
+	import { loginSchema, getFirebaseErrorMessage, validateField } from '$lib/validation';
 
 	let email = '';
 	let password = '';
 	let errorMessages: string[] = [];
+	let fieldErrors: Record<string, string> = {};
 
-	function getFirebaseErrorMessage(error: any): string {
-		if (!error || typeof error.code !== 'string') return 'An unknown error occurred.';
-
-		switch (error.code) {
-			case 'auth/email-already-in-use':
-				return 'This email is already registered.';
-			case 'auth/invalid-email':
-				return 'The email address is invalid.';
-			case 'auth/user-not-found':
-				return 'No account found with this email.';
-			case 'auth/wrong-password':
-				return 'Incorrect password.';
-			case 'auth/weak-password':
-				return 'Password should be at least 6 characters.';
-			case 'auth/popup-closed-by-user':
-				return 'The sign-in popup was closed before completing the sign in.';
-			case 'auth/popup-blocked':
-				return 'The sign-in popup was blocked by your browser.';
-			case 'auth/network-request-failed':
-				return 'Network error. Please check your connection and try again.';
-			default:
-				return error.message || 'An unknown error occurred.';
+	// Real-time validation function
+	function handleFieldChange(field: string, value: string) {
+		// Clear general errors when user starts typing
+		if (errorMessages.length > 0) {
+			errorMessages = [];
+		}
+		
+		// Validate the specific field
+		const error = validateField(loginSchema, field as keyof typeof loginSchema.shape, value);
+		if (error) {
+			fieldErrors = { ...fieldErrors, [field]: error };
+		} else {
+			const { [field]: _, ...rest } = fieldErrors;
+			fieldErrors = rest;
 		}
 	}
 
 	const handleEmailLogin = async (e: SubmitEvent) => {
 		e.preventDefault();
 		errorMessages = [];
+		fieldErrors = {};
 
 		const result = loginSchema.safeParse({ email, password });
 		if (!result.success) {
 			if (result.error && Array.isArray(result.error.errors)) {
-				errorMessages = result.error.errors.map(e => e.message);
+				// Group errors by field
+				result.error.errors.forEach(error => {
+					const field = error.path[0] as string;
+					fieldErrors[field] = error.message;
+				});
 			} else {
 				errorMessages = ['Invalid input.'];
 			}
@@ -71,6 +64,8 @@
 	};
 
 	const googleLogin = async () => {
+		errorMessages = [];
+		fieldErrors = {};
 		try {
 			const result = await signInWithPopup(auth, new GoogleAuthProvider());
 			const user = result.user;
@@ -85,6 +80,8 @@
 	};
 
 	const facebookLogin = async () => {
+		errorMessages = [];
+		fieldErrors = {};
 		try {
 			const result = await signInWithPopup(auth, new FacebookAuthProvider());
 			const user = result.user;
@@ -124,20 +121,34 @@
 		{/if}
 
 		<form on:submit={handleEmailLogin} class="flex flex-col gap-6 mb-5">
-			<input
-				type="text"
-				name="email"
-				placeholder="Please enter your email"
-				class="bg-white p-3 text-gray-800"
-				bind:value={email}
-			/>
-			<input
-				type="password"
-				name="password"
-				placeholder="Enter password"
-				class="bg-white p-3 text-gray-800"
-				bind:value={password}
-			/>
+			<div>
+				<input
+					type="email"
+					name="email"
+					placeholder="Please enter your email"
+					class="bg-white p-3 text-gray-800 w-full {fieldErrors.email ? 'border-2 border-red-500' : ''}"
+					bind:value={email}
+					on:input={(e) => handleFieldChange('email', e.currentTarget.value)}
+				/>
+				{#if fieldErrors.email}
+					<p class="text-red-500 text-sm mt-1">{fieldErrors.email}</p>
+				{/if}
+			</div>
+			
+			<div>
+				<input
+					type="password"
+					name="password"
+					placeholder="Enter password"
+					class="bg-white p-3 text-gray-800 w-full {fieldErrors.password ? 'border-2 border-red-500' : ''}"
+					bind:value={password}
+					on:input={(e) => handleFieldChange('password', e.currentTarget.value)}
+				/>
+				{#if fieldErrors.password}
+					<p class="text-red-500 text-sm mt-1">{fieldErrors.password}</p>
+				{/if}
+			</div>
+			
 			<button type="submit" class="bg-amber-600 text-white py-2 hover:bg-amber-700 transition-colors">
 				Login
 			</button>
