@@ -53,22 +53,22 @@ function clearStorage() {
 </button>
 -->
 
-<div class="flex-col items-center justify-center text-center space-y-6 m-10">
+<div class="flex flex-col px-32 py-24 space-y-6">
 	<!--Item container-->
 	<h2
-		class="text-gray-800 font-spaceGrotesk text-7xl font-bold text-left mx-auto w-3/4 mb-auto h-30"
+		class="text-gray-800 font-spaceGrotesk text-7xl font-bold text-left w-3/4 mb-auto h-30 mt-10"
 	>
 		Cart
 	</h2>
 	{#each cartItems as item (item.name)}
-		<div class="flex bg-[#D9D9D9] p-4 rounded-lg mt-4 mx-auto w-3/4">
+		<div class="flex bg-[#D9D9D9] p-4 rounded-lg mt-4 ">
 			<div class="flex">
 				<CartItem {item} />
 			</div>
 		</div>
 	{/each}
 	<!--Order Summary-->
-	<div class="flex border-1 rounded-lg mx-auto w-3/4 my-auto y-100 p-5 text-left font-bold">
+	<div class="flex border-1 rounded-lg  my-auto y-100 p-5 text-left font-bold py-15">
 		<div>
 			<h2>Order Summary</h2>
 			<div class="flex space-x-4">
@@ -84,3 +84,96 @@ function clearStorage() {
 		</div>
 	</div>
 </div>
+
+<div class="flex">
+	<div class="reminders flex items-center">
+		<div class="flex flex-col flex-start space-y-18 mx-35">
+			<h3 class="heading-3">Reminders</h3>
+		
+			<div class="flex flex-col justify-center space-y-2">
+				<h5 class="heading-5">We only accept</h5>
+				
+				<p class="desc">135mm/35 mm Disposables
+					120 format/ Medium format
+					C-41/C16 Process
+					Black and White Process
+					Push Processing</p>
+			</div>
+		</div>
+	</div>
+	<div class="image flex items-center justify-center bg-white">Placeholder</div>
+</div>
+
+<div class="py-48 flex justify-between px-40 background-color">
+	<div>
+		<h2 class="font-spaceGrotesk font-bold text-8xl text-white mb-7">
+			<span class="block textOutline text-transparent">Sign up</span> and save
+		</h2>
+		<p class="text-white font-roboto">Register and Subscribe to get special offers</p>
+	</div>
+	<a href="#" class="bg-amber-300 font-roboto rounded-4xl px-6 py-2 h-min self-center"
+		>Register / Log in</a
+	>
+</div>
+
+
+
+<style>
+	.reminders{
+		width: 90rem;
+		height: 26.6875rem;
+		flex-shrink: 0;
+		background: #F2C94C;
+	}
+
+	.image{
+		width: 29rem;
+		height: 26.6875rem;
+		flex-shrink: 0;
+	}
+
+	.heading-3{
+		color: var(--Global-black, #000);
+		/* Headings/h3 */
+		font-family: "Space Grotesk";
+		font-size: 1.875rem;
+		font-style: normal;
+		font-weight: 700;
+		line-height: 2.26rem; /* 120.533% */
+	}
+
+	.heading-5{
+		width: 12.8125rem;
+		height: 2.1875rem;
+		flex-shrink: 0;
+
+		color: var(--Global-black, #000);
+
+		/* headings/h5 */
+		font-family: "Space Grotesk";
+		font-size: 1.375rem;
+		font-style: normal;
+		font-weight: 700;
+		line-height: 2rem; /* 145.455% */
+		letter-spacing: 0.075rem;
+	}
+
+	.desc{
+		width: 15.25rem;
+		height: 10.75rem;
+		flex-shrink: 0;
+		color: var(--Gray-2, #4F4F4F);
+
+		/* Paragraphs/p-normal */
+		font-family: Roboto;
+		font-size: 0.9375rem;
+		font-style: normal;
+		font-weight: 500;
+		line-height: 1.3875rem; /* 148% */
+		letter-spacing: 0.0375rem;
+	}
+
+	.background-color{
+           background: var(--Gray-2, #4F4F4F);
+    }
+</style>
