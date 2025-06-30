@@ -55,8 +55,8 @@
 						<p class="font-semibold text-lg">₱{product.price}</p>
 						<div class="flex items-center space-x-2">
 							<span class="text-sm">Stock: {product.stock}</span>
-							<span class="text-xs px-2 py-1 rounded-full {product.status === 'available' ? 'bg-green-100 text-green-800' : product.status === 'out of stock' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
-								{product.status.replace('_', ' ')}
+							<span class="text-xs px-2 py-1 rounded-full {product.status === 'available' ? 'bg-green-100 text-green-800' : product.status === 'out_of_stock' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
+								{product.status.replaceAll('_', ' ')}
 							</span>
 						</div>
 						<div class="flex space-x-2 w-full">
@@ -128,7 +128,7 @@
 			<select class="px-3 py-2 bg-white rounded-lg border-0" bind:value={formData.status}>
 				<option value="available">Available</option>
 				<option value="not_available">Not Available</option>
-				<option value="out of stock">Out of Stock</option>
+				<option value="out_of_stock">Out of Stock</option>
 			</select>
 		</div>
 
@@ -210,7 +210,7 @@
 			<select class="px-3 py-2 bg-white rounded-lg border-0" bind:value={formData.status}>
 				<option value="available">Available</option>
 				<option value="not_available">Not Available</option>
-				<option value="out of stock">Out of Stock</option>
+				<option value="out_of_stock">Out of Stock</option>
 			</select>
 		</div>
 

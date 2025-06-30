@@ -314,7 +314,7 @@ export interface Product {
 	description: string;
 	price: number;
 	stock: number;
-	status: 'available' | 'not_available' | 'out of stock';
+	status: 'available' | 'not_available' | 'out_of_stock';
 	imageUrl?: string;
 	category: string;
 	expiryDate?: string | null;
