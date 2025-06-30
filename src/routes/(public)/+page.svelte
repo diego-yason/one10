@@ -2,13 +2,14 @@
 	import { products, loading, error } from '$lib/stores/products';
 	import { onMount } from 'svelte';
 	import { loadProducts } from '$lib/stores/products';
+	import { user, isStaffUser } from '$lib/stores/auth';
 
 	onMount(() => {
 		loadProducts();
 	});
 
-	// Get available products for display
-	$: availableProducts = $products.filter(product => product.status === 'available').slice(0, 3);
+	// Get the first 3 products for display
+	$: homeProducts = $products.slice(0, 3);
 </script>
 
 <div class="h-screen flex flex-col items-center justify-center">
@@ -73,7 +74,7 @@
 		<div class="flex justify-center items-center py-20">
 			<p class="text-lg text-red-600">Error loading products: {$error}</p>
 		</div>
-	{:else if availableProducts.length === 0}
+	{:else if homeProducts.length === 0}
 		<div class="flex gap-7 justify-center mb-16">
 			<div class="overflow-hidden rounded-2xl bg-gray-400">
 				<img src="https://placehold.co/333x214" alt="" />
@@ -86,26 +87,33 @@
 		</div>
 	{:else}
 		<div class="flex gap-7 justify-center mb-16">
-			{#each availableProducts as product}
-				<div class="overflow-hidden rounded-2xl bg-gray-400">
+			{#each homeProducts as product}
+				<div class="overflow-hidden rounded-2xl bg-gray-400 relative">
 					{#if product.imageUrl}
 						<img src={product.imageUrl} alt={product.name} class="w-full h-48 object-cover" />
 					{:else}
 						<img src="https://placehold.co/333x214" alt="" />
+					{/if}
+					{#if product.status !== 'available'}
+						<span class="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded z-10">Sold Out</span>
 					{/if}
 					<div class="mb-10 mx-8 text-center pt-10">
 						<p class="uppercase text-xs font-spaceGrotesk mb-3.5">{product.category}</p>
 						<p class="font-spaceGrotesk text-xl font-bold mb-3.5">{product.name}</p>
 						<p class="text-sm text-gray-600 mb-3.5">{product.description}</p>
 						<p class="font-semibold text-lg mb-3.5">₱{product.price}</p>
-						<button class="px-6 py-2 outline-2 outline-black rounded-4xl hover:bg-black hover:text-white transition-colors">Add to cart</button>
+						{#if !$user || !isStaffUser($user)}
+							<button class="px-6 py-2 outline-2 outline-black rounded-4xl hover:bg-black hover:text-white transition-colors" disabled={product.status !== 'available'}>{product.status !== 'available' ? product.status.replaceAll('_', ' ') : 'Add to cart'}</button>
+						{:else}
+							<span class="px-6 py-2 outline-2 outline-black rounded-4xl bg-gray-100 text-gray-400 cursor-not-allowed">Staff view</span>
+						{/if}
 					</div>
 				</div>
 			{/each}
 		</div>
 	{/if}
 	
-	<a href="#" class="bg-amber-300 px-6 py-2 rounded-4xl block w-min whitespace-nowrap mx-auto">
+	<a href="/services" class="bg-amber-300 px-6 py-2 rounded-4xl block w-min whitespace-nowrap mx-auto">
 		View all
 	</a>
 </div>

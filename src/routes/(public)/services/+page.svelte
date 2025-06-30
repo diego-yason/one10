@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { products, loading, error, loadProducts } from '$lib/stores/products';
 	import { onMount } from 'svelte';
+	import { user, isStaffUser } from '$lib/stores/auth';
 
 	onMount(() => {
 		loadProducts();
@@ -83,7 +84,7 @@
                                 <span class="text-gray-400">No Image</span>
                             {/if}
                             {#if product.status !== 'available'}
-                                <span class="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded z-10">{product.status.replaceAll('_', ' ')}</span>
+                                <span class="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded z-10">Sold Out</span>
                             {/if}
                         </div>
                         <div class="flex flex-col justify-center items-center py-10">
@@ -91,7 +92,11 @@
                             <p class="product-2-font">{product.name}</p>
                             <p class="text-sm text-gray-600 mt-2">₱{product.price.toFixed(2)}</p>
                             <p class="text-xs text-gray-500 mt-1">Stock: {product.stock}</p>
-                            <button class="border rounded-lg px-6 py-2 font-spaceGrotesk mt-10" disabled={product.status !== 'available'}>{product.status !== 'available' ? product.status.replaceAll('_', ' ') : 'Add to cart'}</button>
+                            {#if !$user || !isStaffUser($user)}
+                                <button class="border rounded-lg px-6 py-2 font-spaceGrotesk mt-10" disabled={product.status !== 'available'}>{product.status !== 'available' ? product.status.replaceAll('_', ' ') : 'Add to cart'}</button>
+                            {:else}
+                                <span class="border rounded-lg px-6 py-2 font-spaceGrotesk mt-10 bg-gray-100 text-gray-400 cursor-not-allowed">Staff view</span>
+                            {/if}
                         </div>
                     </div>
                 {/each}
