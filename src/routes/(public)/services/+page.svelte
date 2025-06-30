@@ -1,3 +1,15 @@
+<script lang="ts">
+	import { products, loading, error, loadProducts } from '$lib/stores/products';
+	import { onMount } from 'svelte';
+
+	onMount(() => {
+		loadProducts();
+	});
+
+	// Show all products for display in shop
+	$: allProducts = $products;
+</script>
+
 <div class="py-10 h-screen mb-8">
     <div class="flex flex-col px-32 py-24 mt-10">
         <h1 class="services-font">Services</h1>
@@ -48,87 +60,43 @@
             Shop
         </h1>
 
-        <div class="grid grid-cols-4 gap-10 py-10">
-            <div class="product-2 flex flex-col">
-                <div class="image-2 flex items-center justify-center">Placeholder</div>
-                        
-                <div class="flex flex-col justify-center items-center py-10">
-                    <p class="product-2-description">Films</p>
-                    <p class="product-2-font">Lorem ipsum dolor sit amet</p>
-                    <button class="border rounded-lg px-6 py-2 font-spaceGrotesk mt-10">Add to cart</button>
-                </div>
+        {#if $loading}
+            <div class="flex justify-center items-center py-20">
+                <p class="text-lg">Loading products...</p>
             </div>
-
-            <div class="product-2 justify-between flex flex-col">
-                <div class="image-2 flex items-center justify-center">Placeholder</div>
-                        
-                <div class="flex flex-col justify-center items-center py-10">
-                    <p class="product-2-description">Films</p>
-                    <p class="product-2-font">Lorem ipsum dolor sit amet</p>
-                    <button class="border rounded-lg px-6 py-2 font-spaceGrotesk mt-10">Add to cart</button>
-                </div>
+        {:else if $error}
+            <div class="flex justify-center items-center py-20">
+                <p class="text-red-500">Error loading products: {$error}</p>
             </div>
-
-            <div class="product-2 flex flex-col">
-                <div class="image-2 flex items-center justify-center">Placeholder</div>
-                        
-                <div class="flex flex-col justify-center items-center py-10">
-                    <p class="product-2-description">Films</p>
-                    <p class="product-2-font">Lorem ipsum dolor sit amet</p>
-                    <button class="border rounded-lg px-6 py-2 font-spaceGrotesk mt-10">Add to cart</button>
-                </div>
+        {:else if allProducts.length === 0}
+            <div class="flex justify-center items-center py-20">
+                <p class="text-lg text-gray-500">No products available at the moment.</p>
             </div>
-
-            <div class="product-2 flex flex-col">
-                <div class="image-2 flex items-center justify-center">Placeholder</div>
-                        
-                <div class="flex flex-col justify-center items-center py-10">
-                    <p class="product-2-description">Films</p>
-                    <p class="product-2-font">Lorem ipsum dolor sit amet</p>
-                    <button class="border rounded-lg px-6 py-2 font-spaceGrotesk mt-10">Add to cart</button>
-                </div>
+        {:else}
+            <div class="grid grid-cols-4 gap-10 py-10">
+                {#each allProducts as product}
+                    <div class="product-2 flex flex-col relative">
+                        <div class="image-2 flex items-center justify-center relative">
+                            {#if product.imageUrl}
+                                <img src={product.imageUrl} alt={product.name} class="w-full h-full object-cover" />
+                            {:else}
+                                <span class="text-gray-400">No Image</span>
+                            {/if}
+                            {#if product.status !== 'available'}
+                                <span class="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded z-10">Sold Out</span>
+                            {/if}
+                        </div>
+                        <div class="flex flex-col justify-center items-center py-10">
+                            <p class="product-2-description">{product.category}</p>
+                            <p class="product-2-font">{product.name}</p>
+                            <p class="text-sm text-gray-600 mt-2">₱{product.price.toFixed(2)}</p>
+                            <p class="text-xs text-gray-500 mt-1">Stock: {product.stock}</p>
+                            <button class="border rounded-lg px-6 py-2 font-spaceGrotesk mt-10" disabled={product.status !== 'available'}>{product.status !== 'available' ? 'Unavailable' : 'Add to cart'}</button>
+                        </div>
+                    </div>
+                {/each}
             </div>
-
-            <div class="product-2 flex flex-col">
-                <div class="image-2 flex items-center justify-center">Placeholder</div>
-                        
-                <div class="flex flex-col justify-center items-center py-10">
-                    <p class="product-2-description">Films</p>
-                    <p class="product-2-font">Lorem ipsum dolor sit amet</p>
-                    <button class="border rounded-lg px-6 py-2 font-spaceGrotesk mt-10">Add to cart</button>
-                </div>
-            </div>
-
-            <div class="product-2 flex flex-col">
-                <div class="image-2 flex items-center justify-center">Placeholder</div>
-                        
-                <div class="flex flex-col justify-center items-center py-10">
-                    <p class="product-2-description">Films</p>
-                    <p class="product-2-font">Lorem ipsum dolor sit amet</p>
-                    <button class="border rounded-lg px-6 py-2 font-spaceGrotesk mt-10">Add to cart</button>
-                </div>
-            </div>
-
-            <div class="product-2 flex flex-col">
-                <div class="image-2 flex items-center justify-center">Placeholder</div>
-                        
-                <div class="flex flex-col justify-center items-center py-10">
-                    <p class="product-2-description">Films</p>
-                    <p class="product-2-font">Lorem ipsum dolor sit amet</p>
-                    <button class="border rounded-lg px-6 py-2 font-spaceGrotesk mt-10">Add to cart</button>
-                </div>
-            </div>
-
-            <div class="product-2 flex flex-col">
-                <div class="image-2 flex items-center justify-center">Placeholder</div>
-                        
-                <div class="flex flex-col justify-center items-center py-10">
-                    <p class="product-2-description">Films</p>
-                    <p class="product-2-font">Lorem ipsum dolor sit amet</p>
-                    <button class="border rounded-lg px-6 py-2 font-spaceGrotesk mt-10">Add to cart</button>
-                </div>
-            </div>
-        </div>
+        {/if}
     </div>
 </div>
 
@@ -244,5 +212,3 @@
            background: var(--Gray-2, #4F4F4F);
         }
     </style>
-
-    <script lang="ts"></script>
