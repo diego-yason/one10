@@ -56,7 +56,7 @@
 						<div class="flex items-center space-x-2">
 							<span class="text-sm">Stock: {product.stock}</span>
 							<span class="text-xs px-2 py-1 rounded-full {product.status === 'available' ? 'bg-green-100 text-green-800' : product.status === 'out_of_stock' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
-								{product.status.replace('_', ' ')}
+								{product.status.replaceAll('_', ' ')}
 							</span>
 						</div>
 						<div class="flex space-x-2 w-full">
