@@ -14,7 +14,7 @@
 			<img src="https://placehold.co/100x60" alt="" />
 		</a>
 		<a href="/" class:font-semibold={page.url.pathname === '/'}>Home</a>
-		<a href="#">Services</a>
+		<a href="/services" class:font-semibold={page.url.pathname === '/services'}>Services</a>
 		<a href="#">Track</a>
 		<a href="/faq">FAQs</a>
 	</div>
