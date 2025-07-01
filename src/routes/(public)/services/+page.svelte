@@ -20,33 +20,33 @@
         <h1 class="services-font">Services</h1>
         {/if}
         {#if !selectedService}
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 py-10 w-full">
-            <a href="/services/disposable" class="products flex flex-col cursor-pointer">
-                <div class="image bg-white flex items-center justify-center">Placeholder</div>
-                <div class="flex flex-col justify-center items-center py-10">
-                    <p class="font-bold underline text-lg mb-1">Disposable Camera Service</p>
-                    <p class="text-base">from P150</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-x-8 gap-y-4 py-4 w-full mx-auto px-4">
+            <a href="/services/disposable" class="products flex flex-col cursor-pointer shadow-lg min-w-[260px] max-w-[340px] bg-white rounded-2xl overflow-hidden">
+                <img src="https://placehold.co/350x250" alt="Disposable Camera" class="w-full h-36 object-cover" />
+                <div class="bg-amber-300 flex flex-col items-center justify-center rounded-b-2xl pt-2 pb-2">
+                    <p class="font-bold underline text-base mb-1">Disposable Camera Service</p>
+                    <p class="text-sm">from P150</p>
                 </div>
             </a>
-            <a href="/services/35mm" class="products flex flex-col cursor-pointer">
-                <div class="image bg-white flex items-center justify-center">Placeholder</div>
-                <div class="flex flex-col justify-center items-center py-10">
-                    <p class="font-bold underline text-lg mb-1">35mm Services</p>
-                    <p class="text-base">from P150</p>
+            <a href="/services/35mm" class="products flex flex-col cursor-pointer shadow-lg min-w-[260px] max-w-[340px] bg-white rounded-2xl overflow-hidden">
+                <img src="https://placehold.co/350x250" alt="35mm Film" class="w-full h-36 object-cover" />
+                <div class="bg-amber-300 flex flex-col items-center justify-center rounded-b-2xl pt-2 pb-2">
+                    <p class="font-bold underline text-base mb-1">35mm Services</p>
+                    <p class="text-sm">from P150</p>
                 </div>
             </a>
-            <a href="/services/120mm" class="products flex flex-col cursor-pointer">
-                <div class="image bg-white flex items-center justify-center">Placeholder</div>
-                <div class="flex flex-col justify-center items-center py-10">
-                    <p class="font-bold underline text-lg mb-1">120 Film Services</p>
-                    <p class="text-base">from P200</p>
+            <a href="/services/120mm" class="products flex flex-col cursor-pointer shadow-lg min-w-[260px] max-w-[340px] bg-white rounded-2xl overflow-hidden">
+                <img src="https://placehold.co/350x250" alt="120mm Film" class="w-full h-36 object-cover" />
+                <div class="bg-amber-300 flex flex-col items-center justify-center rounded-b-2xl pt-2 pb-2">
+                    <p class="font-bold underline text-base mb-1">120 Film Services</p>
+                    <p class="text-sm">from P200</p>
                 </div>
             </a>
-            <a href="/services/printing" class="products flex flex-col cursor-pointer">
-                <div class="image bg-white flex items-center justify-center">Placeholder</div>
-                <div class="flex flex-col justify-center items-center py-10">
-                    <p class="font-bold underline text-lg mb-1">3R - 8R Printing</p>
-                    <p class="text-base">from P8.00</p>
+            <a href="/services/printing" class="products flex flex-col cursor-pointer shadow-lg min-w-[260px] max-w-[340px] bg-white rounded-2xl overflow-hidden">
+                <img src="https://placehold.co/350x250" alt="3R - 8R Printing" class="w-full h-36 object-cover" />
+                <div class="bg-amber-300 flex flex-col items-center justify-center rounded-b-2xl pt-2 pb-2">
+                    <p class="font-bold underline text-base mb-1">3R - 8R Printing</p>
+                    <p class="text-sm">from P8.00</p>
                 </div>
             </a>
         </div>
@@ -59,7 +59,7 @@
 
 {#if !selectedService}
 <div>
-    <div class="flex flex-col px-32 py-24 mt-15 h-screen">
+    <div class="flex flex-col px-32 py-8 mt-4">
         <h1 class="services-font">
             Shop
         </h1>
@@ -110,14 +110,14 @@
 {/if}
 
 {#if !$user}
-<div class="flex justify-between px-40 background-color">
-	<div>
-		<h2 class="font-spaceGrotesk font-bold text-8xl text-white mb-7">
-			<span class="block textOutline text-transparent">Sign up</span> and save
-		</h2>
-		<p class="text-white font-roboto">Register and Subscribe to get special offers</p>
-	</div>
-	<a href="/register" class="bg-amber-300 font-roboto rounded-4xl px-6 py-2 h-min self-center">Register / Log in</a>
+<div class="flex justify-between px-40 background-color py-24">
+    <div>
+        <h2 class="font-spaceGrotesk font-bold text-8xl text-white mb-7">
+            <span class="block textOutline text-transparent">Sign up</span> and save
+        </h2>
+        <p class="text-white font-roboto">Register and Subscribe to get special offers</p>
+    </div>
+    <a href="/register" class="bg-amber-300 font-roboto rounded-4xl px-6 py-2 h-min self-center">Register / Log in</a>
 </div>
 {/if}
 
@@ -136,8 +136,6 @@
         }
 
         .products{
-            width: 349px;
-            height: 391px;
             border-radius: 16px;
             background: var(--Yellow, #F2C94C);
         }
