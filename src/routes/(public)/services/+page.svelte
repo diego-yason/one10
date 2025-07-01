@@ -14,8 +14,8 @@
 	let pushProcessing = 1;
 </script>
 
-<div class="py-10 h-screen mb-8">
-    <div class="flex flex-col max-w-4xl w-full ml-20 p-4 sm:p-8 md:p-12 mt-10">
+<div class="py-10">
+    <div class="flex flex-col max-w-4xl w-full ml-20 p-4 sm:p-8 md:p-12">
         {#if !selectedService}
         <h1 class="services-font">Services</h1>
         {/if}
@@ -52,7 +52,7 @@
         </div>
         {/if}
         {#if selectedService === 'disposable'}
-        <div class="flex flex-col max-w-4xl w-full ml-0 mt-20 mb-20">
+        <div class="flex flex-col max-w-4xl w-full ml-0">
             <div class="flex flex-col items-start mb-12">
                 <h2 class="font-spaceGrotesk font-bold text-7xl mb-8">Develop <span class="textOutline text-transparent">+ Scanning</span></h2>
                 <img src="https://placehold.co/350x250" alt="Disposable Camera" class="rounded-lg w-[350px] h-[250px] object-cover bg-white" />
@@ -91,17 +91,35 @@
                 </div>
                 <div class="flex gap-4 mt-6 items-center">
                     <button type="button" class="bg-amber-300 rounded-4xl px-8 py-2 font-bold text-black">Add to cart</button>
-                    <a href="/faq" class="bg-amber-300 rounded-4xl px-8 py-2 font-bold text-black">Read our FAQs</a>
                     <button type="button" class="ml-auto text-gray-500 underline" on:click={() => selectedService = null}>Back</button>
                 </div>
             </form>
+            <section class="w-full mt-16 flex flex-col md:flex-row">
+              <div class="bg-amber-300 flex-1 flex flex-col justify-center items-center py-16 px-10">
+                <h2 class="text-4xl font-bold mb-8">Reminders</h2>
+                <div>
+                  <h3 class="text-2xl font-bold mb-4">We only accept</h3>
+                  <ul class="text-lg text-gray-700 font-medium space-y-2">
+                    <li>135mm/35 mm Disposables</li>
+                    <li>120 format/ Medium format</li>
+                    <li>C-41/C16 Process</li>
+                    <li>Black and White Process</li>
+                    <li>Push Processing</li>
+                  </ul>
+                </div>
+              </div>
+              <div class="flex-1 flex flex-col justify-center items-center relative min-h-[300px] bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=600&q=80');">
+                <h2 class="text-3xl font-bold mb-6 text-black">Got some questions?</h2>
+                <a href="/faq" class="bg-amber-300 rounded-4xl px-8 py-3 font-bold text-black text-lg">Read our FAQs</a>
+              </div>
+            </section>
         </div>
         {/if}
     </div>
 </div>
 
 {#if !selectedService}
-<div class="mb-20">
+<div>
     <div class="flex flex-col px-32 py-24 mt-15 h-screen">
         <h1 class="services-font">
             Shop
@@ -153,7 +171,7 @@
 {/if}
 
 {#if !$user}
-<div class="py-48 flex justify-between px-40 mt-150 background-color">
+<div class="flex justify-between px-40 background-color">
 	<div>
 		<h2 class="font-spaceGrotesk font-bold text-8xl text-white mb-7">
 			<span class="block textOutline text-transparent">Sign up</span> and save
@@ -265,10 +283,4 @@
     </style>
 
     {#if selectedService}
-    <footer class="bg-[#333] font-roboto text-[#7A7A7A] flex flex-row justify-between pt-12 pb-20 px-44 mt-20">
-        <p>One 10 Studio Lab | Muntinlupa City, Metro Manila</p>
-        <p>
-            Copyright © 2025, <span class="text-amber-300">One 10 Studio Lab</span> | All rights reserved.
-        </p>
-    </footer>
     {/if}
