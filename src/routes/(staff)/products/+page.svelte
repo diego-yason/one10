@@ -1,17 +1,22 @@
 <div class="flex flex-col space-y-6">
-	<div class="flex justify-between items-center">
-		<div class="flex space-y-6 flex-col">
+	<div class="flex justify-between items-center mb-4">
+		<div class="flex flex-1 items-center gap-4">
 			<input 
 				type="text" 
 				placeholder="Search Product Code" 
-				class="px-5 py-3 rounded-lg bg-white border-0 w-110"
+				class="px-5 py-3 rounded-lg bg-white border-0 w-full max-w-xs"
 				bind:value={searchTerm}
 			>
-			<p class="font-bold">Products ({filteredProducts.length})</p>
+			<label for="category-filter" class="text-sm font-semibold ml-2 mr-2 mb-0">Category</label>
+			<select id="category-filter" bind:value={selectedCategory} class="px-5 py-3 rounded-lg bg-white border-0 text-sm w-44">
+				{#each categories as category}
+					<option value={category}>{category}</option>
+				{/each}
+			</select>
 		</div>
 		<button 
 			on:click={openAddModal}
-			class="bg-amber-300 text-black px-6 py-3 rounded-lg hover:bg-amber-400 transition-colors font-semibold"
+			class="bg-amber-300 text-black px-6 py-3 rounded-lg hover:bg-amber-400 transition-colors font-semibold ml-4"
 		>
 			+ Add New Product
 		</button>
@@ -249,6 +254,8 @@
 	let errorMessage = '';
 	let showConfirmModal = false;
 	let productToDelete: Product | null = null;
+	let selectedCategory = 'All';
+	const categories = ['All', 'Non-Film', 'Film 35mm', 'Film 120mm', 'Simple Use - Disposable Camera'];
 
 	// Form data for adding/editing products
 	let formData = {
@@ -398,6 +405,7 @@
 
 	// Filter products based on search term
 	$: filteredProducts = $products.filter(product =>
+		(selectedCategory === 'All' || product.category === selectedCategory) &&
 		product.itemCode.toLowerCase().includes(searchTerm.toLowerCase())
 	);
 </script>

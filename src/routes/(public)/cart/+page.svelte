@@ -1,20 +1,34 @@
 <script>
 	import CartItem from './CartItem.svelte';
 	import { onMount } from 'svelte';
-	import { user } from '$lib/stores/auth';
+	import { user, isStaffUser, authLoaded } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
 
 	let cartItems = [];
 	let loaded = false;
+	let authChecked = false;
+	let currentUser = null;
+	let isAuthLoaded = false;
 
-	// Client-side route protection
+	// Improved client-side route protection with loading state
 	onMount(() => {
-		const unsubscribe = user.subscribe(($user) => {
-			if (!$user) {
-				goto('/login');
+		const unsubUser = user.subscribe(($user) => {
+			currentUser = $user;
+		});
+		const unsubLoaded = authLoaded.subscribe(($authLoaded) => {
+			isAuthLoaded = $authLoaded;
+			if (isAuthLoaded) {
+				if (currentUser && isStaffUser(currentUser)) {
+					goto('/');
+				} else if (currentUser === null) {
+					goto('/login');
+				}
 			}
 		});
-		return unsubscribe;
+		return () => {
+			unsubUser();
+			unsubLoaded();
+		};
 	});
 
 	onMount(() => {
