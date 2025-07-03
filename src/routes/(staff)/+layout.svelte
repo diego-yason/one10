@@ -1,9 +1,22 @@
 <script>
     import { page } from '$app/stores';
     import { goto } from '$app/navigation';
+    import { user, isStaffUser } from '$lib/stores/auth';
+    import { onMount } from 'svelte';
+
     function returnToNormalView() {
         goto('/');
     }
+
+    // Client-side route protection
+    onMount(() => {
+        const unsubscribe = user.subscribe(($user) => {
+            if (!$user || !isStaffUser($user)) {
+                goto('/');
+            }
+        });
+        return unsubscribe;
+    });
 </script>
 
 <style>

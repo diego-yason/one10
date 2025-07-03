@@ -7,7 +7,7 @@ export const user = writable<User | null>(null);
 
 // Function to check if a user is staff
 export function isStaffUser(user: User | null): boolean {
-	return user?.email?.endsWith('@one10.com') ?? false;
+	return user?.email?.endsWith('@one10studiolab.com') ?? false;
 }
 
 if (browser) {

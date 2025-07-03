@@ -1,9 +1,21 @@
 <script>
 	import CartItem from './CartItem.svelte';
 	import { onMount } from 'svelte';
+	import { user } from '$lib/stores/auth';
+	import { goto } from '$app/navigation';
 
 	let cartItems = [];
 	let loaded = false;
+
+	// Client-side route protection
+	onMount(() => {
+		const unsubscribe = user.subscribe(($user) => {
+			if (!$user) {
+				goto('/login');
+			}
+		});
+		return unsubscribe;
+	});
 
 	onMount(() => {
 		const stored = localStorage.getItem('cart');
