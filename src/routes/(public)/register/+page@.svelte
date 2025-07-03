@@ -163,6 +163,8 @@
 			</button>
 		</form>
 
+		<a href="/" class="flex items-center gap-1 text-brand underline mt-4 mb-2"><span>&larr;</span> Back to Home</a>
+
 		<div class="mt-5 mb-11">
 			<p>Or create an account using</p>
 			<div class="flex gap-2.5 mb-5">

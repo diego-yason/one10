@@ -142,6 +142,7 @@
 			</button>
 		</form>
 		<a href="/login/reset" class="text-[#F2C94C] underline">Forgot password?</a>
+		<a href="/" class="flex items-center gap-1 text-brand underline mt-4 mb-2"><span>&larr;</span> Back to Home</a>
 
 		<div class="mt-5 mb-11">
 			<p>Or login using</p>

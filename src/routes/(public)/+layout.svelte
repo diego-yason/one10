@@ -3,9 +3,13 @@
 	import { user, isStaffUser } from '$lib/stores/auth';
 	import { signOut } from 'firebase/auth';
 	import { auth } from '$lib/firebase';
+	import { goto } from '$app/navigation';
 	let { children } = $props();
 
-	const handleSignOut = () => signOut(auth);
+	const handleSignOut = async () => {
+		await signOut(auth);
+		goto('/');
+	};
 </script>
 
 <div class="min-h-screen flex flex-col">

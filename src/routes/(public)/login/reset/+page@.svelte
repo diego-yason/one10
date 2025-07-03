@@ -91,6 +91,7 @@
             </div>
             <button class="bg-amber-600 text-white py-2">Send Reset Link</button>
         </form>
+        <a href="/" class="flex items-center gap-1 text-brand underline mt-4 mb-2"><span>&larr;</span> Back to Home</a>
         <a href="/login" class="text-brand underline">Back to Log in</a>
     </div>
 </div>
