@@ -121,7 +121,8 @@
 	<h2 class="font-spaceGrotesk font-bold text-4xl mb-6">Got some questions?</h2>
 	<a href="#" class="border-2 border-white rounded-4xl px-6 py-2">Read our FAQs</a>
 </div>
-<div class="py-52 px-40 flex flex-row items-center justify-between">
+{#if !$user}
+<div class="py-32 px-40 flex flex-row items-center justify-between">
 	<div class="flex flex-col justify-center" style="min-width: 480px;">
 		<h2 class="font-spaceGrotesk font-bold text-8xl text-white mb-2">
 			<span class="block textOutline text-transparent">Sign up</span> and save
@@ -129,12 +130,7 @@
 		<p class="text-white font-roboto text-lg">Register and Subscribe to get special offers</p>
 	</div>
 	<div class="flex items-center">
-		{#if !$user}
-			<a href="/register" class="bg-amber-300 font-roboto rounded-4xl px-8 py-3 text-base">Register / Log in</a>
-		{:else if isStaffUser($user)}
-			<a href="/dashboard" class="bg-amber-300 font-roboto rounded-4xl px-8 py-3 text-base">Go to Dashboard</a>
-		{:else}
-			<a href="/cart" class="bg-amber-300 font-roboto rounded-4xl px-8 py-3 text-base">Go to Cart</a>
-		{/if}
+		<a href="/register" class="bg-amber-300 font-roboto rounded-4xl px-8 py-3 text-base">Register / Log in</a>
 	</div>
 </div>
+{/if}
