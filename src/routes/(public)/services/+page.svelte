@@ -80,19 +80,23 @@
             <div class="grid grid-cols-4 gap-10 py-10">
                 {#each allProducts as product}
                     <div class="product-2 flex flex-col relative">
-                        <div class="image-2 flex items-center justify-center relative">
-                            {#if product.imageUrl}
-                                <img src={product.imageUrl} alt={product.name} class="w-full h-full object-cover" />
-                            {:else}
-                                <span class="text-gray-400">No Image</span>
-                            {/if}
+                        <div class="image-2 flex items-center justify-center relative bg-[#FAFAFA]">
+                            <a href={`/product/${product.id}`}> 
+                                {#if product.imageUrl}
+                                    <img src={product.imageUrl} alt={product.name} class="w-full h-full object-contain bg-[#FAFAFA]" />
+                                {:else}
+                                    <span class="text-gray-400">No Image</span>
+                                {/if}
+                            </a>
                             {#if product.status !== 'available'}
                                 <span class="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded z-10">Sold Out</span>
                             {/if}
                         </div>
                         <div class="flex flex-col justify-center items-center py-10">
                             <p class="product-2-description">{product.category}</p>
-                            <p class="product-2-font">{product.name}</p>
+                            <p class="product-2-font">
+                                <a href={`/product/${product.id}`} class="hover:text-amber-400">{product.name}</a>
+                            </p>
                             <p class="text-sm text-gray-600 mt-2">₱{product.price.toFixed(2)}</p>
                             <p class="text-xs text-gray-500 mt-1">Stock: {product.stock}</p>
                             {#if !$user || !isStaffUser($user)}
@@ -211,7 +215,7 @@
         .image-2{
             height: 214px;
             align-self: stretch;
-            background-color: #333;
+            background-color: #FAFAFA;
         }
 
         .background-color{
