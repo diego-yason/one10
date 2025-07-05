@@ -1,7 +1,7 @@
 import { type Handle, redirect } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 
-import { auth } from '$lib/firebase';
+import { auth } from '$lib/services/firebase';
 
 const user: Handle = async ({ event, resolve }) => {
 	if (!auth.currentUser) event.locals.user = { email: null, id: null };
