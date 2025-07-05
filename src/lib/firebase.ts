@@ -140,13 +140,13 @@ import { getFunctions, type Functions } from 'firebase/functions';
 import { getDatabase, type Database } from 'firebase/database';
 import { getStorage, type FirebaseStorage } from 'firebase/storage';
 import { browser } from '$app/environment';
-import { 
-	collection, 
-	doc, 
-	addDoc, 
-	updateDoc, 
-	deleteDoc, 
-	getDocs, 
+import {
+	collection,
+	doc,
+	addDoc,
+	updateDoc,
+	deleteDoc,
+	getDocs,
 	getDoc,
 	query,
 	orderBy,
@@ -307,20 +307,7 @@ export const database = firebase.getDatabaseInstance();
 export const storage = firebase.getStorageInstance();
 
 // Product management functions
-export interface Product {
-	id?: string;
-	itemCode: string;
-	name: string;
-	description: string;
-	price: number;
-	stock: number;
-	status: 'available' | 'not_available' | 'out_of_stock';
-	imageUrl?: string;
-	category: string;
-	expiryDate?: string | null;
-	createdAt: Date;
-	updatedAt: Date;
-}
+import type { Product } from '$types/products';
 
 export class ProductService {
 	private static instance: ProductService;
@@ -361,8 +348,8 @@ export class ProductService {
 	async getProducts(): Promise<Product[]> {
 		const q = query(collection(this.db, 'products'), orderBy('createdAt', 'desc'));
 		const querySnapshot = await getDocs(q);
-		
-		return querySnapshot.docs.map(doc => ({
+
+		return querySnapshot.docs.map((doc) => ({
 			id: doc.id,
 			...doc.data()
 		})) as Product[];
@@ -374,7 +361,7 @@ export class ProductService {
 	async getProduct(id: string): Promise<Product | null> {
 		const docRef = doc(this.db, 'products', id);
 		const docSnap = await getDoc(docRef);
-		
+
 		if (docSnap.exists()) {
 			return {
 				id: docSnap.id,
@@ -387,7 +374,10 @@ export class ProductService {
 	/**
 	 * Update a product
 	 */
-	async updateProduct(id: string, updates: Partial<Omit<Product, 'id' | 'createdAt'>>): Promise<void> {
+	async updateProduct(
+		id: string,
+		updates: Partial<Omit<Product, 'id' | 'createdAt'>>
+	): Promise<void> {
 		const docRef = doc(this.db, 'products', id);
 		await updateDoc(docRef, {
 			...updates,
