@@ -20,7 +20,7 @@
         <h1 class="services-font">Services</h1>
         {/if}
         {#if !selectedService}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-x-8 gap-y-4 py-4 w-full mx-auto px-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-76 gap-y-12 py-4 max-w-screen-xl w-full mx-auto px-4">
             <a href="/services/disposable" class="products flex flex-col cursor-pointer shadow-lg min-w-[260px] max-w-[340px] bg-white rounded-2xl overflow-hidden">
                 <img src="https://placehold.co/350x250" alt="Disposable Camera" class="w-full h-36 object-cover" />
                 <div class="bg-amber-300 flex flex-col items-center justify-center rounded-b-2xl pt-2 pb-2">
