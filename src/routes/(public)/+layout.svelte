@@ -2,7 +2,7 @@
 	import { page } from '$app/state';
 	import { user, isStaffUser } from '$lib/stores/auth';
 	import { signOut } from 'firebase/auth';
-	import { auth } from '$lib/firebase';
+	import { auth } from '$lib/services/firebase';
 	import { goto } from '$app/navigation';
 	let { children } = $props();
 
@@ -13,7 +13,6 @@
 </script>
 
 <div class="min-h-screen flex flex-col">
-
 	<nav class="flex justify-between py-10 px-32 font-poppins text-white w-full">
 		<div class="flex flex-row gap-20 items-center">
 			<a href="/">
@@ -31,7 +30,9 @@
 				{:else}
 					<a href="/cart">Cart</a>
 				{/if}
-				<button on:click={handleSignOut} class="hover:text-amber-300 transition-colors">Sign Out</button>
+				<button on:click={handleSignOut} class="hover:text-amber-300 transition-colors"
+					>Sign Out</button
+				>
 			{:else}
 				<a href="/login">Log In</a>
 			{/if}
@@ -42,7 +43,9 @@
 		{@render children()}
 	</main>
 
-	<footer class="bg-[#333] font-roboto text-[#7A7A7A] flex flex-row justify-between pt-12 pb-20 px-44">
+	<footer
+		class="bg-[#333] font-roboto text-[#7A7A7A] flex flex-row justify-between pt-12 pb-20 px-44"
+	>
 		<p>One 10 Studio Lab | Muntinlupa City, Metro Manila</p>
 		<p>
 			Copyright © 2025, <span class="text-amber-300">One 10 Studio Lab</span> | All rights reserved.

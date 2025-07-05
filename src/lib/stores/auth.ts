@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import { auth } from '$lib/firebase';
+import { auth } from '$lib/services/firebase';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { browser } from '$app/environment';
 
@@ -12,8 +12,8 @@ export function isStaffUser(user: User | null): boolean {
 }
 
 if (browser) {
-    onAuthStateChanged(auth, (newUser) => {
-        user.set(newUser);
-        authLoaded.set(true);
-    });
-} 
+	onAuthStateChanged(auth, (newUser) => {
+		user.set(newUser);
+		authLoaded.set(true);
+	});
+}
