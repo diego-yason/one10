@@ -180,24 +180,26 @@
 
         .product-2{
             display: flex;
-            padding: 40px 30px;
+            padding: 20px 10px;
             flex-direction: column;
             align-items: flex-start;
             align-self: stretch;
             background: #FAFAFA;
             border-radius: 16px;
+            max-width: 220px;
+            min-width: 0;
+            margin: 0 auto;
         }
 
         .product-2-font{
             color: var(--Global-black, #000);
             text-align: center;
-            /* headings/h5 */
             font-family: "Space Grotesk";
-            font-size: 22px;
+            font-size: 16px;
             font-style: normal;
             font-weight: 700;
-            line-height: 32px; /* 145.455% */
-            letter-spacing: 1.2px;
+            line-height: 24px;
+            letter-spacing: 1px;
         }
 
         .product-2-description{
@@ -205,21 +207,37 @@
             color: var(--Gray-5, #E0E0E0);
             text-align: center;
             font-family: "Space Grotesk";
-            font-size: 12px;
+            font-size: 10px;
             font-style: normal;
             font-weight: 600;
-            line-height: 24px;
+            line-height: 16px;
             text-transform: uppercase;
         }
 
         .image-2{
-            height: 214px;
+            height: 120px;
             align-self: stretch;
             background-color: #FAFAFA;
+            max-width: 180px;
+            margin: 0 auto;
         }
 
         .background-color{
            background: var(--Gray-2, #4F4F4F);
+        }
+
+        .text-sm {
+            font-size: 12px;
+            line-height: 16px;
+        }
+
+        .text-xs {
+            font-size: 10px;
+            line-height: 14px;
+        }
+
+        .font-semibold {
+            font-size: 14px;
         }
     </style>
 
