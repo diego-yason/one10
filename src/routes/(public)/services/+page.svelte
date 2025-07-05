@@ -20,7 +20,7 @@
         <h1 class="services-font">Services</h1>
         {/if}
         {#if !selectedService}
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-x-8 gap-y-4 py-4 w-full mx-auto px-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-76 gap-y-12 py-4 max-w-screen-xl w-full mx-auto px-4">
             <a href="/services/disposable" class="products flex flex-col cursor-pointer shadow-lg min-w-[260px] max-w-[340px] bg-white rounded-2xl overflow-hidden">
                 <img src="https://placehold.co/350x250" alt="Disposable Camera" class="w-full h-36 object-cover" />
                 <div class="bg-amber-300 flex flex-col items-center justify-center rounded-b-2xl pt-2 pb-2">
@@ -80,19 +80,23 @@
             <div class="grid grid-cols-4 gap-10 py-10">
                 {#each allProducts as product}
                     <div class="product-2 flex flex-col relative">
-                        <div class="image-2 flex items-center justify-center relative">
-                            {#if product.imageUrl}
-                                <img src={product.imageUrl} alt={product.name} class="w-full h-full object-cover" />
-                            {:else}
-                                <span class="text-gray-400">No Image</span>
-                            {/if}
+                        <div class="image-2 flex items-center justify-center relative bg-[#FAFAFA]">
+                            <a href={`/product/${product.id}`}> 
+                                {#if product.imageUrl}
+                                    <img src={product.imageUrl} alt={product.name} class="w-full h-full object-contain bg-[#FAFAFA]" />
+                                {:else}
+                                    <span class="text-gray-400">No Image</span>
+                                {/if}
+                            </a>
                             {#if product.status !== 'available'}
                                 <span class="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded z-10">Sold Out</span>
                             {/if}
                         </div>
                         <div class="flex flex-col justify-center items-center py-10">
                             <p class="product-2-description">{product.category}</p>
-                            <p class="product-2-font">{product.name}</p>
+                            <p class="product-2-font">
+                                <a href={`/product/${product.id}`} class="hover:text-amber-400">{product.name}</a>
+                            </p>
                             <p class="text-sm text-gray-600 mt-2">₱{product.price.toFixed(2)}</p>
                             <p class="text-xs text-gray-500 mt-1">Stock: {product.stock}</p>
                             {#if !$user || !isStaffUser($user)}
@@ -176,24 +180,26 @@
 
         .product-2{
             display: flex;
-            padding: 40px 30px;
+            padding: 20px 10px;
             flex-direction: column;
             align-items: flex-start;
             align-self: stretch;
             background: #FAFAFA;
             border-radius: 16px;
+            max-width: 220px;
+            min-width: 0;
+            margin: 0 auto;
         }
 
         .product-2-font{
             color: var(--Global-black, #000);
             text-align: center;
-            /* headings/h5 */
             font-family: "Space Grotesk";
-            font-size: 22px;
+            font-size: 16px;
             font-style: normal;
             font-weight: 700;
-            line-height: 32px; /* 145.455% */
-            letter-spacing: 1.2px;
+            line-height: 24px;
+            letter-spacing: 1px;
         }
 
         .product-2-description{
@@ -201,21 +207,37 @@
             color: var(--Gray-5, #E0E0E0);
             text-align: center;
             font-family: "Space Grotesk";
-            font-size: 12px;
+            font-size: 10px;
             font-style: normal;
             font-weight: 600;
-            line-height: 24px;
+            line-height: 16px;
             text-transform: uppercase;
         }
 
         .image-2{
-            height: 214px;
+            height: 120px;
             align-self: stretch;
-            background-color: #333;
+            background-color: #FAFAFA;
+            max-width: 180px;
+            margin: 0 auto;
         }
 
         .background-color{
            background: var(--Gray-2, #4F4F4F);
+        }
+
+        .text-sm {
+            font-size: 12px;
+            line-height: 16px;
+        }
+
+        .text-xs {
+            font-size: 10px;
+            line-height: 14px;
+        }
+
+        .font-semibold {
+            font-size: 14px;
         }
     </style>
 

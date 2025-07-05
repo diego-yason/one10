@@ -93,17 +93,21 @@
 			<div class="flex gap-8 justify-center mb-10">
 				{#each homeProducts as product}
 					<div class="overflow-hidden rounded-2xl bg-gray-400 relative w-[340px] max-w-full flex flex-col">
-						{#if product.imageUrl}
-							<img src={product.imageUrl} alt={product.name} class="w-full h-48 object-cover" />
-						{:else}
-							<img src="https://placehold.co/333x214" alt="" class="w-full h-48 object-cover" />
-						{/if}
+						<a href={`/product/${product.id}`}>
+							{#if product.imageUrl}
+								<img src={product.imageUrl} alt={product.name} class="w-full h-48 object-cover" />
+							{:else}
+								<img src="https://placehold.co/333x214" alt="" class="w-full h-48 object-cover" />
+							{/if}
+						</a>
 						{#if product.status !== 'available'}
 							<span class="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded z-10">Sold Out</span>
 						{/if}
 						<div class="mb-8 mx-6 text-center pt-8">
 							<p class="uppercase text-xs font-spaceGrotesk mb-2">{product.category}</p>
-							<p class="font-spaceGrotesk text-xl font-bold mb-2">{product.name}</p>
+							<p class="font-spaceGrotesk text-xl font-bold mb-2">
+								<a href={`/product/${product.id}`} class="transition-colors hover:text-[#F2C94C]">{product.name}</a>
+							</p>
 							<p class="text-sm text-gray-600 mb-2">{product.description}</p>
 							<p class="font-semibold text-lg mb-2">₱{product.price}</p>
 							{#if !$user || !isStaffUser($user)}
