@@ -44,7 +44,7 @@
 		"@tailwindcss/vite": "^4.1.8",
 		"firebase": "^11.10.0",
 		"svelte-firekit": "^0.0.25",
-		"tailwindcss": "^4.1.8",
+		"tailwindcss": "^4.1.11",
 		"zod": "^3.25.64"
 	}
 }
