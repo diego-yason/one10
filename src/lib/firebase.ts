@@ -151,7 +151,8 @@ import {
 	query,
 	orderBy,
 	type DocumentData,
-	type QueryDocumentSnapshot
+	type QueryDocumentSnapshot,
+	setDoc
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 
@@ -450,11 +451,11 @@ export class CartService {
 
 	async setCart(userId: string, items: any[]): Promise<void> {
 		const docRef = doc(this.db, 'carts', userId);
-		await updateDoc(docRef, { items });
+		await setDoc(docRef, { items }, { merge: true });
 	}
 
 	async clearCart(userId: string): Promise<void> {
 		const docRef = doc(this.db, 'carts', userId);
-		await updateDoc(docRef, { items: [] });
+		await setDoc(docRef, { items: [] }, { merge: true });
 	}
 }
