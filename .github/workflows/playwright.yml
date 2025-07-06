@@ -4,7 +4,15 @@ on:
     branches: [main, sprints]
   pull_request:
     branches: [main, sprints]
+env:
 jobs:
+  env:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Load environment variables
+        uses: falti/dotenv-action@v1.1.4
+        path: .staging.env
+        ensure-exists: true
   test:
     timeout-minutes: 60
     runs-on: ubuntu-latest
