@@ -1,6 +1,7 @@
 <script lang="ts">
 import { user, isStaffUser } from '$lib/stores/auth';
 import { printingSchema, validateField } from '$lib/validation';
+import { cart, showToast } from '$lib/stores/cart';
 
 let photoSize = '';
 let totalPhotos = '';
@@ -73,7 +74,6 @@ const handleSubmit = (e: SubmitEvent) => {
 	
 	if (!result.success) {
 		if (result.error && Array.isArray(result.error.errors)) {
-			// Group errors by field
 			result.error.errors.forEach(error => {
 				const field = error.path[0] as string;
 				fieldErrors[field] = error.message;
@@ -84,8 +84,16 @@ const handleSubmit = (e: SubmitEvent) => {
 		return;
 	}
 
-	// TODO: Handle form submission
-	console.log('Form submitted:', result.data);
+	const qty = parseInt(totalPhotos) || 1;
+	cart.add({
+		id: 'printing-' + Date.now(),
+		type: 'service',
+		name: 'Printing',
+		price: 8 * qty,
+		quantity: 1,
+		details: result.data
+	});
+	showToast('Added to cart!');
 };
 </script>
 

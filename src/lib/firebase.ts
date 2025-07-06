@@ -421,3 +421,40 @@ export class ProductService {
 		await deleteObject(imageRef);
 	}
 }
+
+// CartService for user cart storage in Firestore
+export class CartService {
+	private static instance: CartService;
+	private db: Firestore;
+
+	private constructor() {
+		const firebaseService = FirebaseService.getInstance();
+		this.db = firebaseService.getDbInstance();
+	}
+
+	static getInstance(): CartService {
+		if (!CartService.instance) {
+			CartService.instance = new CartService();
+		}
+		return CartService.instance;
+	}
+
+	async getCart(userId: string): Promise<any[]> {
+		const docRef = doc(this.db, 'carts', userId);
+		const docSnap = await getDoc(docRef);
+		if (docSnap.exists()) {
+			return docSnap.data().items || [];
+		}
+		return [];
+	}
+
+	async setCart(userId: string, items: any[]): Promise<void> {
+		const docRef = doc(this.db, 'carts', userId);
+		await updateDoc(docRef, { items });
+	}
+
+	async clearCart(userId: string): Promise<void> {
+		const docRef = doc(this.db, 'carts', userId);
+		await updateDoc(docRef, { items: [] });
+	}
+}

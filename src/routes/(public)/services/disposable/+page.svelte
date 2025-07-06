@@ -1,6 +1,7 @@
 <script lang="ts">
 import { user, isStaffUser } from '$lib/stores/auth';
 import { disposableSchema, validateField } from '$lib/validation';
+import { cart, showToast } from '$lib/stores/cart';
 
 let pushProcessing = 1;
 let filmBrand = '';
@@ -52,8 +53,16 @@ const handleSubmit = (e: SubmitEvent) => {
 		return;
 	}
 
-	// TODO: Handle form submission
-	console.log('Form submitted:', result.data);
+	const price = scanOption === 'scan' ? 300 : 200;
+	cart.add({
+		id: 'disposable-' + Date.now(),
+		type: 'service',
+		name: 'Disposable Camera',
+		price,
+		quantity: 1,
+		details: result.data
+	});
+	showToast('Added to cart!');
 };
 </script>
 
