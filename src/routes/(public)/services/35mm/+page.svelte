@@ -20,6 +20,9 @@ let pushProcessing = 1;
             <label class="block font-bold mb-2 text-sm">PROCESS TYPE</label>
             <select class="w-full px-4 py-2 rounded border border-gray-300 bg-white">
                 <option value="">Select process type</option>
+                <option value="option1">Option 1</option>
+                <option value="option2">Option 2</option>
+                <option value="option3">Option 3</option>
             </select>
         </div>
         <div>
@@ -33,6 +36,9 @@ let pushProcessing = 1;
             <label class="block font-bold mb-2 text-sm">RETURNING NEGATIVES</label>
             <select class="w-full px-4 py-2 rounded border border-gray-300 bg-white">
                 <option value="">Select how would you like to get your negatives back</option>
+                <option value="option1">Option 1</option>
+                <option value="option2">Option 2</option>
+                <option value="option3">Option 3</option>
             </select>
         </div>
         <div class="flex flex-col gap-2 mt-2">
