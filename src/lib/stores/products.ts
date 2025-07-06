@@ -1,5 +1,6 @@
 import { writable } from 'svelte/store';
-import { ProductService, type Product } from '$lib/firebase';
+import { type Product } from '$lib/services/firebase';
+import { ProductService } from '$lib/services/products';
 import { browser } from '$app/environment';
 
 export const products = writable<Product[]>([]);
@@ -11,7 +12,7 @@ const productService = ProductService.getInstance();
 // Load products from Firebase
 export async function loadProducts() {
 	if (!browser) return;
-	
+
 	try {
 		loading.set(true);
 		error.set(null);
@@ -28,10 +29,10 @@ export async function loadProducts() {
 // Get products by category
 export function getProductsByCategory(category: string): Product[] {
 	let productList: Product[] = [];
-	products.subscribe(value => {
-		productList = value.filter(product => 
-			product.category.toLowerCase() === category.toLowerCase() && 
-			product.status === 'available'
+	products.subscribe((value) => {
+		productList = value.filter(
+			(product) =>
+				product.category.toLowerCase() === category.toLowerCase() && product.status === 'available'
 		);
 	})();
 	return productList;
@@ -40,8 +41,8 @@ export function getProductsByCategory(category: string): Product[] {
 // Get available products only
 export function getAvailableProducts(): Product[] {
 	let productList: Product[] = [];
-	products.subscribe(value => {
-		productList = value.filter(product => product.status === 'available');
+	products.subscribe((value) => {
+		productList = value.filter((product) => product.status === 'available');
 	})();
 	return productList;
 }
@@ -49,4 +50,4 @@ export function getAvailableProducts(): Product[] {
 // Initialize products on browser load
 if (browser) {
 	loadProducts();
-} 
+}
