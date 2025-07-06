@@ -77,7 +77,59 @@ export function validateField<T extends z.ZodObject<any>>(
 	return result.success ? '' : result.error.errors[0]?.message || '';
 }
 
+// Service form validation schemas
+export const disposableSchema = z.object({
+	filmBrand: z.string().min(1, "Film brand name is required."),
+	processType: z.string().min(1, "Please select a process type."),
+	returningNegatives: z.string().min(1, "Please select how to return negatives."),
+	scanOption: z.string().min(1, "Please select a scan/process option."),
+});
+
+export const film35mmSchema = z.object({
+	filmBrand: z.string().min(1, "Film brand name is required."),
+	processType: z.string().min(1, "Please select a process type."),
+	returningNegatives: z.string().min(1, "Please select how to return negatives."),
+	scanOption: z.string().min(1, "Please select a scan/process option."),
+});
+
+export const film120mmSchema = z.object({
+	filmBrand: z.string().min(1, "Film brand name is required."),
+	processType: z.string().min(1, "Please select a process type."),
+	returningNegatives: z.string().min(1, "Please select how to return negatives."),
+	scanOption: z.string().min(1, "Please select a scan/process option."),
+});
+
+export const printingSchema = z.object({
+	photoSize: z.string().min(1, "Please select a photo size."),
+	totalPhotos: z.string().min(1, "Please enter the total number of photos."),
+	accessPhotos: z.string().min(1, "Please select how to access your photos."),
+	linkPhotos: z.string().optional(), // Optional field
+	dropoffMode: z.string().min(1, "Please select a drop-off delivery mode."),
+	dropoffOther: z.string().optional(),
+	pickupMode: z.string().min(1, "Please select a pick-up delivery mode."),
+	pickupOther: z.string().optional(),
+}).superRefine((data, ctx) => {
+	if (data.dropoffMode === 'other' && (!data.dropoffOther || data.dropoffOther.trim() === '')) {
+		ctx.addIssue({
+			path: ['dropoffOther'],
+			code: z.ZodIssueCode.custom,
+			message: 'Please specify the drop-off method.'
+		});
+	}
+	if (data.pickupMode === 'other' && (!data.pickupOther || data.pickupOther.trim() === '')) {
+		ctx.addIssue({
+			path: ['pickupOther'],
+			code: z.ZodIssueCode.custom,
+			message: 'Please specify the pick-up method.'
+		});
+	}
+});
+
 // Type helpers
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type RegisterFormData = z.infer<typeof registerSchema>;
-export type ResetFormData = z.infer<typeof resetSchema>; 
+export type ResetFormData = z.infer<typeof resetSchema>;
+export type DisposableFormData = z.infer<typeof disposableSchema>;
+export type Film35mmFormData = z.infer<typeof film35mmSchema>;
+export type Film120mmFormData = z.infer<typeof film120mmSchema>;
+export type PrintingFormData = z.infer<typeof printingSchema>; 
