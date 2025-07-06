@@ -20,8 +20,9 @@ jobs:
         run: npx playwright install --with-deps
       - name: Load environment variables
         uses: falti/dotenv-action@v1.1.4
-        path: .staging.env
-        ensure-exists: true
+        with:
+          path: .staging.env
+          ensure-exists: true
       - name: Run Playwright tests
         run: npx playwright test
       - uses: actions/upload-artifact@v4
