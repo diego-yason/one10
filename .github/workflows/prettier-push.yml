@@ -1,13 +1,7 @@
-name: Lint
+name: Prettier
 
 on:
-  # Trigger the workflow on push or pull request,
-  # but only for the main branch
   push:
-    branches:
-      - main
-      - sprints
-  pull_request:
     branches:
       - main
       - sprints
@@ -33,5 +27,7 @@ jobs:
       - name: Run linters
         uses: wearerequired/lint-action@v2
         with:
-          eslint: true
           prettier: true
+          auto_fix: true
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          commit_message: '[LINT] ${linter} (auto-fix)'
