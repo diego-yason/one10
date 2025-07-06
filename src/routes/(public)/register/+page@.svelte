@@ -1,6 +1,11 @@
 <script lang="ts">
-	import { createUserWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, FacebookAuthProvider } from 'firebase/auth';
-	import { auth } from '$lib/firebase';
+	import {
+		createUserWithEmailAndPassword,
+		signInWithPopup,
+		GoogleAuthProvider,
+		FacebookAuthProvider
+	} from 'firebase/auth';
+	import { auth } from '$lib/services/firebase';
 	import { goto } from '$app/navigation';
 	import { registerSchema, getFirebaseErrorMessage, validateField } from '$lib/validation';
 
@@ -17,7 +22,7 @@
 		if (errorMessages.length > 0) {
 			errorMessages = [];
 		}
-		
+
 		// Validate the specific field
 		const error = validateField(registerSchema, field as keyof typeof registerSchema.shape, value);
 		if (error) {
@@ -37,7 +42,7 @@
 		if (!result.success) {
 			if (result.error && Array.isArray(result.error.errors)) {
 				// Group errors by field
-				result.error.errors.forEach(error => {
+				result.error.errors.forEach((error) => {
 					const field = error.path[0] as string;
 					fieldErrors[field] = error.message;
 				});
@@ -107,7 +112,9 @@
 					type="text"
 					name="firstName"
 					placeholder="First name"
-					class="bg-white p-3 text-gray-800 w-full {fieldErrors.firstName ? 'border-2 border-red-500' : ''}"
+					class="bg-white p-3 text-gray-800 w-full {fieldErrors.firstName
+						? 'border-2 border-red-500'
+						: ''}"
 					bind:value={firstName}
 					on:input={(e) => handleFieldChange('firstName', e.currentTarget.value)}
 				/>
@@ -115,13 +122,15 @@
 					<p class="text-red-500 text-sm mt-1">{fieldErrors.firstName}</p>
 				{/if}
 			</div>
-			
+
 			<div>
 				<input
 					type="text"
 					name="lastName"
 					placeholder="Last name"
-					class="bg-white p-3 text-gray-800 w-full {fieldErrors.lastName ? 'border-2 border-red-500' : ''}"
+					class="bg-white p-3 text-gray-800 w-full {fieldErrors.lastName
+						? 'border-2 border-red-500'
+						: ''}"
 					bind:value={lastName}
 					on:input={(e) => handleFieldChange('lastName', e.currentTarget.value)}
 				/>
@@ -129,13 +138,15 @@
 					<p class="text-red-500 text-sm mt-1">{fieldErrors.lastName}</p>
 				{/if}
 			</div>
-			
+
 			<div>
 				<input
 					type="email"
 					name="email"
 					placeholder="Please enter your email"
-					class="bg-white p-3 text-gray-800 w-full {fieldErrors.email ? 'border-2 border-red-500' : ''}"
+					class="bg-white p-3 text-gray-800 w-full {fieldErrors.email
+						? 'border-2 border-red-500'
+						: ''}"
 					bind:value={email}
 					on:input={(e) => handleFieldChange('email', e.currentTarget.value)}
 				/>
@@ -143,13 +154,15 @@
 					<p class="text-red-500 text-sm mt-1">{fieldErrors.email}</p>
 				{/if}
 			</div>
-			
+
 			<div>
 				<input
 					type="password"
 					name="password"
 					placeholder="Enter password"
-					class="bg-white p-3 text-gray-800 w-full {fieldErrors.password ? 'border-2 border-red-500' : ''}"
+					class="bg-white p-3 text-gray-800 w-full {fieldErrors.password
+						? 'border-2 border-red-500'
+						: ''}"
 					bind:value={password}
 					on:input={(e) => handleFieldChange('password', e.currentTarget.value)}
 				/>
@@ -157,17 +170,28 @@
 					<p class="text-red-500 text-sm mt-1">{fieldErrors.password}</p>
 				{/if}
 			</div>
-			
-			<button type="submit" class="bg-amber-600 text-white py-2 hover:bg-amber-700 transition-colors">
+
+			<button
+				type="submit"
+				class="bg-amber-600 text-white py-2 hover:bg-amber-700 transition-colors"
+			>
 				Sign up
 			</button>
 		</form>
 
+		<a href="/" class="flex items-center gap-1 text-brand underline mt-4 mb-2"
+			><span>&larr;</span> Back to Home</a
+		>
+
 		<div class="mt-5 mb-11">
 			<p>Or create an account using</p>
 			<div class="flex gap-2.5 mb-5">
-				<button type="button" on:click={handleGoogleSignIn}><img src="https://placehold.co/40" alt="Sign up with Google" /></button>
-				<button type="button" on:click={handleFacebookSignIn}><img src="https://placehold.co/40" alt="Sign up with Facebook" /></button>
+				<button type="button" on:click={handleGoogleSignIn}
+					><img src="https://placehold.co/40" alt="Sign up with Google" /></button
+				>
+				<button type="button" on:click={handleFacebookSignIn}
+					><img src="https://placehold.co/40" alt="Sign up with Facebook" /></button
+				>
 			</div>
 
 			Already have an account?

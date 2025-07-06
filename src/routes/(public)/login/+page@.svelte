@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { auth } from '$lib/firebase';
+	import { auth } from '$lib/services/firebase';
 	import {
 		FacebookAuthProvider,
 		GoogleAuthProvider,
@@ -20,7 +20,7 @@
 		if (errorMessages.length > 0) {
 			errorMessages = [];
 		}
-		
+
 		// Validate the specific field
 		const error = validateField(loginSchema, field as keyof typeof loginSchema.shape, value);
 		if (error) {
@@ -40,7 +40,7 @@
 		if (!result.success) {
 			if (result.error && Array.isArray(result.error.errors)) {
 				// Group errors by field
-				result.error.errors.forEach(error => {
+				result.error.errors.forEach((error) => {
 					const field = error.path[0] as string;
 					fieldErrors[field] = error.message;
 				});
@@ -114,7 +114,9 @@
 					type="email"
 					name="email"
 					placeholder="Please enter your email"
-					class="bg-white p-3 text-gray-800 w-full {fieldErrors.email ? 'border-2 border-red-500' : ''}"
+					class="bg-white p-3 text-gray-800 w-full {fieldErrors.email
+						? 'border-2 border-red-500'
+						: ''}"
 					bind:value={email}
 					on:input={(e) => handleFieldChange('email', e.currentTarget.value)}
 				/>
@@ -122,13 +124,15 @@
 					<p class="text-red-500 text-sm mt-1">{fieldErrors.email}</p>
 				{/if}
 			</div>
-			
+
 			<div>
 				<input
 					type="password"
 					name="password"
 					placeholder="Enter password"
-					class="bg-white p-3 text-gray-800 w-full {fieldErrors.password ? 'border-2 border-red-500' : ''}"
+					class="bg-white p-3 text-gray-800 w-full {fieldErrors.password
+						? 'border-2 border-red-500'
+						: ''}"
 					bind:value={password}
 					on:input={(e) => handleFieldChange('password', e.currentTarget.value)}
 				/>
@@ -136,21 +140,31 @@
 					<p class="text-red-500 text-sm mt-1">{fieldErrors.password}</p>
 				{/if}
 			</div>
-			
-			<button type="submit" class="bg-amber-600 text-white py-2 hover:bg-amber-700 transition-colors">
+
+			<button
+				type="submit"
+				class="bg-amber-600 text-white py-2 hover:bg-amber-700 transition-colors"
+			>
 				Login
 			</button>
 		</form>
 		<a href="/login/reset" class="text-[#F2C94C] underline">Forgot password?</a>
+		<a href="/" class="flex items-center gap-1 text-brand underline mt-4 mb-2"
+			><span>&larr;</span> Back to Home</a
+		>
 
 		<div class="mt-5 mb-11">
 			<p>Or login using</p>
 			<div class="flex gap-2.5 mb-5">
-				<button on:click={googleLogin} class=""><img src="https://placehold.co/40" alt="Login with Google" /></button>
-				<button on:click={facebookLogin} class=""><img src="https://placehold.co/40" alt="Login with Facebook" /></button>
+				<button on:click={googleLogin} class=""
+					><img src="https://placehold.co/40" alt="Login with Google" /></button
+				>
+				<button on:click={facebookLogin} class=""
+					><img src="https://placehold.co/40" alt="Login with Facebook" /></button
+				>
 			</div>
 
-			Not registered? <a href="/register" class="text-brand underline">Create an account</a>
+			Not registered?<a href="/register" class="text-brand underline">Create an account</a>
 		</div>
 	</div>
 </div>
