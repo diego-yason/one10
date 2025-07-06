@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-test('[1-A] user can login on /login page', async ({ page }) => {
+test('[1A] user can login on /login page', async ({ page }) => {
 	// test.setTimeout(); // Extend to handle Firebase delays
 
 	await page.goto('/login');
@@ -24,7 +24,7 @@ test('[1-A] user can login on /login page', async ({ page }) => {
 	// await page.screenshot({ path: "test-results/1-A.png", fullPage: true });
 });
 
-test('[1-B] invalid password', async ({ page }) => {
+test('[1B] invalid password', async ({ page }) => {
 	await page.goto('/login');
 
 	// Fill in login credentials
