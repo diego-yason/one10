@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { firebase } from '$lib/firebase'; // initialize Firebase
+	import { firebase } from '$lib/services/firebase'; // initialize Firebase
 	firebase.getFirebaseApp();
 
 	let { children } = $props();
