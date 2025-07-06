@@ -28,6 +28,4 @@ jobs:
         uses: wearerequired/lint-action@v2
         with:
           prettier: true
-          auto_fix: true
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          commit_message: '[LINT] ${linter} (auto-fix)'
+          auto_fix: false
