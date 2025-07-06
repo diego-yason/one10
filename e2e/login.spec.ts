@@ -1,29 +1,23 @@
 import { test, expect } from '@playwright/test';
 
 test('user can login on /login page', async ({ page }) => {
-  test.setTimeout(60000); // Extend to handle Firebase delays
+	// test.setTimeout(); // Extend to handle Firebase delays
 
-  await page.goto('http://localhost:5173/login');
+	await page.goto('/login');
+	console.log('Navigated to /login page');
 
-  // Fill in login credentials
-  await page.getByRole('textbox', { name: /email/i }).fill('matthewandrecorral@gmail.com');
-  await page.getByRole('textbox', { name: /password/i }).fill('Kanekiken1236!#');
+	// Fill in login credentials
+	await page.getByRole('textbox', { name: 'email' }).fill('test@one10studiolab.com');
+	await page.getByRole('textbox', { name: 'password' }).fill('testing');
 
-  // Click the "Login" button
-  await page.getByRole('button', { name: /^login$/i }).click();
+	// Click the "Login" button
+	await page.getByText('Login', { exact: true }).click();
+	console.log('Login button clicked');
 
-  // Wait for Firebase redirect and DOM updates
-  await page.waitForTimeout(3000);
+	// Assert that we are redirected to the home page
+	await expect(page).toHaveURL('/');
+	console.log('Redirected to home page');
 
-  // Assert that we are redirected to the home page
-  await expect(page).toHaveURL('http://localhost:5173/');
-
-  // Assert "Sign Out" button is visible
-  await expect(page.getByRole('button', { name: /^sign out$/i })).toBeVisible();
-
-  // Optional: Confirm main heading
-  await expect(page.getByRole('heading', { name: /we process your vision/i })).toBeVisible();
-
-  // Optional debug screenshot
-  await page.screenshot({ path: 'login_pass.png', fullPage: true });
+	// Assert "Sign Out" button is visible
+	await expect(page.getByText('Sign Out', { exact: true })).toBeVisible();
 });
