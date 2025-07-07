@@ -133,14 +133,15 @@ import {
 	persistentLocalCache,
 	persistentMultipleTabManager,
 	enablePersistentCacheIndexAutoCreation,
-	getPersistentCacheIndexManager
+	getPersistentCacheIndexManager,
+	connectFirestoreEmulator,
+	getFirestore
 } from 'firebase/firestore';
-import { getAuth, type Auth } from 'firebase/auth';
-import { getFunctions, type Functions } from 'firebase/functions';
-import { getDatabase, type Database } from 'firebase/database';
-import { getStorage, type FirebaseStorage } from 'firebase/storage';
-import { browser } from '$app/environment';
-import { type DocumentData, type QueryDocumentSnapshot } from 'firebase/firestore';
+import { connectAuthEmulator, getAuth, type Auth } from 'firebase/auth';
+import { connectFunctionsEmulator, getFunctions, type Functions } from 'firebase/functions';
+import { connectDatabaseEmulator, getDatabase, type Database } from 'firebase/database';
+import { connectStorageEmulator, getStorage, type FirebaseStorage } from 'firebase/storage';
+import { browser, dev } from '$app/environment';
 
 /**
  * Singleton service class that manages Firebase service instances.
@@ -227,7 +228,10 @@ export class FirebaseService {
 	 * @returns {Firestore} The Firestore instance
 	 */
 	getDbInstance(): Firestore {
-		if (!this.db) this.getFirebaseApp();
+		if (!this.db) {
+			this.db = getFirestore(this.getFirebaseApp());
+			if (dev) connectFirestoreEmulator(this.db, '127.0.0.1', 8080);
+		}
 		return this.db as Firestore;
 	}
 
@@ -237,7 +241,10 @@ export class FirebaseService {
 	 * @returns {Auth} The Authentication instance
 	 */
 	getAuthInstance(): Auth {
-		if (!this.auth) this.auth = getAuth(this.getFirebaseApp());
+		if (!this.auth) {
+			this.auth = getAuth(this.getFirebaseApp());
+			if (dev) connectAuthEmulator(this.auth, 'http://127.0.0.1:9099');
+		}
 		return this.auth;
 	}
 
@@ -247,7 +254,10 @@ export class FirebaseService {
 	 * @returns {Functions} The Cloud Functions instance
 	 */
 	getFunctionsInstance(): Functions {
-		if (!this.functions) this.functions = getFunctions(this.getFirebaseApp());
+		if (!this.functions) {
+			this.functions = getFunctions(this.getFirebaseApp());
+			if (dev) connectFunctionsEmulator(this.functions, '127.0.0.1', 5001);
+		}
 		return this.functions;
 	}
 
@@ -257,7 +267,10 @@ export class FirebaseService {
 	 * @returns {Database} The Realtime Database instance
 	 */
 	getDatabaseInstance(): Database {
-		if (!this.database) this.database = getDatabase(this.getFirebaseApp());
+		if (!this.database) {
+			this.database = getDatabase(this.getFirebaseApp());
+			if (dev) connectDatabaseEmulator(this.database, '127.0.0.1', 9000);
+		}
 		return this.database;
 	}
 
@@ -267,8 +280,10 @@ export class FirebaseService {
 	 * @returns {FirebaseStorage} The Storage instance
 	 */
 	getStorageInstance(): FirebaseStorage {
-		if (this.storage) return this.storage;
-		this.storage = getStorage(this.getFirebaseApp());
+		if (!this.storage) {
+			this.storage = getStorage(this.getFirebaseApp());
+			if (dev) connectStorageEmulator(this.storage, '127.0.0.1', 9199);
+		}
 		return this.storage;
 	}
 }
