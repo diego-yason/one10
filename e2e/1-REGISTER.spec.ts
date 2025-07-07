@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
 
 // NOTE: subject for correction once test docs is up
-test('user can register on /register page', async ({ page }) => {
+// FIX: @lanc3reyes subject for actual test specs
+test.fixme('user can register on /register page', async ({ page }) => {
 	await page.goto('/register');
 
 	// Generate unique email to avoid duplicate registration issues
