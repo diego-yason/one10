@@ -9,7 +9,6 @@ on:
       - sprints
   pull_request:
     branches:
-      - main
       - sprints
 
 jobs:
