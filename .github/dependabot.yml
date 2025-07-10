@@ -10,7 +10,7 @@ updates:
     schedule:
       interval: 'daily'
     target-branch: 'sprints'
-    reviewers:
-      - 'diego-yason'
+    commit-message:
+      prefix: '[UPDATES] '
     commit-message:
       prefix: '[UPDATES] '
