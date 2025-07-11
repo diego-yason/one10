@@ -1,0 +1,36 @@
+name: Playwright Tests
+on:
+  push:
+    branches: [main, sprints]
+  pull_request:
+    branches: [sprints]
+jobs:
+  test:
+    timeout-minutes: 60
+    runs-on: ubuntu-latest
+    env:
+      # Test on staging environment only
+      PUBLIC_FIREBASE_API_KEY: 'AIzaSyDZOt8khx1of7rcJ5PNU0RxNUCuRxAr0dU'
+      PUBLIC_FIREBASE_AUTH_DOMAIN: 'one10-2f14b.firebaseapp.com'
+      PUBLIC_FIREBASE_PROJECT_ID: 'one10-2f14b'
+      PUBLIC_FIREBASE_STORAGE_BUCKET: 'one10-2f14b.appspot.com'
+      PUBLIC_FIREBASE_MESSAGING_SENDER_ID: '895328691932'
+      PUBLIC_FIREBASE_APP_ID: '1:895328691932:web:cc16c01f4c055f34437619'
+      PUBLIC_FIREBASE_MEASUREMENT_ID: 'G-41H7ML4E6P'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      - name: Run Playwright tests
+        run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30

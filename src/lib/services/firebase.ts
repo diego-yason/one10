@@ -140,21 +140,7 @@ import { getFunctions, type Functions } from 'firebase/functions';
 import { getDatabase, type Database } from 'firebase/database';
 import { getStorage, type FirebaseStorage } from 'firebase/storage';
 import { browser } from '$app/environment';
-import { 
-	collection, 
-	doc, 
-	addDoc, 
-	updateDoc, 
-	deleteDoc, 
-	getDocs, 
-	getDoc,
-	query,
-	orderBy,
-	type DocumentData,
-	type QueryDocumentSnapshot,
-	setDoc
-} from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
+import { type DocumentData, type QueryDocumentSnapshot } from 'firebase/firestore';
 
 /**
  * Singleton service class that manages Firebase service instances.
@@ -167,7 +153,7 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage
  * // Get Auth instance
  * const auth = firebaseService.getAuthInstance();
  */
-class FirebaseService {
+export class FirebaseService {
 	private static instance: FirebaseService;
 	private firebaseApp: FirebaseApp | null = null;
 	private db: Firestore | null = null;
@@ -308,154 +294,3 @@ export const database = firebase.getDatabaseInstance();
 export const storage = firebase.getStorageInstance();
 
 // Product management functions
-export interface Product {
-	id?: string;
-	itemCode: string;
-	name: string;
-	description: string;
-	price: number;
-	stock: number;
-	status: 'available' | 'not_available' | 'out_of_stock';
-	imageUrl?: string;
-	category: string;
-	expiryDate?: string | null;
-	createdAt: Date;
-	updatedAt: Date;
-}
-
-export class ProductService {
-	private static instance: ProductService;
-	private db: Firestore;
-	private storage: FirebaseStorage;
-
-	private constructor() {
-		const firebaseService = FirebaseService.getInstance();
-		this.db = firebaseService.getDbInstance();
-		this.storage = firebaseService.getStorageInstance();
-	}
-
-	static getInstance(): ProductService {
-		if (!ProductService.instance) {
-			ProductService.instance = new ProductService();
-		}
-		return ProductService.instance;
-	}
-
-	/**
-	 * Add a new product to Firestore
-	 */
-	async addProduct(productData: Omit<Product, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
-		const now = new Date();
-		const product: Omit<Product, 'id'> = {
-			...productData,
-			createdAt: now,
-			updatedAt: now
-		};
-
-		const docRef = await addDoc(collection(this.db, 'products'), product);
-		return docRef.id;
-	}
-
-	/**
-	 * Get all products from Firestore
-	 */
-	async getProducts(): Promise<Product[]> {
-		const q = query(collection(this.db, 'products'), orderBy('createdAt', 'desc'));
-		const querySnapshot = await getDocs(q);
-		
-		return querySnapshot.docs.map(doc => ({
-			id: doc.id,
-			...doc.data()
-		})) as Product[];
-	}
-
-	/**
-	 * Get a single product by ID
-	 */
-	async getProduct(id: string): Promise<Product | null> {
-		const docRef = doc(this.db, 'products', id);
-		const docSnap = await getDoc(docRef);
-		
-		if (docSnap.exists()) {
-			return {
-				id: docSnap.id,
-				...docSnap.data()
-			} as Product;
-		}
-		return null;
-	}
-
-	/**
-	 * Update a product
-	 */
-	async updateProduct(id: string, updates: Partial<Omit<Product, 'id' | 'createdAt'>>): Promise<void> {
-		const docRef = doc(this.db, 'products', id);
-		await updateDoc(docRef, {
-			...updates,
-			updatedAt: new Date()
-		});
-	}
-
-	/**
-	 * Delete a product
-	 */
-	async deleteProduct(id: string): Promise<void> {
-		const docRef = doc(this.db, 'products', id);
-		await deleteDoc(docRef);
-	}
-
-	/**
-	 * Upload product image to Firebase Storage
-	 */
-	async uploadProductImage(file: File, productId: string): Promise<string> {
-		const storageRef = ref(this.storage, `products/${productId}/${file.name}`);
-		const snapshot = await uploadBytes(storageRef, file);
-		const downloadURL = await getDownloadURL(snapshot.ref);
-		return downloadURL;
-	}
-
-	/**
-	 * Delete product image from Firebase Storage
-	 */
-	async deleteProductImage(imageUrl: string): Promise<void> {
-		const imageRef = ref(this.storage, imageUrl);
-		await deleteObject(imageRef);
-	}
-}
-
-// CartService for user cart storage in Firestore
-export class CartService {
-	private static instance: CartService;
-	private db: Firestore;
-
-	private constructor() {
-		const firebaseService = FirebaseService.getInstance();
-		this.db = firebaseService.getDbInstance();
-	}
-
-	static getInstance(): CartService {
-		if (!CartService.instance) {
-			CartService.instance = new CartService();
-		}
-		return CartService.instance;
-	}
-
-	async getCart(userId: string): Promise<any[]> {
-		const docRef = doc(this.db, 'carts', userId);
-		const docSnap = await getDoc(docRef);
-		if (docSnap.exists()) {
-			return docSnap.data().items || [];
-		}
-		return [];
-	}
-
-	async setCart(userId: string, items: any[]): Promise<void> {
-		const docRef = doc(this.db, 'carts', userId);
-		await setDoc(docRef, { items }, { merge: true });
-	}
-
-	async clearCart(userId: string): Promise<void> {
-		const docRef = doc(this.db, 'carts', userId);
-		await setDoc(docRef, { items: [] }, { merge: true });
-	}
-}
