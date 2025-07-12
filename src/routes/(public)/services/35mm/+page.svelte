@@ -105,6 +105,7 @@ const handleSubmit = (e: SubmitEvent) => {
                 bind:value={processType}
                 on:change={(e) => handleFieldChange('processType', e.currentTarget.value)}
             >
+                <!-- FIX: placeholder -->
                 <option value="">Select process type</option>
                 <option value="option1">Option 1</option>
                 <option value="option2">Option 2</option>
@@ -128,6 +129,7 @@ const handleSubmit = (e: SubmitEvent) => {
                 bind:value={returningNegatives}
                 on:change={(e) => handleFieldChange('returningNegatives', e.currentTarget.value)}
             >
+                <!-- FIX: placeholder -->
                 <option value="">Select how would you like to get your negatives back</option>
                 <option value="option1">Option 1</option>
                 <option value="option2">Option 2</option>
