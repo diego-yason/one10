@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { user, isStaff } from '$lib/stores/auth';
 	import { printingSchema, validateField } from '$lib/validation';
-	import { cart, showToast } from '$lib/stores/cart';
+	import { cart, showToast, add } from '$lib/stores/cart';
 
 	let photoSize = '';
 	let totalPhotos = '';
@@ -85,7 +85,7 @@
 		}
 
 		const qty = parseInt(totalPhotos) || 1;
-		cart.add({
+		add({
 			id: 'printing-' + Date.now(),
 			type: 'service',
 			name: 'Printing',
