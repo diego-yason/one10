@@ -1,17 +1,10 @@
-import { type Firestore } from 'firebase/firestore';
-
 import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { FirebaseService } from './firebase';
+import { db } from './firebase';
 
 // CartService for user cart storage in Firestore
 export class CartService {
 	private static instance: CartService;
-	private db: Firestore;
-
-	private constructor() {
-		const firebaseService = FirebaseService.getInstance();
-		this.db = firebaseService.getDbInstance();
-	}
+	private constructor() {}
 
 	static getInstance(): CartService {
 		if (!CartService.instance) {
@@ -21,7 +14,7 @@ export class CartService {
 	}
 
 	async getCart(userId: string): Promise<any[]> {
-		const docRef = doc(this.db, 'carts', userId);
+		const docRef = doc(db, 'carts', userId);
 		const docSnap = await getDoc(docRef);
 		if (docSnap.exists()) {
 			return docSnap.data().items || [];
@@ -30,12 +23,12 @@ export class CartService {
 	}
 
 	async setCart(userId: string, items: any[]): Promise<void> {
-		const docRef = doc(this.db, 'carts', userId);
+		const docRef = doc(db, 'carts', userId);
 		await setDoc(docRef, { items }, { merge: true });
 	}
 
 	async clearCart(userId: string): Promise<void> {
-		const docRef = doc(this.db, 'carts', userId);
+		const docRef = doc(db, 'carts', userId);
 		await setDoc(docRef, { items: [] }, { merge: true });
 	}
 }
