@@ -17,10 +17,10 @@
 
 	// Improved client-side route protection with loading state
 	onMount(() => {
-		const unsubUser = user.subscribe(($user) => {
+		user.subscribe(($user) => {
 			currentUser = $user;
 		});
-		const unsubLoaded = authLoaded.subscribe(($authLoaded) => {
+		authLoaded.subscribe(($authLoaded) => {
 			isAuthLoaded = $authLoaded;
 			if (isAuthLoaded) {
 				if (currentUser && isStaffUser(currentUser)) {
@@ -28,10 +28,6 @@
 				}
 			}
 		});
-		return () => {
-			unsubUser();
-			unsubLoaded();
-		};
 	});
 
 	function getCartKey(user) {
