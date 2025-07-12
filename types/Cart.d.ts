@@ -1,5 +1,7 @@
 export interface CartItem {
-	details: string | null;
+	details: {
+		[key: string]: unknown;
+	};
 	id: string;
 	imageUrl: string;
 	name: string;
