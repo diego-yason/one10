@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { page } from '$app/state';
-	import { user, isStaffUser } from '$lib/stores/auth';
+	import { user, isStaff } from '$lib/stores/auth';
 	import { signOut } from 'firebase/auth';
 	import { auth } from '$lib/services/firebase';
 	import { goto } from '$app/navigation';
@@ -25,7 +25,7 @@
 		</div>
 		<div class="flex flex-row gap-14 items-center">
 			{#if $user}
-				{#if isStaffUser($user)}
+				{#if $isStaff}
 					<a href="/dashboard">Staff</a>
 					<button onclick={handleSignOut} class="hover:text-amber-300 transition-colors"
 						>Sign Out</button

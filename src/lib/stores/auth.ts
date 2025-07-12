@@ -4,12 +4,10 @@ import { onAuthStateChanged, type User } from 'firebase/auth';
 import { browser } from '$app/environment';
 
 export const user = writable<User | null>(null);
+export const isStaff = writable(false);
 export const authLoaded = writable(false);
 
-// Function to check if a user is staff
-export function isStaffUser(user: User | null): boolean {
-	return user?.email?.endsWith('@one10studiolab.com') ?? false;
-}
+user.subscribe((user) => isStaff.set(user?.email?.endsWith('@one10studiolab.com') ?? false));
 
 if (browser) {
 	onAuthStateChanged(auth, (newUser) => {

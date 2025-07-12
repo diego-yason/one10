@@ -23,7 +23,8 @@
 		authLoaded.subscribe(($authLoaded) => {
 			isAuthLoaded = $authLoaded;
 			if (isAuthLoaded) {
-				if (currentUser && isStaffUser(currentUser)) {
+				// TODO: put in auth protection
+				if (currentUser && $isStaffUser) {
 					goto('/');
 				}
 			}
