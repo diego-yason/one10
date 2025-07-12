@@ -5,7 +5,7 @@
         {#each faqs as faq, i}
             <div class="container bg-white" on:click={() => open(i)}>
                 <div class="flex items-center justify-between">
-                    <p class="font-style">{faq.question}?</p>
+                    <p class="font-style">{faq.question}</p>
                     <span>
                         <svg xmlns="http://www.w3.org/2000/svg" width="15" height="16" viewBox="0 0 15 16" fill="none" class="hover:cursor-pointer">
                             <g clip-path="url(#clip0_1018_92)">
