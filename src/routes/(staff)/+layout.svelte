@@ -99,4 +99,4 @@
 		margin: 1rem;
 		overflow: auto;
 	}
-</div>
+</style>
