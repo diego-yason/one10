@@ -99,11 +99,6 @@
                             </p>
                             <p class="text-sm text-gray-600 mt-2">₱{product.price.toFixed(2)}</p>
                             <p class="text-xs text-gray-500 mt-1">Stock: {product.stock}</p>
-                            {#if !$user || !isStaffUser($user)}
-                                <button class="border rounded-lg px-6 py-2 font-spaceGrotesk mt-10" disabled={product.status !== 'available'}>{product.status !== 'available' ? product.status.replaceAll('_', ' ') : 'Add to cart'}</button>
-                            {:else}
-                                <span class="border rounded-lg px-6 py-2 font-spaceGrotesk mt-10 bg-gray-100 text-gray-400 cursor-not-allowed">Staff view</span>
-                            {/if}
                         </div>
                     </div>
                 {/each}

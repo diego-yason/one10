@@ -140,7 +140,6 @@ import { getFunctions, type Functions } from 'firebase/functions';
 import { getDatabase, type Database } from 'firebase/database';
 import { getStorage, type FirebaseStorage } from 'firebase/storage';
 import { browser } from '$app/environment';
-import { type DocumentData, type QueryDocumentSnapshot } from 'firebase/firestore';
 
 /**
  * Singleton service class that manages Firebase service instances.

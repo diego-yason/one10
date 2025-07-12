@@ -4,11 +4,13 @@ import { onMount } from 'svelte';
 import { products, loading, error, loadProducts } from '$lib/stores/products';
 import { goto } from '$app/navigation';
 import { get } from 'svelte/store';
+import { cart, showToast } from '$lib/stores/cart';
 
 let productId: string = '';
 let product = null;
 let isLoading = true;
 let loadError: string | null = null;
+let quantity = 1;
 
 onMount(async () => {
   productId = $page.params.id;
@@ -26,8 +28,17 @@ onMount(async () => {
 });
 
 function addToCart() {
-  // Implement add to cart logic here
-  alert('Added to cart!');
+  if (!product) return;
+  cart.add({
+    id: product.id,
+    type: 'product',
+    name: product.name,
+    price: product.price,
+    quantity,
+    details: null,
+    imageUrl: product.imageUrl
+  });
+  showToast('Added to cart!');
 }
 </script>
 
@@ -51,6 +62,7 @@ function addToCart() {
         <p class="mb-4 text-gray-700">{product.description}</p>
         <p class="mb-4 text-base font-semibold {product.stock > 0 ? 'text-gray-700' : 'text-red-600'}">{product.stock > 0 ? `${product.stock} in stock` : 'Out of stock'}</p>
         <div class="flex items-center gap-4 mt-4">
+          <input type="number" min="1" max={product.stock} bind:value={quantity} class="w-16 px-2 py-1 rounded border border-gray-300" />
           <button class="bg-amber-300 px-6 py-2 rounded-4xl font-bold text-black disabled:opacity-50" on:click={addToCart} disabled={product.stock === 0}>Add to cart</button>
         </div>
       </div>
