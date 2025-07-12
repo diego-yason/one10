@@ -83,7 +83,7 @@
                         <div class="image-2 flex items-center justify-center relative bg-[#FAFAFA]">
                             <a href={`/product/${product.id}`}> 
                                 {#if product.imageUrl}
-                                    <img src={product.imageUrl} alt={product.name} class="w-full h-full object-contain bg-[#FAFAFA]" />
+                                    <img src={product.imageUrl} alt={product.name} class="product-img" />
                                 {:else}
                                     <span class="text-gray-400">No Image</span>
                                 {/if}
@@ -92,13 +92,17 @@
                                 <span class="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded z-10">Sold Out</span>
                             {/if}
                         </div>
-                        <div class="flex flex-col justify-center items-center py-10">
-                            <p class="product-2-description">{product.category}</p>
-                            <p class="product-2-font">
-                                <a href={`/product/${product.id}`} class="hover:text-amber-400">{product.name}</a>
-                            </p>
-                            <p class="text-sm text-gray-600 mt-2">₱{product.price.toFixed(2)}</p>
-                            <p class="text-xs text-gray-500 mt-1">Stock: {product.stock}</p>
+                        <div class="flex flex-col flex-1 justify-between items-center py-10 w-full min-h-[160px]">
+                            <div class="w-full">
+                                <p class="product-2-description">{product.category}</p>
+                                <p class="product-2-font truncate-name">
+                                    <a href={`/product/${product.id}`} class="hover:text-amber-400">{product.name}</a>
+                                </p>
+                            </div>
+                            <div class="w-full flex flex-col items-center mt-4">
+                                <p class="text-sm text-gray-600 mt-2">₱{product.price.toFixed(2)}</p>
+                                <p class="text-xs text-gray-500 mt-1">Stock: {product.stock}</p>
+                            </div>
                         </div>
                     </div>
                 {/each}
@@ -177,12 +181,12 @@
             display: flex;
             padding: 20px 10px;
             flex-direction: column;
-            align-items: flex-start;
+            align-items: center;
             align-self: stretch;
             background: #FAFAFA;
             border-radius: 16px;
             max-width: 220px;
-            min-width: 0;
+            min-width: 220px;
             margin: 0 auto;
         }
 
@@ -211,10 +215,20 @@
 
         .image-2{
             height: 120px;
-            align-self: stretch;
+            width: 180px;
             background-color: #FAFAFA;
-            max-width: 180px;
             margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #FAFAFA;
+            display: block;
         }
 
         .background-color{
@@ -233,6 +247,14 @@
 
         .font-semibold {
             font-size: 14px;
+        }
+
+        .truncate-name {
+            max-width: 180px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin: 0 auto;
         }
     </style>
 
