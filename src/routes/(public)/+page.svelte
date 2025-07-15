@@ -3,6 +3,8 @@
 	import { onMount } from 'svelte';
 	import { loadProducts } from '$lib/stores/products';
 	import { user, isStaffUser } from '$lib/stores/auth';
+	import { z } from 'zod';
+	import { validateField } from '$lib/validation';
 
 	onMount(() => {
 		loadProducts();
@@ -10,6 +12,56 @@
 
 	// Get the first 3 products for display
 	$: homeProducts = $products.slice(0, 3);
+
+	let name = '';
+	let email = '';
+	let subject = '';
+	let message = '';
+	let formSuccess = false;
+	let errorMessages: string[] = [];
+	let fieldErrors: Record<string, string> = {};
+
+	const contactSchema = z.object({
+		name: z.string().min(1, 'Name is required.'),
+		email: z.string().email('Please enter a valid email address.'),
+		subject: z.string().min(1, 'Subject is required.'),
+		message: z.string().min(1, 'Message is required.')
+	});
+
+	function handleFieldChange(field: string, value: string) {
+		if (errorMessages.length > 0) errorMessages = [];
+		const error = validateField(contactSchema, field as keyof typeof contactSchema.shape, value);
+		if (error) {
+			fieldErrors = { ...fieldErrors, [field]: error };
+		} else {
+			const { [field]: _, ...rest } = fieldErrors;
+			fieldErrors = rest;
+		}
+	}
+
+	function handleSubmit(e: Event) {
+		e?.preventDefault?.();
+		errorMessages = [];
+		fieldErrors = {};
+		const result = contactSchema.safeParse({ name, email, subject, message });
+		if (!result.success) {
+			if (result.error && Array.isArray(result.error.errors)) {
+				result.error.errors.forEach((error) => {
+					const field = error.path[0] as string;
+					fieldErrors[field] = error.message;
+				});
+			} else {
+				errorMessages = ['Invalid input.'];
+			}
+			return;
+		}
+		const mailto = `mailto:contact@one10studiolab.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}`)}`;
+		window.location.href = mailto;
+		name = '';
+		email = '';
+		subject = '';
+		message = '';
+	}
 </script>
 
 <div class="min-h-[700px] h-[700px] max-h-[90vh] flex items-center justify-center">
@@ -142,3 +194,54 @@
 	</div>
 </div>
 {/if}
+<div class="py-24 bg-gray-100">
+	<h2 class="text-center font-spaceGrotesk text-4xl font-bold mb-12">Contact Us</h2>
+	<div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-10">
+		{#if formSuccess}
+			<div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6 text-center">
+				Thank you for reaching out! We'll get back to you soon.
+			</div>
+		{:else}
+			<form on:submit|preventDefault={handleSubmit} class="flex flex-col gap-6">
+				{#if errorMessages.length}
+					<div class="bg-red-500/10 border border-red-500 text-red-500 p-3 mb-5 rounded">
+						<ul>
+							{#each errorMessages as errMsg}
+								<li>{errMsg}</li>
+							{/each}
+						</ul>
+					</div>
+				{/if}
+				<div>
+					<label for="name" class="block mb-2 font-bold">Name</label>
+					<input id="name" type="text" bind:value={name} class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-amber-300 {fieldErrors.name ? 'border-2 border-red-500' : ''}" placeholder="Your Name" on:input={(e) => handleFieldChange('name', e.currentTarget.value)} />
+					{#if fieldErrors.name}
+						<p class="text-red-500 text-sm mt-1">{fieldErrors.name}</p>
+					{/if}
+				</div>
+				<div>
+					<label for="email" class="block mb-2 font-bold">Email</label>
+					<input id="email" type="email" bind:value={email} class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-amber-300 {fieldErrors.email ? 'border-2 border-red-500' : ''}" placeholder="you@email.com" on:input={(e) => handleFieldChange('email', e.currentTarget.value)} />
+					{#if fieldErrors.email}
+						<p class="text-red-500 text-sm mt-1">{fieldErrors.email}</p>
+					{/if}
+				</div>
+				<div>
+					<label for="subject" class="block mb-2 font-bold">Subject</label>
+					<input id="subject" type="text" bind:value={subject} class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-amber-300 {fieldErrors.subject ? 'border-2 border-red-500' : ''}" placeholder="Subject" on:input={(e) => handleFieldChange('subject', e.currentTarget.value)} />
+					{#if fieldErrors.subject}
+						<p class="text-red-500 text-sm mt-1">{fieldErrors.subject}</p>
+					{/if}
+				</div>
+				<div>
+					<label for="message" class="block mb-2 font-bold">Message</label>
+					<textarea id="message" bind:value={message} rows="5" class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-amber-300 {fieldErrors.message ? 'border-2 border-red-500' : ''}" placeholder="How can we help you?" on:input={(e) => handleFieldChange('message', e.currentTarget.value)}></textarea>
+					{#if fieldErrors.message}
+						<p class="text-red-500 text-sm mt-1">{fieldErrors.message}</p>
+					{/if}
+				</div>
+				<button type="submit" class="bg-amber-300 text-black font-bold py-3 rounded-4xl hover:bg-amber-400 transition-colors mt-2">Send Message</button>
+			</form>
+		{/if}
+	</div>
+</div>
