@@ -1,5 +1,6 @@
 <script>
   import { onMount } from 'svelte';
+  import { user } from '$lib/stores/auth';
   let email = '';
   let fullName = '';
   let address = '';
@@ -121,14 +122,17 @@
 
             <div class="flex flex-col py-10">
                 <h2 class="header-2 py-4">Shipping details</h2>
+                {#if !$user}
                 <div class="container-1 flex items-center justify-start">
                     <p class="typography-1 mx-auto">
-                        Already have an account? <span class="login">Login</span> for a faster checkout.
+                        ALREADY HAVE AN ACCOUNT? <a href="/login" class="underline font-bold">LOGIN</a> FOR A FASTER CHECKOUT.
                     </p>
                 </div>
+                {/if}
             </div>
 
             <div class="flex flex-col space-y-10">
+                {#if !$user}
                 <div>
                     <label class="labels">Email for order confirmation</label>
                     <input type="email" bind:value={email} on:blur={() => handleBlur('email')} on:input={(e) => handleInput('email', e.target.value)} placeholder="Please enter your email" class="bg-white p-3 text-gray-800 w-full {errors.email && touched.email ? 'border-2 border-red-500' : ''}" />
@@ -136,7 +140,9 @@
                         <p class="text-red-500 text-sm mt-1">{errors.email}</p>
                     {/if}
                 </div>
+                {/if}
 
+                {#if !$user}
                 <div>
                     <label class="labels">Full name</label>
                     <input type="text" bind:value={fullName} on:blur={() => handleBlur('fullName')} on:input={(e) => { fullName = e.target.value; handleInput('fullName', fullName); }} placeholder="Full name" class="bg-white p-3 text-gray-800 w-full {errors.fullName && touched.fullName ? 'border-2 border-red-500' : ''}" />
@@ -144,6 +150,7 @@
                         <p class="text-red-500 text-sm mt-1">{errors.fullName}</p>
                     {/if}
                 </div>
+                {/if}
 
                 <div>
                     <label class="labels">Address</label>
