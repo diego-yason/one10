@@ -27,13 +27,17 @@
 			{#if $user}
 				{#if isStaffUser($user)}
 					<a href="/dashboard">Staff</a>
+					<button on:click={handleSignOut} class="hover:text-amber-300 transition-colors"
+						>Sign Out</button
+					>
 				{:else}
 					<a href="/cart">Cart</a>
+					<button on:click={handleSignOut} class="hover:text-amber-300 transition-colors"
+						>Sign Out</button
+					>
 				{/if}
-				<button on:click={handleSignOut} class="hover:text-amber-300 transition-colors"
-					>Sign Out</button
-				>
 			{:else}
+				<a href="/cart">Cart</a>
 				<a href="/login">Log In</a>
 			{/if}
 		</div>
