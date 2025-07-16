@@ -1,4 +1,88 @@
-<div class="flex py-10 justify-evenly">
+<script>
+  import { onMount } from 'svelte';
+  let email = '';
+  let fullName = '';
+  let address = '';
+  let city = '';
+  let country = '';
+  let region = '';
+  let zip = '';
+  let phone = '';
+  let payment = '';
+  let proof = null;
+
+  let errors = {};
+  let touched = {};
+
+  let countries = ['Philippines', 'USA', 'Canada'];
+  let regions = ['NCR', 'Luzon', 'Visayas', 'Mindanao'];
+  let cities = ['Manila', 'Quezon City', 'Cebu', 'Davao'];
+
+  function validate() {
+    errors = {};
+    if (!email) {
+      errors.email = 'Email is required';
+    } else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+      errors.email = 'Invalid email address';
+    }
+    if (!fullName) {
+      errors.fullName = 'Full name is required';
+    } else if (fullName.length < 2) {
+      errors.fullName = 'Full name is too short';
+    }
+    if (!address) {
+      errors.address = 'Address is required';
+    }
+    if (!city) {
+      errors.city = 'City is required';
+    }
+    if (!country) {
+      errors.country = 'Country is required';
+    }
+    if (!region) {
+      errors.region = 'Region is required';
+    }
+    if (!zip) {
+      errors.zip = 'Zip/Postal code is required';
+    } else if (!/^\d{4,6}$/.test(zip)) {
+      errors.zip = 'Invalid zip/postal code';
+    }
+    if (!phone) {
+      errors.phone = 'Phone is required';
+    } else if (!/^\d{10,15}$/.test(phone.replace(/\D/g, ''))) {
+      errors.phone = 'Invalid phone number';
+    }
+    if (!payment) {
+      errors.payment = 'Please select a payment method';
+    }
+    if (!proof) {
+      errors.proof = 'Proof of payment is required';
+    }
+    return Object.keys(errors).length === 0;
+  }
+
+  function handleSubmit(e) {
+    e.preventDefault();
+    touched = {
+      email: true,
+      fullName: true,
+      address: true,
+      city: true,
+      country: true,
+      region: true,
+      zip: true,
+      phone: true,
+      payment: true,
+      proof: true
+    };
+    if (validate()) {
+      // Submit logic here
+      alert('Order confirmed!');
+    }
+  }
+</script>
+
+<form on:submit|preventDefault={handleSubmit} class="flex py-10 justify-evenly">
     <div class="flex flex-col">
         <div class="flex flex-col space-y-11">
             <h1 class="header-1">Checkout</h1>
@@ -13,46 +97,85 @@
             </div>
 
             <div class="flex flex-col space-y-10">
-                <div class="flex flex-col space-y-3">
-                    <p class="labels">Email for order confirmation</p>
-                    <input type="text" class="input px-3">
+                <div>
+                    <label class="labels">Email for order confirmation</label>
+                    <input type="email" bind:value={email} on:blur={() => touched.email = true} placeholder="Please enter your email" class="bg-white p-3 text-gray-800 w-full {errors.email && touched.email ? 'border-2 border-red-500' : ''}" />
+                    {#if touched.email && errors.email}
+                        <p class="text-red-500 text-sm mt-1">{errors.email}</p>
+                    {/if}
                 </div>
 
-                <div class="flex flex-col space-y-3">
-                    <p class="labels">Full name</p>
-                    <input type="text" class="input px-3">
+                <div>
+                    <label class="labels">Full name</label>
+                    <input type="text" bind:value={fullName} on:blur={() => touched.fullName = true} placeholder="Full name" class="bg-white p-3 text-gray-800 w-full {errors.fullName && touched.fullName ? 'border-2 border-red-500' : ''}" />
+                    {#if touched.fullName && errors.fullName}
+                        <p class="text-red-500 text-sm mt-1">{errors.fullName}</p>
+                    {/if}
                 </div>
 
-                <div class="flex flex-col space-y-3">
-                    <p class="labels">Address</p>
-                    <input type="text" class="input px-3">
+                <div>
+                    <label class="labels">Address</label>
+                    <input type="text" bind:value={address} on:blur={() => touched.address = true} placeholder="Address" class="bg-white p-3 text-gray-800 w-full {errors.address && touched.address ? 'border-2 border-red-500' : ''}" />
+                    {#if touched.address && errors.address}
+                        <p class="text-red-500 text-sm mt-1">{errors.address}</p>
+                    {/if}
                 </div>
 
-                <div class="flex flex-col space-y-3">
-                    <p class="labels">City</p>
-                    <select class="input hover:cursor-pointer"></select>
+                <div>
+                    <label class="labels">City</label>
+                    <select bind:value={city} on:blur={() => touched.city = true} class="bg-white p-3 text-gray-800 w-full {errors.city && touched.city ? 'border-2 border-red-500' : ''}">
+                        <option value="">Select city</option>
+                        {#each cities as c}
+                            <option value={c}>{c}</option>
+                        {/each}
+                    </select>
+                    {#if touched.city && errors.city}
+                        <p class="text-red-500 text-sm mt-1">{errors.city}</p>
+                    {/if}
                 </div>
             </div>
 
             <div class="grid grid-cols-2 gap-4">
-                <div class="flex flex-col space-y-3">
-                    <p class="labels">Country</p>
-                    <select class="input-2 hover:cursor-pointer"></select>
+                <div>
+                    <label class="labels">Country</label>
+                    <select bind:value={country} on:blur={() => touched.country = true} class="bg-white p-3 text-gray-800 w-full {errors.country && touched.country ? 'border-2 border-red-500' : ''}">
+                        <option value="">Select country</option>
+                        {#each countries as c}
+                            <option value={c}>{c}</option>
+                        {/each}
+                    </select>
+                    {#if touched.country && errors.country}
+                        <p class="text-red-500 text-sm mt-1">{errors.country}</p>
+                    {/if}
                 </div>
 
-                <div class="flex flex-col space-y-3">
-                    <p class="labels">Zip / postal code</p>
-                    <select class="input-2 hover:cursor-pointer"></select>
+                <div>
+                    <label class="labels">Zip / postal code</label>
+                    <input type="text" bind:value={zip} on:blur={() => touched.zip = true} placeholder="Zip / postal code" class="bg-white p-3 text-gray-800 w-full {errors.zip && touched.zip ? 'border-2 border-red-500' : ''}" />
+                    {#if touched.zip && errors.zip}
+                        <p class="text-red-500 text-sm mt-1">{errors.zip}</p>
+                    {/if}
                 </div>
 
-                <div class="flex flex-col space-y-3">
-                    <p class="labels">Region</p>
-                    <select class="input-2 hover:cursor-pointer"></select>
+                <div>
+                    <label class="labels">Region</label>
+                    <select bind:value={region} on:blur={() => touched.region = true} class="bg-white p-3 text-gray-800 w-full {errors.region && touched.region ? 'border-2 border-red-500' : ''}">
+                        <option value="">Select region</option>
+                        {#each regions as r}
+                            <option value={r}>{r}</option>
+                        {/each}
+                    </select>
+                    {#if touched.region && errors.region}
+                        <p class="text-red-500 text-sm mt-1">{errors.region}</p>
+                    {/if}
                 </div>
 
-                <div class="flex flex-col space-y-3">
-                    <p class="labels">Phone</p>
-                    <select class="input-2 hover:cursor-pointer"></select>
+                <div>
+                    <label class="labels">Phone</label>
+                    <input type="text" bind:value={phone} on:blur={() => touched.phone = true} placeholder="Phone" class="bg-white p-3 text-gray-800 w-full {errors.phone && touched.phone ? 'border-2 border-red-500' : ''}" />
+                    {#if touched.phone && errors.phone}
+                        <p class="text-red-500 text-sm mt-1">{errors.phone}</p>
+                    {/if}
                 </div>
             </div>
         </div>
@@ -61,44 +184,51 @@
             <h2 class="header-2"> Payment details</h2>
 
             <div class="grid grid-cols-2 gap-10">
-                <div class="flex flex-col space-y-3">
+                <div>
                     <div class="bank-img bg-white"></div>
                     <div class="flex items-center">
-                        <input class="radio" type="radio">
-                        <label class="bank-font">Unionbank</label><br>
+                        <input class="mr-2" type="radio" name="payment" value="Unionbank" bind:group={payment} on:blur={() => touched.payment = true} />
+                        <label class="bank-font">Unionbank</label><br>
                     </div>
                 </div>
 
-                <div class="flex flex-col space-y-3">
+                <div>
                     <div class="bank-img bg-white"></div>
                     <div class="flex items-center">
-                        <input class="radio" type="radio">
-                        <label class="bank-font">BDO</label><br>
+                        <input class="mr-2" type="radio" name="payment" value="BDO" bind:group={payment} on:blur={() => touched.payment = true} />
+                        <label class="bank-font">BDO</label><br>
                     </div>
                 </div>
 
-                <div class="flex flex-col space-y-3">
+                <div>
                     <div class="bank-img bg-white"></div>
                     <div class="flex items-center">
-                        <input class="radio" type="radio">
-                        <label class="bank-font">BPI</label><br>
+                        <input class="mr-2" type="radio" name="payment" value="BPI" bind:group={payment} on:blur={() => touched.payment = true} />
+                        <label class="bank-font">BPI</label><br>
                     </div>
                 </div>
             </div>
 
-             <div class="flex items-center">
-                <input class="radio" type="radio">
-                <label class="bank-font">gcash - 0917-873-4327</label><br>
+             <div class="flex items-center mt-2">
+                <input class="mr-2" type="radio" name="payment" value="gcash" bind:group={payment} on:blur={() => touched.payment = true} />
+                <label class="bank-font">gcash - 0917-873-4327</label><br>
             </div>
+
+            {#if touched.payment && errors.payment}
+                <p class="text-red-500 text-sm mt-1">{errors.payment}</p>
+            {/if}
 
             <div class="flex flex-col space-y-10">
-                 <div class="flex flex-col space-y-6">
-                    <p class="labels">Proof of payment</p>
-                    <input type="file" class="input">
+                 <div>
+                    <label class="labels">Proof of payment</label>
+                    <input type="file" on:change={e => proof = e.target.files[0]} on:blur={() => touched.proof = true} class="bg-white p-3 text-gray-800 w-full {errors.proof && touched.proof ? 'border-2 border-red-500' : ''}" />
+                    {#if touched.proof && errors.proof}
+                        <p class="text-red-500 text-sm mt-1">{errors.proof}</p>
+                    {/if}
                 </div>
 
                 <div class="py-8">
-                    <button class="confirm-button confirm-button-font px-8 py-3">Confirm order</button>
+                    <button class="bg-amber-600 text-white py-2 hover:bg-amber-700 transition-colors px-8" type="submit">Confirm order</button>
                 </div>
                 
             </div>
@@ -155,7 +285,7 @@
             </div>
         </div>
     </div>
-</div>
+</form>
 
 
 <style>
@@ -347,22 +477,6 @@
         font-weight: 700;
         line-height: 0.9rem; /* 102.857% */
         text-transform: uppercase;
-    }
-
-    .input{
-        width: 100%;
-        height: 4.0625rem;
-        flex-shrink: 0;
-        border-radius: 0.25rem;
-        border: 1px solid var(--Gray-3, #000000);   
-    }
-
-    .input-2{
-        width: 100%;
-        height: 4.0625rem;
-        flex-shrink: 0;
-        border-radius: 0.25rem;
-        border: 1px solid var(--Gray-3, #000000);
     }
 
     .img{
