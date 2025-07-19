@@ -30,12 +30,11 @@
 					<button onclick={handleSignOut} class="hover:text-amber-300 transition-colors"
 						>Sign Out</button
 					>
-				{:else}
-					<a href="/cart">Cart</a>
-					<button onclick={handleSignOut} class="hover:text-amber-300 transition-colors"
-						>Sign Out</button
-					>
 				{/if}
+				<a href="/cart">Cart</a>
+				<button onclick={handleSignOut} class="hover:text-amber-300 transition-colors"
+					>Sign Out</button
+				>
 			{:else}
 				<a href="/cart">Cart</a>
 				<a href="/login">Log In</a>
