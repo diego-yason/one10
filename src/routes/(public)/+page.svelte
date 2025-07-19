@@ -2,13 +2,9 @@
 	import { products, loading, error } from '$lib/stores/products';
 	import { onMount } from 'svelte';
 	import { loadProducts } from '$lib/stores/products';
-<<<<<<< HEAD
 	import { user, isStaff } from '$lib/stores/auth';
-=======
-	import { user, isStaffUser } from '$lib/stores/auth';
 	import { z } from 'zod';
 	import { validateField } from '$lib/validation';
->>>>>>> origin/sprints
 
 	onMount(() => {
 		loadProducts();
@@ -223,7 +219,9 @@
 	<h2 class="text-center font-spaceGrotesk text-4xl font-bold mb-12">Contact Us</h2>
 	<div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-10">
 		{#if formSuccess}
-			<div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6 text-center">
+			<div
+				class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6 text-center"
+			>
 				Thank you for reaching out! We'll get back to you soon.
 			</div>
 		{:else}
@@ -239,33 +237,73 @@
 				{/if}
 				<div>
 					<label for="name" class="block mb-2 font-bold">Name</label>
-					<input id="name" type="text" bind:value={name} class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-amber-300 {fieldErrors.name ? 'border-2 border-red-500' : ''}" placeholder="Your Name" on:input={(e) => handleFieldChange('name', e.currentTarget.value)} />
+					<input
+						id="name"
+						type="text"
+						bind:value={name}
+						class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-amber-300 {fieldErrors.name
+							? 'border-2 border-red-500'
+							: ''}"
+						placeholder="Your Name"
+						on:input={(e) => handleFieldChange('name', e.currentTarget.value)}
+					/>
 					{#if fieldErrors.name}
 						<p class="text-red-500 text-sm mt-1">{fieldErrors.name}</p>
 					{/if}
 				</div>
 				<div>
 					<label for="email" class="block mb-2 font-bold">Email</label>
-					<input id="email" type="email" bind:value={email} class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-amber-300 {fieldErrors.email ? 'border-2 border-red-500' : ''}" placeholder="you@email.com" on:input={(e) => handleFieldChange('email', e.currentTarget.value)} />
+					<input
+						id="email"
+						type="email"
+						bind:value={email}
+						class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-amber-300 {fieldErrors.email
+							? 'border-2 border-red-500'
+							: ''}"
+						placeholder="you@email.com"
+						on:input={(e) => handleFieldChange('email', e.currentTarget.value)}
+					/>
 					{#if fieldErrors.email}
 						<p class="text-red-500 text-sm mt-1">{fieldErrors.email}</p>
 					{/if}
 				</div>
 				<div>
 					<label for="subject" class="block mb-2 font-bold">Subject</label>
-					<input id="subject" type="text" bind:value={subject} class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-amber-300 {fieldErrors.subject ? 'border-2 border-red-500' : ''}" placeholder="Subject" on:input={(e) => handleFieldChange('subject', e.currentTarget.value)} />
+					<input
+						id="subject"
+						type="text"
+						bind:value={subject}
+						class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-amber-300 {fieldErrors.subject
+							? 'border-2 border-red-500'
+							: ''}"
+						placeholder="Subject"
+						on:input={(e) => handleFieldChange('subject', e.currentTarget.value)}
+					/>
 					{#if fieldErrors.subject}
 						<p class="text-red-500 text-sm mt-1">{fieldErrors.subject}</p>
 					{/if}
 				</div>
 				<div>
 					<label for="message" class="block mb-2 font-bold">Message</label>
-					<textarea id="message" bind:value={message} rows="5" class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-amber-300 {fieldErrors.message ? 'border-2 border-red-500' : ''}" placeholder="How can we help you?" on:input={(e) => handleFieldChange('message', e.currentTarget.value)}></textarea>
+					<textarea
+						id="message"
+						bind:value={message}
+						rows="5"
+						class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-amber-300 {fieldErrors.message
+							? 'border-2 border-red-500'
+							: ''}"
+						placeholder="How can we help you?"
+						on:input={(e) => handleFieldChange('message', e.currentTarget.value)}
+					></textarea>
 					{#if fieldErrors.message}
 						<p class="text-red-500 text-sm mt-1">{fieldErrors.message}</p>
 					{/if}
 				</div>
-				<button type="submit" class="bg-amber-300 text-black font-bold py-3 rounded-4xl hover:bg-amber-400 transition-colors mt-2">Send Message</button>
+				<button
+					type="submit"
+					class="bg-amber-300 text-black font-bold py-3 rounded-4xl hover:bg-amber-400 transition-colors mt-2"
+					>Send Message</button
+				>
 			</form>
 		{/if}
 	</div>
