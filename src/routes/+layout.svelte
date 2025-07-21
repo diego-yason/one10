@@ -9,7 +9,9 @@
 </script>
 
 {#if $toast}
-	<div class="fixed top-6 right-6 z-50 bg-amber-400 text-black px-6 py-3 rounded-lg shadow-lg font-bold animate-fade-in">
+	<div
+		class="fixed top-6 right-6 z-50 bg-amber-400 text-black px-6 py-3 rounded-lg shadow-lg font-bold animate-fade-in"
+	>
 		{$toast}
 	</div>
 {/if}
@@ -23,7 +25,13 @@
 		animation: fadeIn 0.2s;
 	}
 	@keyframes fadeIn {
-		from { opacity: 0; transform: translateY(-10px); }
-		to { opacity: 1; transform: translateY(0); }
+		from {
+			opacity: 0;
+			transform: translateY(-10px);
+		}
+		to {
+			opacity: 1;
+			transform: translateY(0);
+		}
 	}
 </style>

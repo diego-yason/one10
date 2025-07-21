@@ -1,0 +1,7 @@
+{
+	"filmType": "Film type:",
+	"filmBrand": "Film brand:",
+	"process": "Process type:",
+	"push": "Push processing count:",
+	"return": "Returning negatives?"
+}

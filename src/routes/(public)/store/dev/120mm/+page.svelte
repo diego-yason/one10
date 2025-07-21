@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { user, isStaff } from '$lib/stores/auth';
-	import { film35mmSchema, validateField } from '$lib/validation';
-	import { cart, showToast } from '$lib/stores/cart';
+	import { film120mmSchema, validateField } from '$lib/validation';
+	import { add, cart, showToast } from '$lib/stores/cart';
 
 	let pushProcessing = 1;
 	let filmBrand = '';
@@ -19,7 +19,11 @@
 		}
 
 		// Validate the specific field
-		const error = validateField(film35mmSchema, field as keyof typeof film35mmSchema.shape, value);
+		const error = validateField(
+			film120mmSchema,
+			field as keyof typeof film120mmSchema.shape,
+			value
+		);
 		if (error) {
 			fieldErrors = { ...fieldErrors, [field]: error };
 		} else {
@@ -33,7 +37,7 @@
 		errorMessages = [];
 		fieldErrors = {};
 
-		const result = film35mmSchema.safeParse({
+		const result = film120mmSchema.safeParse({
 			filmBrand,
 			processType,
 			returningNegatives,
@@ -54,13 +58,15 @@
 		}
 
 		const price = scanOption === 'scan' ? 300 : 200;
-		cart.add({
-			id: '35mm-' + Date.now(),
-			type: 'service',
-			name: '35mm Film',
+		add({
+			id: '120mm',
+			name: '120mm Film',
 			price,
 			quantity: 1,
-			details: result.data
+			// TODO: blank data
+			details: result.data,
+			// TODO: blank data
+			imageUrl: ''
 		});
 		showToast('Added to cart!');
 	};
@@ -77,8 +83,7 @@
 			class="rounded-lg w-[350px] h-[250px] object-cover bg-white mb-8"
 		/>
 	</div>
-
-	<h2 class="font-spaceGrotesk font-bold text-5xl mb-2">35MM FILM</h2>
+	<h2 class="font-spaceGrotesk font-bold text-5xl mb-2">120MM FILM</h2>
 	<p class="text-gray-400 text-2xl mb-8">P200</p>
 	{#if errorMessages.length}
 		<div class="bg-red-500/10 border border-red-500 text-red-500 p-3 mb-5 rounded">

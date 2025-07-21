@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import { type Product } from '$lib/services/firebase';
+import type { Product } from '$types/products';
 import { ProductService } from '$lib/services/products';
 import { browser } from '$app/environment';
 

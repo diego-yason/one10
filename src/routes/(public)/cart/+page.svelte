@@ -1,9 +1,12 @@
 <script lang="ts">
 	import { dev } from '$app/environment';
 	import { user } from '$lib/stores/auth';
-	import { cart, clear, remove, updateQuantity, add } from '$lib/stores/cart';
+	import { cart, clear, remove, updateQuantity, add, verifyCart } from '$lib/stores/cart';
 
 	let total = $state(0);
+
+	verifyCart();
+	setInterval(verifyCart, 1000 * 60 * 5); // Verify cart every 5 minutes while in page
 
 	cart.subscribe((cart) => {
 		total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -14,19 +17,27 @@
 	}
 
 	import CartItem from './CartItem.svelte';
+
+	let hideDev = $state(false);
 </script>
 
-{#if dev}
+{#if dev && !hideDev}
+	<button class="bg-red-400 py-1.5 ml-2" onclick={() => (hideDev = true)}>
+		hide (refresh to return)
+	</button>
 	<button
 		onclick={() =>
 			add({
-				type: 'product',
 				name: 'New 16mm Film',
 				quantity: 1,
 				price: 450,
 				id: 'new-film-1',
-				details: {},
-				imageUrl: 'https://placehold.co/100x60'
+				details: {
+					filmType: '35mm',
+					filmBrand: 'Kodak Gold 400'
+				},
+				imageUrl: 'https://placehold.co/100x60',
+				notes: ''
 			})}
 		class="bg-green-500 text-white px-4 py-2 rounded"
 	>
@@ -38,23 +49,24 @@
 	</button>
 {/if}
 
-<div class="flex flex-col px-32 py-24 space-y-6">
+<h2 class="text-gray-800 px-32 font-spaceGrotesk text-7xl font-bold text-left w-3/4 h-30">Cart</h2>
+<div class="flex flex-col px-32 pb-24 space-y-6">
 	<!--Item container-->
-	<h2 class="text-gray-800 font-spaceGrotesk text-7xl font-bold text-left w-3/4 mb-auto h-30 mt-10">
-		Cart
-	</h2>
 	{#if $cart.length === 0}
-		<div class="flex flex-col items-center justify-center py-20">
-			<p class="text-lg text-gray-500 mb-4">Your cart is empty.</p>
+		<div class="flex flex-col bg-gray-200 rounded-lg items-center justify-center py-20">
+			<p class="text-lg mb-4 font-bold">Your cart is empty.</p>
 			<a
 				href="/services"
 				class="bg-amber-300 rounded-4xl px-8 py-2 font-bold text-black hover:bg-amber-400 transition"
-				>Shop Now</a
 			>
+				Go to Products
+			</a>
 		</div>
 	{:else}
 		{#each $cart as item, i (item.id + '-' + i)}
-			<CartItem {...item} {updateQuantity} {removeItem} {i}></CartItem>
+			{#key item.quantity}
+				<CartItem {...item} {updateQuantity} {removeItem} {i}></CartItem>
+			{/key}
 		{/each}
 		<div class="flex border-1 rounded-lg my-auto y-100 p-5 text-left font-bold py-15">
 			<div>
@@ -66,11 +78,11 @@
 			</div>
 			<div class="ml-auto flex gap-4">
 				<button
-					class="bg-yellow-400 text-white py-2 px-4 rounded-lg hover:bg-amber-700 transition duration-300"
+					class="bg-yellow-600 text-white py-2 px-4 rounded-lg hover:bg-amber-700 transition duration-300"
 					onclick={clear}>Clear Cart</button
 				>
 				<button
-					class="bg-yellow-400 text-white py-2 px-4 rounded-lg hover:bg-amber-700 transition duration-300"
+					class="bg-yellow-600 text-white py-2 px-4 rounded-lg hover:bg-amber-700 transition duration-300"
 					>Checkout</button
 				>
 			</div>

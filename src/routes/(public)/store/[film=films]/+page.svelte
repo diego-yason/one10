@@ -1,15 +1,18 @@
 <script lang="ts">
 	import { user, isStaff } from '$lib/stores/auth';
-	import { film120mmSchema, validateField } from '$lib/validation';
-	import { cart, showToast } from '$lib/stores/cart';
+	import { film35mmSchema, validateField } from '$lib/validation';
+	import { add, cart, showToast } from '$lib/stores/cart';
 
-	let pushProcessing = 1;
-	let filmBrand = '';
-	let processType = '';
-	let returningNegatives = '';
-	let scanOption = '';
-	let errorMessages: string[] = [];
-	let fieldErrors: Record<string, string> = {};
+	let { data } = $props();
+	const { film } = $derived(data);
+
+	let pushProcessing = $state(0);
+	let filmBrand = $state('');
+	let processType = $state('');
+	let returningNegatives = $state('');
+	let scanOption = $state('');
+	let errorMessages: string[] = $state([]);
+	let fieldErrors: Record<string, string> = $state({});
 
 	// Real-time validation function
 	function handleFieldChange(field: string, value: string) {
@@ -19,11 +22,7 @@
 		}
 
 		// Validate the specific field
-		const error = validateField(
-			film120mmSchema,
-			field as keyof typeof film120mmSchema.shape,
-			value
-		);
+		const error = validateField(film35mmSchema, field as keyof typeof film35mmSchema.shape, value);
 		if (error) {
 			fieldErrors = { ...fieldErrors, [field]: error };
 		} else {
@@ -37,7 +36,7 @@
 		errorMessages = [];
 		fieldErrors = {};
 
-		const result = film120mmSchema.safeParse({
+		const result = film35mmSchema.safeParse({
 			filmBrand,
 			processType,
 			returningNegatives,
@@ -58,16 +57,27 @@
 		}
 
 		const price = scanOption === 'scan' ? 300 : 200;
-		cart.add({
-			id: '120mm-' + Date.now(),
-			type: 'service',
-			name: '120mm Film',
+		add({
+			id: '35mm',
+			name: '35mm Film',
 			price,
 			quantity: 1,
-			details: result.data
+			// TODO: blank data
+			details: { idk: result.data },
+			// TODO: blank data
+			imageUrl: 'https://placehold.co/350x250'
 		});
 		showToast('Added to cart!');
 	};
+
+	let isGeneric = $state(false);
+	$effect(() => {
+		if (isGeneric) {
+			filmBrand = 'Generic';
+		} else if (filmBrand === 'Generic') {
+			filmBrand = '';
+		}
+	});
 </script>
 
 <div class="flex flex-col max-w-4xl w-full ml-32 mx-auto">
@@ -77,11 +87,12 @@
 		</h2>
 		<img
 			src="https://placehold.co/350x250"
-			alt="35mm Film"
+			alt="{film} Film"
 			class="rounded-lg w-[350px] h-[250px] object-cover bg-white mb-8"
 		/>
 	</div>
-	<h2 class="font-spaceGrotesk font-bold text-5xl mb-2">120MM FILM</h2>
+
+	<h2 class="font-spaceGrotesk font-bold text-5xl mb-2 capitalize">{film}</h2>
 	<p class="text-gray-400 text-2xl mb-8">P200</p>
 	{#if errorMessages.length}
 		<div class="bg-red-500/10 border border-red-500 text-red-500 p-3 mb-5 rounded">
@@ -93,23 +104,24 @@
 		</div>
 	{/if}
 
-	<form on:submit={handleSubmit} class="w-full flex flex-col gap-6">
+	<form onsubmit={handleSubmit} class="w-full flex flex-col gap-6">
 		<div>
-			<label class="block font-bold mb-2 text-sm"
-				>FILM BRAND NAME (TYPE 'GENERIC' IF NO BRAND)*</label
-			>
+			<label class="block font-bold mb-2 text-sm">FILM BRAND NAME</label>
 			<input
 				type="text"
 				class="w-full px-4 py-2 rounded border border-gray-300 bg-white {fieldErrors.filmBrand
 					? 'border-2 border-red-500'
 					: ''}"
 				placeholder="Type your film's brand name"
+				disabled={isGeneric}
 				bind:value={filmBrand}
-				on:input={(e) => handleFieldChange('filmBrand', e.currentTarget.value)}
+				oninput={(e) => handleFieldChange('filmBrand', e.currentTarget.value)}
 			/>
 			{#if fieldErrors.filmBrand}
 				<p class="text-red-500 text-sm mt-1">{fieldErrors.filmBrand}</p>
 			{/if}
+			<input type="checkbox" name="genericBrand" id="genericBrand" bind:checked={isGeneric} />
+			<label for="genericBrand" class="text-sm">Generic Brand</label>
 		</div>
 		<div>
 			<label class="block font-bold mb-2 text-sm">PROCESS TYPE</label>
@@ -118,7 +130,7 @@
 					? 'border-2 border-red-500'
 					: ''}"
 				bind:value={processType}
-				on:change={(e) => handleFieldChange('processType', e.currentTarget.value)}
+				onchange={(e) => handleFieldChange('processType', e.currentTarget.value)}
 			>
 				<option value="">Select process type</option>
 				<option value="option1">Option 1</option>
@@ -132,7 +144,7 @@
 		<div>
 			<label class="block font-bold mb-2 text-sm">PUSH PROCESSING</label>
 			<div class="flex items-center gap-4">
-				<input type="range" min="1" max="3" step="1" bind:value={pushProcessing} class="w-40" />
+				<input type="range" min="0" max="3" step="1" bind:value={pushProcessing} class="w-40" />
 				<span class="font-bold">{pushProcessing}</span>
 			</div>
 		</div>
@@ -143,7 +155,7 @@
 					? 'border-2 border-red-500'
 					: ''}"
 				bind:value={returningNegatives}
-				on:change={(e) => handleFieldChange('returningNegatives', e.currentTarget.value)}
+				onchange={(e) => handleFieldChange('returningNegatives', e.currentTarget.value)}
 			>
 				<option value="">Select how would you like to get your negatives back</option>
 				<option value="option1">Option 1</option>
@@ -161,7 +173,7 @@
 					name="scanOption"
 					value="scan"
 					bind:group={scanOption}
-					on:change={(e) => handleFieldChange('scanOption', e.currentTarget.value)}
+					onchange={(e) => handleFieldChange('scanOption', e.currentTarget.value)}
 				/>
 				SCAN FILM AND EMAIL ME SOFT COPIES +P100.00
 			</label>
@@ -171,7 +183,7 @@
 					name="scanOption"
 					value="process"
 					bind:group={scanOption}
-					on:change={(e) => handleFieldChange('scanOption', e.currentTarget.value)}
+					onchange={(e) => handleFieldChange('scanOption', e.currentTarget.value)}
 				/>
 				PROCESS ONLY (I WILL SCAN AND PRINT ON MY OWN)
 			</label>

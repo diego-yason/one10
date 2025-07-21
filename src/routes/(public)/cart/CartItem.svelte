@@ -1,116 +1,134 @@
 <script lang="ts">
-	let { i, name, type, price, quantity, details, imageUrl, updateQuantity, removeItem } = $props();
+	import { onMount } from 'svelte';
+	import detailNames from './detailNames.json';
+	import { cart } from '$lib/stores/cart';
+	let {
+		i: cartIndex,
+		name,
+		price,
+		quantity,
+		details,
+		imageUrl,
+		updateQuantity,
+		removeItem,
+		notes = '',
+		addons = []
+	} = $props();
 
-	let localQuantity = $state(quantity);
 	$effect(() => {
-		if (localQuantity <= 0) removeItem(i);
-		else updateQuantity(i, localQuantity);
+		if (quantity <= 0) removeItem(cartIndex);
+		else updateQuantity(cartIndex, quantity);
+	});
+
+	let editor: HTMLElement;
+	onMount(async () => {
+		const { default: Quill } = await import('quill');
+		const quill = new Quill(editor, {
+			// placeholder: 'Anything we need to know?',
+			modules: {
+				toolbar: false
+			},
+			formats: ['italic', 'bold'],
+			theme: 'bubble',
+			placeholder: 'Do we need to know anything?'
+		});
+
+		let timeout: NodeJS.Timeout;
+		quill.on('selection-change', (range) => {
+			function saveContent() {
+				const html = quill.getSemanticHTML();
+
+				if (html === notes) return; // No change, skip update
+				cart.update((cart) => {
+					const item = cart[cartIndex];
+					if (item) {
+						item.notes = html;
+					}
+					return [...cart];
+				});
+			}
+			// every 5 seconds while the editor is focused, save the content to the cart store
+			if (range) {
+				timeout = setTimeout(saveContent, 5000);
+			} else {
+				// Editor lost focus
+				clearTimeout(timeout);
+				saveContent();
+			}
+		});
 	});
 </script>
 
 <div class="flex bg-[#D9D9D9] p-4 rounded-lg mt-4 items-center">
-	{#if imageUrl}
-		<div class="cart-image-container">
-			<img src={imageUrl} alt={name} class="cart-image" />
-		</div>
-	{/if}
-	<div class="flex flex-1">
-		<div class="flex-col text-left space-y-35">
-			<div>
-				<h6 class="m-5 font-spaceGrotesk font-bold">
-					{type === 'product' ? 'Product' : 'Service'}
+	<div class="self-start basis-1/6 rounded-2xl mr-8">
+		<img src="https://placehold.co/185x137" class="rounded-xloverflow-clip" alt={name} />
+	</div>
+	<div class="flex basis-5/6 min-w-0 overflow-hidden">
+		<div class="space-y-35 grow min-w-0">
+			<div class="min-w-0">
+				<h6 class="m-5 font-spaceGrotesk font-bold break-words">
+					{name}
 				</h6>
-				<p class="m-5">{name}</p>
-				{#if details}
-					{#if type === 'service'}
-						<div class="m-5 text-xs bg-gray-100 p-2 rounded service-details">
-							{#if name === 'Disposable Camera' || name === '35mm Film' || name === '120mm Film'}
-								<div><b>Film Brand:</b> {details.filmBrand}</div>
-								<div><b>Process Type:</b> {details.processType}</div>
-								<div><b>Returning Negatives:</b> {details.returningNegatives}</div>
-								<div><b>Scan/Process Option:</b> {details.scanOption}</div>
-							{:else if name === 'Printing'}
-								<div><b>Photo Size:</b> {details.photoSize}</div>
-								<div><b>Total Photos:</b> {details.totalPhotos}</div>
-								<div><b>Access Photos:</b> {details.accessPhotos}</div>
-								{#if details.linkPhotos}
-									<div><b>Link to Photos:</b> {details.linkPhotos}</div>
-								{/if}
-								<div>
-									<b>Drop-off:</b>
-									{details.dropoffMode === 'other' ? details.dropoffOther : details.dropoffMode}
-								</div>
-								<div>
-									<b>Pick-up:</b>
-									{details.pickupMode === 'other' ? details.pickupOther : details.pickupMode}
-								</div>
-							{:else}
-								<div>{JSON.stringify(details)}</div>
-							{/if}
+				<div class="m-5 text-xs p-2 rounded w-full mb-2 *:mb-1 overflow-hidden">
+					{#each Object.entries(details) as [k, v]}
+						<div class="break-words overflow-hidden">
+							<b>{detailNames[k as keyof typeof detailNames]}</b>
+							<span class="break-all">{v}</span>
 						</div>
-					{:else}
-						<pre class="m-5 text-xs bg-gray-100 p-2 rounded">{JSON.stringify(
-								details,
-								null,
-								2
-							)}</pre>
-					{/if}
-				{/if}
+					{/each}
+					<div class="w-full break-words overflow-hidden">
+						<b>Notes:</b>
+						<div id="editor-wrapper">
+							<div bind:this={editor}>
+								<!-- This is from trusted input. -->
+								{@html notes}
+							</div>
+						</div>
+					</div>
+				</div>
 			</div>
 			<div>
-				{#if type === 'product'}
+				<div class="flex flex-row w-full justify-between">
 					<div class="flex border-1 w-32 m-5 rounded-lg justify-around">
 						<button
 							class="px-1.5 basis-1/4 py-3 border-r-[1px] border-black"
-							onclick={() => localQuantity--}
-							disabled={localQuantity <= 0}
+							onclick={() => quantity--}
+							disabled={quantity <= 0}
 						>
 							-
 						</button>
-						<input type="number" min="0" class="w-12 text-center" value={localQuantity} />
+						<input type="number" min="0" class="w-12 text-center no-spinner" value={quantity} />
 						<button
 							class="px-1.5 basis-1/4 py-3 border-l-[1px] border-black"
-							onclick={() => localQuantity++}>+</button
+							onclick={() => quantity++}>+</button
 						>
 					</div>
-				{:else}
-					<span style="display:block; margin-top:0.5rem;">Qty: {localQuantity}</span>
-				{/if}
+					<button class="text-red-600 font-bold mr-5" onclick={() => removeItem(cartIndex)}
+						>Remove</button
+					>
+				</div>
 				<h6 class="text-left font-bold" style="margin-top:0.25rem;">
-					₱{price * localQuantity}
+					₱{price * quantity}
 				</h6>
 			</div>
 		</div>
 	</div>
-	<button class="ml-8 text-red-600 font-bold" onclick={() => removeItem(i)}>Remove</button>
 </div>
 
 <style>
-	.cart-image-container {
-		width: 180px;
-		height: 180px;
-		background: #fff;
-		border-radius: 1rem;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		margin-right: 2rem;
+	.no-spinner::-webkit-outer-spin-button,
+	.no-spinner::-webkit-inner-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
 	}
-	.cart-image {
-		max-width: 140px;
-		max-height: 140px;
-		object-fit: contain;
-		border-radius: 0.5rem;
+	.no-spinner[type='number'] {
+		appearance: textfield;
+		-moz-appearance: textfield;
 	}
-
-	.service-details {
-		min-width: 320px;
-		max-width: 480px;
-		width: 60%;
-		margin-bottom: 0.5rem;
-	}
-	.service-details div {
-		margin-bottom: 0.25rem;
-		font-size: 1rem;
+	.no-spinner:focus,
+	.no-spinner:active {
+		outline: none;
+		border: none;
+		box-shadow: none;
 	}
 </style>

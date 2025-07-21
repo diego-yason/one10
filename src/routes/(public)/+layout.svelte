@@ -19,9 +19,9 @@
 				<img src="https://placehold.co/100x60" alt="" />
 			</a>
 			<a href="/" class:font-semibold={page.url.pathname === '/'}>Home</a>
-			<a href="/services" class:font-semibold={page.url.pathname === '/services'}>Services</a>
+			<a href="/store" class:font-semibold={page.url.pathname.startsWith('/store')}>Store</a>
 			<a href="#">Track</a>
-			<a href="/faq">FAQs</a>
+			<a href="/faq" class:font-semibold={page.url.pathname === '/faq'}>FAQs</a>
 		</div>
 		<div class="flex flex-row gap-14 items-center">
 			{#if $user}

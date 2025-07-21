@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { user, isStaff } from '$lib/stores/auth';
-	import { disposableSchema, validateField } from '$lib/validation';
-	import { cart, showToast } from '$lib/stores/cart';
+	import { film35mmSchema, validateField } from '$lib/validation';
+	import { add, cart, showToast } from '$lib/stores/cart';
 
 	let pushProcessing = 1;
 	let filmBrand = '';
@@ -19,11 +19,7 @@
 		}
 
 		// Validate the specific field
-		const error = validateField(
-			disposableSchema,
-			field as keyof typeof disposableSchema.shape,
-			value
-		);
+		const error = validateField(film35mmSchema, field as keyof typeof film35mmSchema.shape, value);
 		if (error) {
 			fieldErrors = { ...fieldErrors, [field]: error };
 		} else {
@@ -37,7 +33,7 @@
 		errorMessages = [];
 		fieldErrors = {};
 
-		const result = disposableSchema.safeParse({
+		const result = film35mmSchema.safeParse({
 			filmBrand,
 			processType,
 			returningNegatives,
@@ -58,13 +54,14 @@
 		}
 
 		const price = scanOption === 'scan' ? 300 : 200;
-		cart.add({
-			id: 'disposable-' + Date.now(),
-			type: 'service',
-			name: 'Disposable Camera',
+		add({
+			id: '35mm',
+			name: '35mm Film',
 			price,
 			quantity: 1,
-			details: result.data
+			details: result.data,
+			// TODO: blank data
+			imageUrl: 'https://placehold.co/350x250'
 		});
 		showToast('Added to cart!');
 	};
@@ -77,12 +74,13 @@
 		</h2>
 		<img
 			src="https://placehold.co/350x250"
-			alt="Disposable Camera"
-			class="rounded-lg w-[350px] h-[250px] object-cover bg-white"
+			alt="35mm Film"
+			class="rounded-lg w-[350px] h-[250px] object-cover bg-white mb-8"
 		/>
 	</div>
-	<h3 class="font-bold text-3xl mb-1 w-full text-left">Disposable Camera</h3>
-	<p class="text-gray-400 text-2xl mb-8 w-full text-left">P200</p>
+
+	<h2 class="font-spaceGrotesk font-bold text-5xl mb-2">35MM FILM</h2>
+	<p class="text-gray-400 text-2xl mb-8">P200</p>
 	{#if errorMessages.length}
 		<div class="bg-red-500/10 border border-red-500 text-red-500 p-3 mb-5 rounded">
 			<ul>
@@ -145,7 +143,7 @@
 				bind:value={returningNegatives}
 				on:change={(e) => handleFieldChange('returningNegatives', e.currentTarget.value)}
 			>
-				<option value="">Select how to return negatives</option>
+				<option value="">Select how would you like to get your negatives back</option>
 				<option value="option1">Option 1</option>
 				<option value="option2">Option 2</option>
 				<option value="option3">Option 3</option>
@@ -154,39 +152,35 @@
 				<p class="text-red-500 text-sm mt-1">{fieldErrors.returningNegatives}</p>
 			{/if}
 		</div>
-		<div>
-			<label class="block font-bold mb-2 text-sm">SCAN/PROCESS OPTIONS</label>
-			<div class="flex flex-col gap-2">
-				<label class="text-sm">
-					<input
-						type="radio"
-						name="scanOption"
-						value="scan"
-						bind:group={scanOption}
-						on:change={(e) => handleFieldChange('scanOption', e.currentTarget.value)}
-					/>
-					SCAN FILM AND EMAIL ME SOFT COPIES +P100.00
-				</label>
-				<label class="text-sm">
-					<input
-						type="radio"
-						name="scanOption"
-						value="process"
-						bind:group={scanOption}
-						on:change={(e) => handleFieldChange('scanOption', e.currentTarget.value)}
-					/>
-					PROCESS ONLY (I WILL SCAN AND PRINT ON MY OWN)
-				</label>
-			</div>
-			{#if fieldErrors.scanOption}
-				<p class="text-red-500 text-sm mt-1">{fieldErrors.scanOption}</p>
-			{/if}
+		<div class="flex flex-col gap-2 mt-2">
+			<label class="text-sm">
+				<input
+					type="radio"
+					name="scanOption"
+					value="scan"
+					bind:group={scanOption}
+					on:change={(e) => handleFieldChange('scanOption', e.currentTarget.value)}
+				/>
+				SCAN FILM AND EMAIL ME SOFT COPIES +P100.00
+			</label>
+			<label class="text-sm">
+				<input
+					type="radio"
+					name="scanOption"
+					value="process"
+					bind:group={scanOption}
+					on:change={(e) => handleFieldChange('scanOption', e.currentTarget.value)}
+				/>
+				PROCESS ONLY (I WILL SCAN AND PRINT ON MY OWN)
+			</label>
 		</div>
+		{#if fieldErrors.scanOption}
+			<p class="text-red-500 text-sm mt-1">{fieldErrors.scanOption}</p>
+		{/if}
 		<div class="flex gap-4 mt-6 items-center">
 			<button type="submit" class="bg-amber-300 rounded-4xl px-8 py-2 font-bold text-black"
 				>Add to cart</button
 			>
-			<a href="/services" class="ml-auto text-gray-500 underline">Back</a>
 		</div>
 	</form>
 </div>
@@ -218,7 +212,6 @@
 		>
 	</div>
 </section>
-
 {#if !$user}
 	<div class="flex justify-between px-40 background-color py-24">
 		<div>

@@ -86,12 +86,12 @@
 
 		const qty = parseInt(totalPhotos) || 1;
 		add({
-			id: 'printing-' + Date.now(),
-			type: 'service',
+			id: 'printing',
 			name: 'Printing',
 			price: 8 * qty,
 			quantity: 1,
-			details: result.data
+			details: result.data,
+			imageUrl: 'https://placehold.co/350x250'
 		});
 		showToast('Added to cart!');
 	};
