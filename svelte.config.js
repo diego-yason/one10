@@ -8,15 +8,7 @@ const config = {
 	preprocess: vitePreprocess(),
 
 	kit: {
-		adapter: adapter({
-			routes: {
-				include: ['/*'],
-				exclude: ['<all>']
-			},
-			platformProxy: {
-				persist: './wrangler-state'
-			}
-		}),
+		adapter: adapter(),
 		alias: {
 			$types: './types'
 		},
