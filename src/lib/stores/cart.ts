@@ -6,32 +6,33 @@ import type { CartItem } from '$types/Cart';
 import { writable } from 'svelte/store';
 import _ from 'lodash';
 
-export const cart = writable<CartItem[]>(
-	browser ? JSON.parse(localStorage.getItem('cart') || '[]') : []
-);
+export const cart = writable<CartItem[]>([]);
 
-let cartStatic: CartItem[] = [];
+let cartStatic: CartItem[];
 cart.subscribe((data) => (cartStatic = data));
 
 let cartSyncUnsubscribe: () => void;
 
-onAuthStateChanged(auth, async (user) => {
-	if (!user) {
-		cartSyncUnsubscribe?.();
-		cart.set([]);
-		return;
-	}
+// onAuthStateChanged(auth, async (user) => {
+// 	if (!user) {
+// 		if (cartSyncUnsubscribe) {
+// 			cartSyncUnsubscribe();
+// 			cart.set([]);
+// 		}
+// 		return;
+// 	}
 
-	const docRef = doc(db, 'carts', user.uid);
-	const docSnap = await getDoc(docRef);
-	if (docSnap.exists()) cart.set(docSnap.data().items || []);
-	else cart.set([]);
+// 	const docRef = doc(db, 'carts', user.uid);
+// 	const docSnap = await getDoc(docRef);
+// 	if (docSnap.exists()) cart.set(docSnap.data().items || []);
+// 	else cart.set([]);
 
-	cartSyncUnsubscribe = cart.subscribe((items) => {
-		setDoc(docRef, { items }, { merge: true });
-	});
-});
+// 	cartSyncUnsubscribe = cart.subscribe((items) => {
+// 		setDoc(docRef, { items }, { merge: true });
+// 	});
+// });
 
+if (browser) cart.set(JSON.parse(localStorage.getItem('cart') || '[]'));
 if (browser) cart.subscribe((data) => localStorage.setItem('cart', JSON.stringify(data)));
 
 export function add(item: CartItem) {
@@ -81,6 +82,7 @@ export function showToast(message: string) {
 
 // verify with server, and ensure no items with zero quantity
 export async function verifyCart() {
+	return; //disable for now
 	const tempCart = Object.create(cartStatic) as CartItem[];
 
 	const promises = tempCart.map(async (item) => {

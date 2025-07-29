@@ -26,5 +26,18 @@ if (browser) {
 
 		user.set(newUser);
 		authLoaded.set(true);
+
+		// staff only for now
+		if (newUser && !newUser.email?.endsWith('@one10studiolab.com')) {
+			return auth.signOut();
+		}
+
+		// expire any existing session cookie
+		document.cookie =
+			'__session=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Strict; Secure; HttpOnly';
+
+		// set cookie
+		if (newUser)
+			document.cookie = `__session=${newUser.getIdToken()}; path=/; SameSite=Strict; Secure; HttpOnly`;
 	});
 }

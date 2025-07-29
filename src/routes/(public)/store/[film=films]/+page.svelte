@@ -1,82 +1,40 @@
 <script lang="ts">
-	import { user, isStaff } from '$lib/stores/auth';
-	import { film35mmSchema, validateField } from '$lib/validation';
-	import { add, cart, showToast } from '$lib/stores/cart';
+	import { user } from '$lib/stores/auth';
+	import { add, showToast, toast } from '$lib/stores/cart';
+	import { slide } from 'svelte/transition';
+	import { enhance } from '$app/forms';
+	import type { PageProps } from './$types.js';
+	import type { CartItem } from '$types/Cart';
+	import { addonNames } from './schema.js';
 
-	let { data } = $props();
-	const { film } = $derived(data);
+	let { data, form }: PageProps = $props();
+	const { film, filmCode } = $derived(data);
 
 	let pushProcessing = $state(0);
 	let filmBrand = $state('');
-	let processType = $state('');
+	let processType = $state<'' | 'c41' | 'bw' | 'ecn2'>('');
 	let returningNegatives = $state('');
 	let scanOption = $state('');
-	let errorMessages: string[] = $state([]);
-	let fieldErrors: Record<string, string> = $state({});
 
-	// Real-time validation function
-	function handleFieldChange(field: string, value: string) {
-		// Clear general errors when user starts typing
-		if (errorMessages.length > 0) {
-			errorMessages = [];
-		}
-
-		// Validate the specific field
-		const error = validateField(film35mmSchema, field as keyof typeof film35mmSchema.shape, value);
-		if (error) {
-			fieldErrors = { ...fieldErrors, [field]: error };
-		} else {
-			const { [field]: _, ...rest } = fieldErrors;
-			fieldErrors = rest;
-		}
-	}
-
-	const handleSubmit = (e: SubmitEvent) => {
-		e.preventDefault();
-		errorMessages = [];
-		fieldErrors = {};
-
-		const result = film35mmSchema.safeParse({
-			filmBrand,
-			processType,
-			returningNegatives,
-			scanOption
-		});
-
-		if (!result.success) {
-			if (result.error && Array.isArray(result.error.errors)) {
-				// Group errors by field
-				result.error.errors.forEach((error) => {
-					const field = error.path[0] as string;
-					fieldErrors[field] = error.message;
-				});
-			} else {
-				errorMessages = ['Please fill in all required fields.'];
-			}
-			return;
-		}
-
-		const price = scanOption === 'scan' ? 300 : 200;
-		add({
-			id: '35mm',
-			name: '35mm Film',
-			price,
-			quantity: 1,
-			// TODO: blank data
-			details: { idk: result.data },
-			// TODO: blank data
-			imageUrl: 'https://placehold.co/350x250'
-		});
-		showToast('Added to cart!');
-	};
+	import prices from './priceRef.json';
+	const { pushProcess: pushProcessPrice, scan: scanAddon, process: processPrice } = prices;
 
 	let isGeneric = $state(false);
 	$effect(() => {
 		if (isGeneric) {
-			filmBrand = 'Generic';
-		} else if (filmBrand === 'Generic') {
+			filmBrand = 'Generic Brand';
+		} else if (filmBrand === 'Generic Brand') {
 			filmBrand = '';
 		}
+	});
+	let returning = $state(false);
+	let disabled = $state(false);
+
+	let price = $derived.by(() => {
+		const push = pushProcessPrice[pushProcessing] ?? 0;
+		const scan = scanOption == 'scan' ? (scanAddon[processType] ?? 0) : 0;
+		const process = processPrice[processType] ?? 0;
+		return push + scan + process;
 	});
 </script>
 
@@ -87,114 +45,151 @@
 		</h2>
 		<img
 			src="https://placehold.co/350x250"
-			alt="{film} Film"
-			class="rounded-lg w-[350px] h-[250px] object-cover bg-white mb-8"
+			alt={film}
+			class="rounded-lg w-[350px] h-[250px] object-cover bg-white"
 		/>
 	</div>
 
 	<h2 class="font-spaceGrotesk font-bold text-5xl mb-2 capitalize">{film}</h2>
-	<p class="text-gray-400 text-2xl mb-8">P200</p>
-	{#if errorMessages.length}
-		<div class="bg-red-500/10 border border-red-500 text-red-500 p-3 mb-5 rounded">
-			<ul>
-				{#each errorMessages as errMsg}
-					<li>{errMsg}</li>
-				{/each}
-			</ul>
-		</div>
-	{/if}
+	<!-- <p class="text-gray-400 text-2xl mb-8">P200</p> -->
 
-	<form onsubmit={handleSubmit} class="w-full flex flex-col gap-6">
+	<form
+		method="POST"
+		class="w-full flex flex-col gap-6 mt-8"
+		use:enhance={() => {
+			return async ({ result, formElement }) => {
+				if (result?.type === 'success') {
+					add(result.data!.item as unknown as CartItem);
+					showToast('Added to cart!');
+					formElement.reset();
+				} else {
+					showToast('There was an error adding to cart.');
+				}
+			};
+		}}
+	>
+		<input type="hidden" name="id" value="dev-{filmCode}" />
+		<input type="hidden" name="quantity" value="1" />
 		<div>
-			<label class="block font-bold mb-2 text-sm">FILM BRAND NAME</label>
+			<label for="filmBrand" class="block font-bold mb-2 text-sm">FILM BRAND NAME</label>
 			<input
 				type="text"
-				class="w-full px-4 py-2 rounded border border-gray-300 bg-white {fieldErrors.filmBrand
-					? 'border-2 border-red-500'
-					: ''}"
+				name="filmBrand"
+				class="w-full px-4 py-2 rounded bg-white border-red-500"
+				class:border-2={form?.issues?.['details.brand']}
 				placeholder="Type your film's brand name"
-				disabled={isGeneric}
+				id="filmBrand"
+				readonly={isGeneric}
 				bind:value={filmBrand}
-				oninput={(e) => handleFieldChange('filmBrand', e.currentTarget.value)}
 			/>
-			{#if fieldErrors.filmBrand}
-				<p class="text-red-500 text-sm mt-1">{fieldErrors.filmBrand}</p>
+			{#if form?.issues?.['details.brand']}
+				<p class="text-red-500 text-sm mt-1">{form.issues['details.brand']}</p>
 			{/if}
 			<input type="checkbox" name="genericBrand" id="genericBrand" bind:checked={isGeneric} />
-			<label for="genericBrand" class="text-sm">Generic Brand</label>
+			<label for="genericBrand" class="font-openSans font-bold uppercase text-sm">
+				Generic Brand
+			</label>
 		</div>
 		<div>
-			<label class="block font-bold mb-2 text-sm">PROCESS TYPE</label>
+			<label for="processType" class="block font-bold mb-2 text-sm">PROCESS TYPE</label>
 			<select
-				class="w-full px-4 py-2 rounded border border-gray-300 bg-white {fieldErrors.processType
-					? 'border-2 border-red-500'
-					: ''}"
+				class="w-full px-4 py-2 rounded border-red-500 bg-white"
+				class:border-2={form?.issues?.['details.processType']}
 				bind:value={processType}
-				onchange={(e) => handleFieldChange('processType', e.currentTarget.value)}
+				id="processType"
+				name="processType"
 			>
-				<option value="">Select process type</option>
-				<option value="option1">Option 1</option>
-				<option value="option2">Option 2</option>
-				<option value="option3">Option 3</option>
+				<option disabled selected hidden value="">Select process type</option>
+				<option value="c41">C41 (P{processPrice['c41']})</option>
+				<option value="bw">Black & White (P{processPrice['bw']})</option>
+				` <option value="ecn2">ECN 2 (P{processPrice['ecn2']})</option>
 			</select>
-			{#if fieldErrors.processType}
-				<p class="text-red-500 text-sm mt-1">{fieldErrors.processType}</p>
+			{#if form?.issues?.['details.process']}
+				<p class="text-red-500 text-sm mt-1">{form.issues['details.process']}</p>
 			{/if}
 		</div>
 		<div>
-			<label class="block font-bold mb-2 text-sm">PUSH PROCESSING</label>
+			<label class="block font-bold mb-2 text-sm" for="pushProcessing">PUSH PROCESSING</label>
 			<div class="flex items-center gap-4">
-				<input type="range" min="0" max="3" step="1" bind:value={pushProcessing} class="w-40" />
-				<span class="font-bold">{pushProcessing}</span>
+				<input
+					id="pushProcessing"
+					name="pushProcessing"
+					type="range"
+					min="0"
+					max="3"
+					step="1"
+					bind:value={pushProcessing}
+					class="w-40"
+				/>
+				<p>
+					<span class="font-bold">{pushProcessing}</span>
+					<span class="bg-amber-400 px-2 ml-2 rounded-lg py-1">
+						(+P{pushProcessPrice[pushProcessing] ?? 0})
+					</span>
+				</p>
 			</div>
 		</div>
 		<div>
-			<label class="block font-bold mb-2 text-sm">RETURNING NEGATIVES</label>
-			<select
-				class="w-full px-4 py-2 rounded border border-gray-300 bg-white {fieldErrors.returningNegatives
-					? 'border-2 border-red-500'
-					: ''}"
-				bind:value={returningNegatives}
-				onchange={(e) => handleFieldChange('returningNegatives', e.currentTarget.value)}
-			>
-				<option value="">Select how would you like to get your negatives back</option>
-				<option value="option1">Option 1</option>
-				<option value="option2">Option 2</option>
-				<option value="option3">Option 3</option>
-			</select>
-			{#if fieldErrors.returningNegatives}
-				<p class="text-red-500 text-sm mt-1">{fieldErrors.returningNegatives}</p>
+			<span class="block font-bold mb-2 text-sm">RETURNING NEGATIVES</span>
+			<input type="checkbox" id="returningNegativesCB" bind:checked={returning} />
+			<input type="hidden" name="returningNegatives" value="false" disabled={returning} />
+			<label class="font-openSans font-bold uppercase text-sm" for="returningNegativesCB">
+				I'd like to get my negatives back
+			</label>
+
+			{#if returning}
+				<select
+					transition:slide={{ duration: 300, axis: 'y' }}
+					id="returningNegatives"
+					name="returningNegatives"
+					class="w-full px-4 py-2 block rounded bg-white border-red-500 mb-2"
+					class:uppercase={returningNegatives !== ''}
+					class:border-2={form?.issues?.['details.receiptMethod']}
+					bind:value={returningNegatives}
+				>
+					<option selected disabled hidden value="">
+						Select how would you like to get your negatives back
+					</option>
+					<option class="uppercase" value="mobile">mobile app courier (lalamove, grab, etc.)</option
+					>
+					<option class="uppercase" value="traditional">traditional courier (lbc, j&t, etc.)</option
+					>
+					<option class="uppercase" value="self">self pick-up at the lab in Muntinlupa City</option>
+				</select>
+				<span class="bg-amber-400 px-2 ml-2 rounded-lg py-1">
+					NOTE: Total price is exclusive of return shipping fees.
+				</span>
+				{#if form?.issues?.['details.receiptMethod']}
+					<p class="text-red-500 text-sm mt-1">{form.issues['details.receiptMethod']}</p>
+				{/if}
 			{/if}
 		</div>
 		<div class="flex flex-col gap-2 mt-2">
-			<label class="text-sm">
-				<input
-					type="radio"
-					name="scanOption"
-					value="scan"
-					bind:group={scanOption}
-					onchange={(e) => handleFieldChange('scanOption', e.currentTarget.value)}
-				/>
-				SCAN FILM AND EMAIL ME SOFT COPIES +P100.00
+			<span class="font-openSans font-bold uppercase text-sm">Develop + Scan Promo</span>
+			<label class="font-openSans font-semibold uppercase text-sm">
+				<input type="radio" name="scanOption" value="scan" bind:group={scanOption} />
+				SCAN FILM AND EMAIL ME SOFT COPIES
+				<span class="bg-amber-400 px-2 ml-2 rounded-lg py-1">(+P{scanAddon[processType]})</span>
 			</label>
-			<label class="text-sm">
-				<input
-					type="radio"
-					name="scanOption"
-					value="process"
-					bind:group={scanOption}
-					onchange={(e) => handleFieldChange('scanOption', e.currentTarget.value)}
-				/>
+			<label class="font-openSans font-semibold uppercase text-sm">
+				<input type="radio" name="scanOption" value="process" bind:group={scanOption} />
 				PROCESS ONLY (I WILL SCAN AND PRINT ON MY OWN)
 			</label>
 		</div>
-		{#if fieldErrors.scanOption}
-			<p class="text-red-500 text-sm mt-1">{fieldErrors.scanOption}</p>
+		{#if form?.issues?.['details.scanOption']}
+			<p class="text-red-500 text-sm mt-1">{form.issues['details.scanOption']}</p>
 		{/if}
-		<div class="flex gap-4 mt-6 items-center">
-			<button type="submit" class="bg-amber-300 rounded-4xl px-8 py-2 font-bold text-black"
-				>Add to cart</button
+		<div class="flex flex-row justify-between whitespace-nowrap mt-6 items-end">
+			<p class="text-2xl bg-amber-300 px-2 py-2 rounded-2xl">
+				Total Price: <span class="font-bold">P{price ?? 0}</span>
+			</p>
+			<button
+				type="submit"
+				{disabled}
+				class="px-8 bg-amber-300 py-2 rounded-2xl font-bold text-black"
 			>
+				Add to cart
+			</button>
 		</div>
 	</form>
 </div>
@@ -234,8 +229,48 @@
 			</h2>
 			<p class="text-white font-roboto">Register and Subscribe to get special offers</p>
 		</div>
-		<a href="/register" class="bg-amber-300 font-roboto rounded-4xl px-6 py-2 h-min self-center"
-			>Register / Log in</a
-		>
+		<a href="/register" class="bg-amber-300 font-roboto rounded-4xl px-6 py-2 h-min self-center">
+			Register / Log in
+		</a>
 	</div>
 {/if}
+
+<style>
+	input[type='range'].w-40::-webkit-slider-runnable-track {
+		background: #e5b700; /* Unfilled track color (optional, can omit) */
+	}
+	input[type='range'].w-40::-webkit-slider-thumb {
+		-webkit-appearance: none;
+	}
+	input[type='range'].w-40::-webkit-slider-thumb {
+		/* No size or color changes here */
+	}
+	input[type='range'].w-40::-webkit-slider-runnable-track {
+		background: linear-gradient(
+			to right,
+			#fbbf24 0%,
+			/* Highlight color */ #fbbf24 calc(var(--value) * 33.33%),
+			#e5b700 calc(var(--value) * 33.33%),
+			#e5b700 100%
+		);
+	}
+	input[type='range'].w-40 {
+		accent-color: #fbbf24; /* Modern browsers */
+	}
+
+	/* Firefox */
+	input[type='range'].w-40::-moz-range-progress {
+		background-color: #fbbf24;
+	}
+	input[type='range'].w-40::-moz-range-track {
+		background-color: #e5b700;
+	}
+
+	/* IE/Edge */
+	input[type='range'].w-40::-ms-fill-lower {
+		background-color: #fbbf24;
+	}
+	input[type='range'].w-40::-ms-fill-upper {
+		background-color: #e5b700;
+	}
+</style>

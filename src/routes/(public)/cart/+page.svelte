@@ -9,7 +9,13 @@
 	setInterval(verifyCart, 1000 * 60 * 5); // Verify cart every 5 minutes while in page
 
 	cart.subscribe((cart) => {
-		total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+		total = cart.reduce(
+			(sum, item) =>
+				sum +
+				(item.price + (item.addons?.reduce((acc, addon) => acc + addon.price, 0) ?? 0)) *
+					item.quantity,
+			0
+		);
 	});
 
 	function removeItem(index: number) {
@@ -71,20 +77,22 @@
 		<div class="flex border-1 rounded-lg my-auto y-100 p-5 text-left font-bold py-15">
 			<div>
 				<h2>Order Summary</h2>
-				<div class="flex space-x-4">
-					<h3>Total</h3>
-					<h3 class="font-normal">₱{total}</h3>
-				</div>
+				<h3 class="flex space-x-4 items-center">
+					<span class="font-normal">Total</span>
+					<span class="bg-amber-400 px-3 py-2 rounded-xl">P{total}</span>
+				</h3>
 			</div>
 			<div class="ml-auto flex gap-4">
 				<button
 					class="bg-yellow-600 text-white py-2 px-4 rounded-lg hover:bg-amber-700 transition duration-300"
 					onclick={clear}>Clear Cart</button
 				>
-				<button
-					class="bg-yellow-600 text-white py-2 px-4 rounded-lg hover:bg-amber-700 transition duration-300"
-					>Checkout</button
+				<a
+					href="/checkout"
+					class="bg-yellow-600 flex items-center text-white py-2 px-4 rounded-lg hover:bg-amber-700 transition duration-300"
 				>
+					Checkout
+				</a>
 			</div>
 		</div>
 	{/if}

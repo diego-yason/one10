@@ -4,14 +4,14 @@ export const load: PageLoad = async ({ params }) => {
 	let film = '';
 	switch (params.film) {
 		case '35mm':
-			film = '35MM FILM';
+			film = '35mm Film';
 			break;
 		case '120mm':
-			film = '120MM FILM';
+			film = '120mm Film';
 			break;
 		case 'disposable':
-			film = 'DISPOSABLE CAMERA';
+			film = 'Disposable Camera';
 			break;
 	}
-	return { film };
+	return { film, filmCode: params.film };
 };

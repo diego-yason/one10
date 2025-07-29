@@ -1,7 +1,20 @@
 {
-	"filmType": "Film type:",
-	"filmBrand": "Film brand:",
-	"process": "Process type:",
-	"push": "Push processing count:",
-	"return": "Returning negatives?"
+	"filmType": { "name": "Film type:" },
+	"brand": { "name": "Film brand:" },
+	"process": {
+		"name": "Process type:",
+		"values": {
+			"c41": "C-41",
+			"e6": "E-6",
+			"bw": "Black & White"
+		}
+	},
+	"receiptMethod": {
+		"name": "Returning negatives?",
+		"values": {
+			"mobile": "Yes, via Grab, Lalamove, etc.",
+			"traditional": "Yes, via LBC, J&T, etc.",
+			"self": "I will pick it up myself"
+		}
+	}
 }

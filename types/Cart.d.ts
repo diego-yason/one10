@@ -1,6 +1,12 @@
 export interface CartItem {
 	details: {
-		[key: string]: unknown;
+		[key: string]:
+			| unknown
+			| {
+					[key: string]: unknown;
+					/** for local reference only */
+					price: number;
+			  };
 	};
 	id: string;
 	/** for local reference only */

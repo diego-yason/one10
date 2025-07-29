@@ -1,22 +1,14 @@
 <script lang="ts">
-	import { loading, error, loadProducts } from '$lib/stores/products';
-	import { onMount } from 'svelte';
 	import { user } from '$lib/stores/auth';
 
 	let { data } = $props();
 	let { products } = $derived(data);
-
-	// onMount(() => {
-	// 	loadProducts();
-	// });
 </script>
 
 <div class="py-10">
-	<div class="flex flex-col max-w-4xl w-full ml-20 p-4 sm:p-8 md:p-12">
-		<h1 class="services-font">Services</h1>
-		<div
-			class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-76 gap-y-12 py-4 max-w-screen-xl w-full mx-auto px-4"
-		>
+	<div class="flex flex-col ml-20 p-4 sm:p-8 md:p-12">
+		<h1 class="text-[#333] font-spaceGrotesk text-7xl font-bold">Services</h1>
+		<div class="flex flex-wrap w-full justify-start gap-12 py-4 px-4">
 			<a
 				href="/store/disposable"
 				class="products flex flex-col cursor-pointer shadow-lg min-w-[260px] max-w-[340px] bg-white rounded-2xl overflow-hidden"
@@ -51,7 +43,7 @@
 					<p class="text-sm">from P200</p>
 				</div>
 			</a>
-			<a
+			<!-- <a
 				href="/store/printing"
 				class="products flex flex-col cursor-pointer shadow-lg min-w-[260px] max-w-[340px] bg-white rounded-2xl overflow-hidden"
 			>
@@ -64,18 +56,21 @@
 					<p class="font-bold underline text-base mb-1">3R - 8R Printing</p>
 					<p class="text-sm">from P8.00</p>
 				</div>
-			</a>
+			</a> -->
 		</div>
 	</div>
 </div>
 
 <div>
 	<div class="flex flex-col px-32 py-8 mt-4">
-		<h1 class="services-font">Shop</h1>
+		<h1 class="text-[#333] font-spaceGrotesk text-7xl font-bold">Shop</h1>
 
-		<div class="grid grid-cols-4 gap-10 py-10">
+		<div class="flex flex-wrap justify-start gap-x-30 gap-y-10 py-10">
 			{#each products as product}
-				<div class="product-2 flex flex-col relative">
+				<div
+					class="px-5 py-2.5 items-center self-stretch bg-[#fafafa] rounded-2xl
+				flex flex-col relative"
+				>
 					<div class="image-2 flex items-center justify-center relative bg-[#FAFAFA]">
 						<a href={`/store/${product.id}`}>
 							{#if product.imageUrl}
@@ -124,69 +119,9 @@
 {/if}
 
 <style>
-	.services-font {
-		color: var(--Gray-1, #333);
-		/* Headings/h1 */
-		-webkit-text-stroke-width: 1px;
-		-webkit-text-stroke-color: var(--Gray-1, #333);
-		font-family: 'Space Grotesk';
-		font-size: 80px;
-		font-style: normal;
-		font-weight: 700;
-		line-height: 88px; /* 110% */
-		letter-spacing: -1.6px;
-	}
-
 	.products {
 		border-radius: 16px;
 		background: var(--Yellow, #f2c94c);
-	}
-
-	.image {
-		height: 257px;
-		flex-shrink: 0;
-		border-radius: 16px 16px 0px 0px;
-	}
-
-	.products-font-name {
-		color: var(--Global-black, #000);
-		text-align: center;
-		font-family: 'Space Grotesk';
-		font-size: 16px;
-		font-style: normal;
-		font-weight: 700;
-		line-height: 32px; /* 200% */
-		letter-spacing: 1.2px;
-		text-decoration-line: underline;
-		text-decoration-style: solid;
-		text-decoration-skip-ink: none;
-		text-decoration-thickness: auto;
-		text-underline-offset: auto;
-		text-underline-position: from-font;
-	}
-
-	.products-font-price {
-		width: 106px;
-		color: var(--Global-black, #000);
-		text-align: center;
-		font-family: 'Open Sans';
-		font-size: 16px;
-		font-style: normal;
-		font-weight: 400;
-		line-height: 24px; /* 150% */
-	}
-
-	.product-2 {
-		display: flex;
-		padding: 20px 10px;
-		flex-direction: column;
-		align-items: center;
-		align-self: stretch;
-		background: #fafafa;
-		border-radius: 16px;
-		max-width: 220px;
-		min-width: 220px;
-		margin: 0 auto;
 	}
 
 	.product-2-font {
@@ -228,24 +163,6 @@
 		object-fit: contain;
 		background: #fafafa;
 		display: block;
-	}
-
-	.background-color {
-		background: var(--Gray-2, #4f4f4f);
-	}
-
-	.text-sm {
-		font-size: 12px;
-		line-height: 16px;
-	}
-
-	.text-xs {
-		font-size: 10px;
-		line-height: 14px;
-	}
-
-	.font-semibold {
-		font-size: 14px;
 	}
 
 	.truncate-name {
