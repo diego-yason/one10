@@ -96,7 +96,7 @@
 					Lorem ipsum dolor sit amet, consectetur adipisicing elit. Mollitia, ducimus. Sit animi
 					fugiat fuga mollitia! Voluptates.
 				</p>
-				<a href="#" class="bg-amber-300 rounded-4xl px-6 py-2">Send us your film!</a>
+				<a href="/store" class="bg-amber-300 rounded-4xl px-6 py-2">Send us your film!</a>
 			</div>
 			<div>
 				<img src="https://placehold.co/72" alt="" class="mb-8" />
@@ -105,7 +105,7 @@
 					Lorem ipsum dolor sit amet, consectetur adipisicing elit. Tempore est exercitationem velit
 					earum?
 				</p>
-				<a href="#" class="bg-amber-300 rounded-4xl px-6 py-2">Print your work</a>
+				<a href="/store" class="bg-amber-300 rounded-4xl px-6 py-2">Print your work</a>
 			</div>
 			<div>
 				<img src="https://placehold.co/72" alt="" class="mb-8" />
@@ -131,66 +131,63 @@
 				<p class="text-lg text-red-600">Error loading products: {$error}</p>
 			</div>
 		{:else if homeProducts.length === 0}
-			<div class="flex gap-7 justify-center mb-16">
-				<div class="overflow-hidden rounded-2xl bg-gray-400">
-					<img src="https://placehold.co/333x214" alt="" />
-					<div class="mb-10 mx-8 text-center pt-10">
-						<p class="uppercase text-xs font-spaceGrotesk mb-3.5">Films</p>
-						<p class="font-spaceGrotesk text-xl font-bold mb-3.5">No products available</p>
-						<button class="px-6 py-2 outline-2 outline-black rounded-4xl" disabled
-							>Add to cart</button
-						>
+			<div class="flex gap-10 justify-center mb-16">
+				<div class="px-5 py-2.5 items-center self-stretch bg-white rounded-2xl flex flex-col relative shadow-lg min-w-[260px] max-w-[340px]">
+					<div class="image-2 flex items-center justify-center relative">
+						<img src="https://placehold.co/350x250" alt="" class="product-img" />
+					</div>
+					<div class="flex flex-col flex-1 justify-between items-center py-10 w-full min-h-[160px]">
+						<div class="w-full">
+							<p class="product-2-description text-center">Films</p>
+							<p class="product-2-font text-center truncate-name">No products available</p>
+						</div>
+						<div class="w-full flex flex-col items-center mt-4">
+							<div class="rounded-full border border-gray-300 px-8 py-2 mt-4">
+								Out of Stock
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
 		{:else}
-			<div class="flex gap-8 justify-center mb-10">
+			<div class="flex flex-wrap justify-start gap-x-30 gap-y-10 py-10">
 				{#each homeProducts as product}
-					<div
-						class="overflow-hidden rounded-2xl bg-gray-400 relative w-[340px] max-w-full flex flex-col"
-					>
-						<a href={`/product/${product.id}`}>
-							{#if product.imageUrl}
-								<img src={product.imageUrl} alt={product.name} class="w-full h-48 object-cover" />
-							{:else}
-								<img src="https://placehold.co/333x214" alt="" class="w-full h-48 object-cover" />
-							{/if}
-						</a>
-						{#if product.status !== 'available'}
-							<span
-								class="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded z-10"
-								>Sold Out</span
-							>
-						{/if}
-						<div class="mb-8 mx-6 text-center pt-8">
-							<p class="uppercase text-xs font-spaceGrotesk mb-2">{product.category}</p>
-							<p class="font-spaceGrotesk text-xl font-bold mb-2">
-								<a href={`/product/${product.id}`} class="transition-colors hover:text-[#F2C94C]"
-									>{product.name}</a
-								>
-							</p>
-							<p class="text-sm text-gray-600 mb-2">{product.description}</p>
-							<p class="font-semibold text-lg mb-2">₱{product.price}</p>
-							{#if !$user || $isStaff}
-								<button
-									class="px-6 py-2 outline-2 outline-black rounded-4xl hover:bg-black hover:text-white transition-colors"
-									disabled={product.status !== 'available'}
-									>{product.status !== 'available' ? 'Out of Stock' : 'Add to cart'}</button
-								>
-							{:else}
+					<div class="px-5 py-2.5 items-center self-stretch bg-white rounded-2xl
+						flex flex-col relative shadow-lg min-w-[260px] max-w-[340px] mx-4">
+						<div class="image-2 flex items-center justify-center relative">
+							<a href={`/product/${product.id}`}>
+								{#if product.imageUrl}
+									<img src={product.imageUrl} alt={product.name} class="product-img" />
+								{:else}
+									<img src="https://placehold.co/350x250" alt="" class="product-img" />
+								{/if}
+							</a>
+							{#if product.status !== 'available'}
 								<span
-									class="px-6 py-2 outline-2 outline-black rounded-4xl bg-gray-100 text-gray-400 cursor-not-allowed"
-									>Staff view</span
+									class="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded z-10"
+									>Sold Out</span
 								>
 							{/if}
+						</div>
+						<div class="flex flex-col flex-1 justify-between items-center py-10 w-full min-h-[160px]">
+							<div class="w-full">
+								<p class="product-2-description text-center">{product.category}</p>
+								<p class="product-2-font text-center truncate-name">
+									<a href={`/product/${product.id}`} class="hover:text-amber-400">{product.name}</a>
+								</p>
+							</div>
+							<div class="w-full flex flex-col items-center mt-4">
+								<p class="text-sm text-gray-600 mt-2">₱{product.price}</p>
+								<p class="text-xs text-gray-500 mt-1">Stock: {product.stock || 0}</p>
+							</div>
 						</div>
 					</div>
 				{/each}
 			</div>
 		{/if}
 		<a
-			href="/services"
-			class="bg-amber-300 px-6 py-2 rounded-4xl block w-min whitespace-nowrap mx-auto mt-4"
+			href="/store"
+			class="bg-amber-300 px-6 py-2 rounded-full block w-min whitespace-nowrap mx-auto mt-8"
 		>
 			View all
 		</a>
@@ -198,7 +195,7 @@
 </div>
 <div class="text-center py-24 bg-gray-300">
 	<h2 class="font-spaceGrotesk font-bold text-4xl mb-6">Got some questions?</h2>
-	<a href="#" class="border-2 border-white rounded-4xl px-6 py-2">Read our FAQs</a>
+	<a href="/faq" class="border-2 border-white rounded-4xl px-6 py-2">Read our FAQs</a>
 </div>
 {#if !$user}
 	<div class="py-32 px-40 flex flex-row items-center justify-between">
@@ -308,3 +305,51 @@
 		{/if}
 	</div>
 </div>
+
+<style>
+	.image-2 {
+		height: 120px;
+		width: 180px;
+		background-color: #fafafa;
+		margin: 0 auto;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.product-img {
+		width: 100%;
+		height: 100%;
+		object-fit: contain;
+		background: #fafafa;
+		display: block;
+	}
+
+	.product-2-font {
+		color: var(--Global-black, #000);
+		font-family: 'Space Grotesk';
+		font-size: 16px;
+		font-style: normal;
+		font-weight: 700;
+		line-height: 24px;
+		letter-spacing: 1px;
+	}
+
+	.product-2-description {
+		color: var(--Gray-5, #e0e0e0);
+		font-family: 'Space Grotesk';
+		font-size: 10px;
+		font-style: normal;
+		font-weight: 600;
+		line-height: 16px;
+		text-transform: uppercase;
+	}
+
+	.truncate-name {
+		max-width: 180px;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		margin: 0 auto;
+	}
+</style>
