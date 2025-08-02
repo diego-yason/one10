@@ -6,8 +6,16 @@
 	import { z } from 'zod';
 	import { validateField } from '$lib/validation';
 
+	import { navHeight } from './+layout.svelte';
+
+	let bg: HTMLElement;
+	let hero: HTMLElement;
 	onMount(() => {
 		loadProducts();
+		navHeight.subscribe((height) => {
+			bg.style.setProperty('top', `-${height}px`);
+			hero.style.setProperty('top', `calc(-${height}px + 50%)`);
+		});
 	});
 
 	// Get the first 3 products for display
@@ -62,13 +70,25 @@
 		subject = '';
 		message = '';
 	}
+
+	import logo from '$lib/imgs/logo/white.png';
+	import background from '$lib/imgs/backgrounds/img51.jpg';
 </script>
 
-<div class="min-h-[700px] h-[700px] max-h-[90vh] flex items-center justify-center">
-	<div class="flex flex-col items-center justify-center text-center">
-		<span class="text-4xl font-spaceGrotesk font-bold text-white">
-			<img src="https://placehold.co/60x50" alt="" class="inline" />
-			<span class="textOutline text-transparent">Studio</span> Lab
+<div class="relative min-h-[700px] h-screen">
+	<div class="absolute inset-0 z-0 brightness-50 -top-[130px]" bind:this={bg}>
+		<img src={background} alt="Background" class="w-full h-full object-cover" />
+	</div>
+	<div
+		class="flex flex-col items-center justify-center text-center z-10 relative
+	top-[325px] -translate-y-1/2 left-1/2 -translate-x-1/2"
+		bind:this={hero}
+	>
+		<span
+			class="text-4xl flex items-end gap-2 font-spaceGrotesk line font-bold leading-none text-white"
+		>
+			<img src={logo} class="w-[60px] inline object-contain" alt="logo" />
+			<p><span class="textOutline text-transparent">Studio</span> Lab</p>
 		</span>
 		<h1 class="font-bold font-spaceGrotesk text-7xl text-white mt-4">We process your vision</h1>
 	</div>
@@ -132,7 +152,9 @@
 			</div>
 		{:else if homeProducts.length === 0}
 			<div class="flex gap-10 justify-center mb-16">
-				<div class="px-5 py-2.5 items-center self-stretch bg-white rounded-2xl flex flex-col relative shadow-lg min-w-[260px] max-w-[340px]">
+				<div
+					class="px-5 py-2.5 items-center self-stretch bg-white rounded-2xl flex flex-col relative shadow-lg min-w-[260px] max-w-[340px]"
+				>
 					<div class="image-2 flex items-center justify-center relative">
 						<img src="https://placehold.co/350x250" alt="" class="product-img" />
 					</div>
@@ -142,9 +164,7 @@
 							<p class="product-2-font text-center truncate-name">No products available</p>
 						</div>
 						<div class="w-full flex flex-col items-center mt-4">
-							<div class="rounded-full border border-gray-300 px-8 py-2 mt-4">
-								Out of Stock
-							</div>
+							<div class="rounded-full border border-gray-300 px-8 py-2 mt-4">Out of Stock</div>
 						</div>
 					</div>
 				</div>
@@ -152,8 +172,10 @@
 		{:else}
 			<div class="flex flex-wrap justify-start gap-x-30 gap-y-10 py-10">
 				{#each homeProducts as product}
-					<div class="px-5 py-2.5 items-center self-stretch bg-white rounded-2xl
-						flex flex-col relative shadow-lg min-w-[260px] max-w-[340px] mx-4">
+					<div
+						class="px-5 py-2.5 items-center self-stretch bg-white rounded-2xl
+						flex flex-col relative shadow-lg min-w-[260px] max-w-[340px] mx-4"
+					>
 						<div class="image-2 flex items-center justify-center relative">
 							<a href={`/product/${product.id}`}>
 								{#if product.imageUrl}
@@ -169,7 +191,9 @@
 								>
 							{/if}
 						</div>
-						<div class="flex flex-col flex-1 justify-between items-center py-10 w-full min-h-[160px]">
+						<div
+							class="flex flex-col flex-1 justify-between items-center py-10 w-full min-h-[160px]"
+						>
 							<div class="w-full">
 								<p class="product-2-description text-center">{product.category}</p>
 								<p class="product-2-font text-center truncate-name">

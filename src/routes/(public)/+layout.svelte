@@ -1,3 +1,9 @@
+<script module lang="ts">
+	import { writable } from 'svelte/store';
+	export let navHeight = writable(0);
+	navHeight.subscribe((h) => console.log('Nav Height:', h));
+</script>
+
 <script lang="ts">
 	import { page } from '$app/state';
 	import { user, isStaff } from '$lib/stores/auth';
@@ -10,13 +16,18 @@
 		await signOut(auth);
 		goto('/');
 	};
+
+	import logo from '$lib/imgs/logo/white.png';
 </script>
 
 <div class="min-h-screen flex flex-col">
-	<nav class="flex justify-between py-10 px-32 font-poppins text-white w-full">
+	<nav
+		class="flex justify-between py-10 z-10 px-32 font-poppins text-white w-full"
+		bind:clientHeight={$navHeight}
+	>
 		<div class="flex flex-row gap-20 items-center">
 			<a href="/">
-				<img src="https://placehold.co/100x60" alt="" />
+				<img src={logo} class="w-[100px] h-[50px] object-contain" alt="logo" />
 			</a>
 			<a href="/" class:font-semibold={page.url.pathname === '/'}>Home</a>
 			<a href="/store" class:font-semibold={page.url.pathname.startsWith('/store')}>Store</a>
