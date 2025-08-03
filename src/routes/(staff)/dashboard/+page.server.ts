@@ -3,19 +3,19 @@ import type { PageServerLoad } from './$types';
 import { admin, adminDb } from '$lib/server/firebase';
 
 export const load: PageServerLoad = async () => {
-	return {
-		pending: 0,
-		paid: 0,
-		completed: 0
-	};
-
 	const ordersCollection = adminDb.collection('orders');
 
-	const pendingArray: Promise<unknown>[] = [];
-	const paidArray: Promise<unknown>[] = [];
-	const completedArray: Promise<unknown>[] = [];
-	pendingArray.push(ordersCollection.where('status', '==', 'payment_pending').count().get());
-	pendingArray.push(ordersCollection.where('status', '==', 'awaiting_films').count().get());
+	const pendingArray = ['payment_pending', 'processing_awaiting_items'];
+	const paidArray = ['payment_success', 'processing_studio'];
+	const completedArray = ['dispatched', 'ready_pickup', 'completed'];
+	const failedArray = ['payment_failed', 'payment_cancelled', 'payment_expired', 'refunded'];
+
+	const getCount = (status: string) => ordersCollection.where('status', '==', status).count().get();
+
+	const promisePending = pendingArray.map(getCount);
+	const promisePaid = paidArray.map(getCount);
+	const promiseCompleted = completedArray.map(getCount);
+	const promiseFailed = failedArray.map(getCount);
 
 	// @ts-expect-error firestore types are useless to properly type in this scenario
 	function add(acc, data) {
@@ -24,8 +24,9 @@ export const load: PageServerLoad = async () => {
 
 	return {
 		// need to await to unwrap the promise
-		pending: await pendingArray.reduce(add, 0),
-		paid: await paidArray.reduce(add, 0),
-		completed: await completedArray.reduce(add, 0)
+		pending: (await Promise.all(promisePending)).reduce(add, 0),
+		paid: (await Promise.all(promisePaid)).reduce(add, 0),
+		completed: (await Promise.all(promiseCompleted)).reduce(add, 0),
+		failed: (await Promise.all(promiseFailed)).reduce(add, 0)
 	};
 };

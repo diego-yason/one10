@@ -19,6 +19,10 @@
 	let { data, form }: PageProps = $props();
 </script>
 
+<svelte:head>
+	<title>Checkout | One10 Studio Labs</title>
+</svelte:head>
+
 <form
 	method="POST"
 	action="?/create"
@@ -27,7 +31,7 @@
 		return async ({ result }) => {
 			disabled = false;
 			if (result.type === 'success') {
-				// cart.set([]);
+				cart.set([]);
 				window.location.href = result.data?.redirectUrl as string;
 			}
 		};

@@ -148,6 +148,20 @@ export const actions = {
 					maya_checkoutId: checkoutId
 				});
 
+				// update product quantities
+				await Promise.all(
+					items.map(async (item) => {
+						const productDoc = await adminDb
+							.collection('products')
+							.where('itemCode', '==', item.code)
+							.get();
+						console.log(item.code);
+						await productDoc.docs[0].ref.update({
+							stock: (productDoc.docs[0].data().stock ?? 0) - item.quantity
+						});
+					})
+				);
+
 				return {
 					success: true,
 					redirectUrl

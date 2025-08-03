@@ -33,6 +33,10 @@
 	import studio from '$lib/imgs/icons/cameraIndoor.svg';
 </script>
 
+<svelte:head>
+	<title>Home | One10 Studio Labs</title>
+</svelte:head>
+
 <div class="relative min-h-[700px] h-[781px]" bind:this={container}>
 	<div class="absolute inset-0 z-0 brightness-50 -top-[130px]" bind:this={bg}>
 		<img src={background1} alt="Background" class="w-full h-full object-cover" />
@@ -63,9 +67,10 @@
 				</p>
 			</div>
 			<p class="font-roboto text-white basis-1/2">
-				Explore the world of creativity and innovation with our photography services. 
-				Whether you're capturing special moments or telling a compelling story, we provide the tools and expertise you need to bring your vision to life. 
-				Discover unique perspectives and immerse yourself in the art of photography. Let's embark on this journey together.
+				Explore the world of creativity and innovation with our photography services. Whether you're
+				capturing special moments or telling a compelling story, we provide the tools and expertise
+				you need to bring your vision to life. Discover unique perspectives and immerse yourself in
+				the art of photography. Let's embark on this journey together.
 			</p>
 		</div>
 		<div class="flex gap-24">

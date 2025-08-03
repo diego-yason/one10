@@ -23,7 +23,8 @@ const config = {
 			}
 		}),
 		alias: {
-			$types: './types'
+			$types: './types',
+			$public: './src/routes/(public)'
 		},
 		env: {
 			publicPrefix: 'PUBLIC_'

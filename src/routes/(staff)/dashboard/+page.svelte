@@ -3,7 +3,7 @@
 
 	import type { PageProps } from './$types';
 	let { data }: PageProps = $props();
-	let { pending, paid, completed } = $derived(data);
+	let { pending, paid, completed, failed } = $derived(data);
 </script>
 
 <div class="flex flex-col">
@@ -29,7 +29,7 @@
 			>
 				<div class="flex justify-center w-30 h-30 rounded-full bg-green-400 mt-10"></div>
 
-				<p class="font-bold py-10">{paid} paid orders</p>
+				<p class="font-bold py-10">{paid} processing orders</p>
 			</div>
 
 			<div
@@ -38,6 +38,13 @@
 				<div class="flex justify-center w-30 h-30 rounded-full bg-blue-400 mt-10"></div>
 
 				<p class="font-bold py-10">{completed} completed orders</p>
+			</div>
+			<div
+				class="flex flex-col bg-white h-100 w-60 shadow-2xl rounded-3xl items-center space-y-10 hover:cursor-pointer transform transition-transform duration-300 ease-in-out hover:scale-105"
+			>
+				<div class="flex justify-center w-30 h-30 rounded-full bg-red-400 mt-10"></div>
+
+				<p class="font-bold py-10">{failed} cancelled/failed orders</p>
 			</div>
 		</div>
 	</div>
