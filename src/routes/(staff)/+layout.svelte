@@ -11,9 +11,9 @@
 	// Client-side route protection
 	onMount(() => {
 		const unsubscribe = user.subscribe(($user) => {
-			// if (!$user || $isStaff) {
-			// 	goto('/');
-			// }
+			if (!$user || $isStaff) {
+				goto('/');
+			}
 		});
 		return unsubscribe;
 	});
