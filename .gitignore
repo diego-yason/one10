@@ -18,6 +18,7 @@ Thumbs.db
 .env.*
 !.env.example
 !.env.test
+firebaseServiceKey.json
 
 # Vite
 vite.config.js.timestamp-*

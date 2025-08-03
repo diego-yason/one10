@@ -1,77 +1,167 @@
+import { browser } from '$app/environment';
+import { collection, doc, getDoc, getDocs, limit, query, setDoc, where } from 'firebase/firestore';
+import { onAuthStateChanged } from 'firebase/auth';
+import { db, auth } from '$lib/services/firebase';
+import type { CartItem } from '$types/Cart';
 import { writable } from 'svelte/store';
+import _ from 'lodash';
 
-export type CartItem = {
-  id: string;
-  type: 'product' | 'service';
-  name: string;
-  price: number;
-  quantity: number;
-  details?: any;
-};
+export const cart = writable<CartItem[]>([]);
 
-function createCart() {
-  const stored = typeof localStorage !== 'undefined' ? localStorage.getItem('cart') : null;
-  const initial: CartItem[] = stored ? JSON.parse(stored) : [];
-  const { subscribe, set, update } = writable<CartItem[]>(initial);
+let cartStatic: CartItem[];
+cart.subscribe((data) => (cartStatic = data));
 
-  function persist(items: CartItem[]) {
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('cart', JSON.stringify(items));
-    }
-  }
+let cartSyncUnsubscribe: () => void;
 
-  return {
-    subscribe,
-    add(item: CartItem) {
-      update(items => {
-        // If item with same id/type/details exists, increase quantity
-        const idx = items.findIndex(i => i.id === item.id && i.type === item.type && JSON.stringify(i.details) === JSON.stringify(item.details));
-        if (idx !== -1) {
-          items[idx].quantity += item.quantity;
-          persist(items);
-          return [...items];
-        }
-        const newItems = [...items, item];
-        persist(newItems);
-        return newItems;
-      });
-    },
-    remove(index: number) {
-      update(items => {
-        const newItems = items.slice();
-        newItems.splice(index, 1);
-        persist(newItems);
-        return newItems;
-      });
-    },
-    updateQuantity(index: number, quantity: number) {
-      update(items => {
-        const newItems = items.slice();
-        if (quantity > 0) {
-          newItems[index] = { ...newItems[index], quantity };
-        } else {
-          newItems.splice(index, 1);
-        }
-        persist(newItems);
-        return newItems;
-      });
-    },
-    clear() {
-      set([]);
-      persist([]);
-    },
-    set(items: CartItem[]) {
-      set(items);
-      persist(items);
-    }
-  };
+// onAuthStateChanged(auth, async (user) => {
+// 	if (!user) {
+// 		if (cartSyncUnsubscribe) {
+// 			cartSyncUnsubscribe();
+// 			cart.set([]);
+// 		}
+// 		return;
+// 	}
+
+// 	const docRef = doc(db, 'carts', user.uid);
+// 	const docSnap = await getDoc(docRef);
+// 	if (docSnap.exists()) cart.set(docSnap.data().items || []);
+// 	else cart.set([]);
+
+// 	cartSyncUnsubscribe = cart.subscribe((items) => {
+// 		setDoc(docRef, { items }, { merge: true });
+// 	});
+// });
+
+if (browser) cart.set(JSON.parse(localStorage.getItem('cart') || '[]'));
+if (browser) cart.subscribe((data) => localStorage.setItem('cart', JSON.stringify(data)));
+
+export function add(item: CartItem) {
+	cart.update((items) => {
+		// If item with same id/type/details exists, increase quantity
+		const idx = items.findIndex(
+			(i) => i.id === item.id && _.isEqual(i.details, item.details) && item.notes === i.notes
+		);
+		if (idx !== -1) {
+			items[idx].quantity += item.quantity;
+			return [...items];
+		}
+		const newItems = [...items, item];
+		return newItems;
+	});
 }
 
-export const cart = createCart();
+export function remove(index: number) {
+	cart.update((items) => {
+		const newItems = items.slice();
+		newItems.splice(index, 1);
+		return newItems;
+	});
+}
+
+export function updateQuantity(index: number, quantity: number) {
+	cart.update((items) => {
+		if (quantity > 0) {
+			items[index] = { ...items[index], quantity };
+		} else {
+			items.splice(index, 1);
+		}
+		return items;
+	});
+}
+
+export function clear() {
+	cart.set([]);
+}
 
 // Toast store for global notifications
 export const toast = writable<string | null>(null);
 export function showToast(message: string) {
-  toast.set(message);
-  setTimeout(() => toast.set(null), 2000);
-} 
+	toast.set(message);
+	setTimeout(() => toast.set(null), 2000);
+}
+
+import { process, pushProcess, scan } from '$lib/references/filmDevPrices.json';
+// verify with server, and ensure no items with zero quantity
+export async function verifyCart(): Promise<boolean> {
+	// return; //disable for now
+	const tempCart = Object.create(cartStatic) as CartItem[];
+
+	const promises = tempCart.map(async (item) => {
+		// NOTE: this method of checking if it is a service is NOT compatible with printing, for future purposes.
+		if (item.id.startsWith('dev-')) {
+			// For services, we don't need to check availability
+			if (item.quantity <= 0) {
+				showToast(`Service ${item.name} is no longer available.`);
+				return null;
+			}
+
+			// check for price
+			if (item.price !== process[item.details.process as keyof typeof process]) {
+				showToast(`Price for ${item.name} has been updated.`);
+				item.price = process[item.details.process as keyof typeof process];
+			}
+
+			if (item.addons)
+				item.addons.map((addon) => {
+					let price;
+					if (addon.id === 'scan') {
+						price = scan[item.details.process as keyof typeof scan] ?? 0;
+					} else if (addon.id === 'pushProcessing') {
+						price = pushProcess[addon.quantity!] ?? 0;
+					}
+
+					if (price && addon.price !== price) {
+						showToast(`Price for ${addon.name} has been updated.`);
+						addon.price = price;
+					}
+
+					return addon;
+				});
+
+			return item;
+		}
+
+		const q = query(collection(db, 'products'), where('itemCode', '==', item.id), limit(1));
+		const querySnapshot = await getDocs(q);
+		if (querySnapshot.empty) return null;
+
+		const docSnapshot = querySnapshot.docs[0];
+		if (!docSnapshot.exists()) {
+			showToast(`Item ${item.name} is no longer available.`);
+			return null;
+		}
+
+		const data = docSnapshot.data();
+		if (data.quantity < item.quantity) {
+			showToast(`Only ${data.quantity} of ${item.name} is available.`);
+			item.quantity = data.quantity;
+		}
+
+		if (item.quantity <= 0) {
+			showToast(`Item ${item.name} is no longer available.`);
+			return null;
+		}
+
+		if (item.price !== data.price) {
+			showToast(`Price for ${item.name} has been updated.`);
+			item.price = data.price;
+		}
+
+		return item;
+	});
+
+	const newCart = (await Promise.all(promises).then((items) =>
+		items.filter((item) => item !== null)
+	)) as CartItem[];
+
+	cart.set(newCart);
+
+	console.log('Cart verified and updated.');
+	return !_.isEqual(cartStatic, newCart);
+}
+
+export function getTotalPrice(item: CartItem): number {
+	return (
+		(item.price + (item.addons?.reduce((sum, addon) => sum + addon.price, 0) ?? 0)) * item.quantity
+	);
+}

@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
 	import { sendPasswordResetEmail } from 'firebase/auth';
 	import { auth } from '$lib/services/firebase';
 	import { resetSchema, getFirebaseErrorMessage, validateField } from '$lib/validation';
@@ -115,4 +115,4 @@
 	.logoOutline {
 		-webkit-text-stroke: 1px #fff;
 	}
-</style>
+</style> -->

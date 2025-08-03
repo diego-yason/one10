@@ -1,6 +1,12 @@
+<script module lang="ts">
+	import { writable } from 'svelte/store';
+	export let navHeight = writable(0);
+	navHeight.subscribe((h) => console.log('Nav Height:', h));
+</script>
+
 <script lang="ts">
 	import { page } from '$app/state';
-	import { user, isStaffUser } from '$lib/stores/auth';
+	import { user } from '$lib/stores/auth';
 	import { signOut } from 'firebase/auth';
 	import { auth } from '$lib/services/firebase';
 	import { goto } from '$app/navigation';
@@ -10,35 +16,34 @@
 		await signOut(auth);
 		goto('/');
 	};
+
+	import logo from '$lib/imgs/logo/white.png';
 </script>
 
 <div class="min-h-screen flex flex-col">
-	<nav class="flex justify-between py-10 px-32 font-poppins text-white w-full">
+	<nav
+		class="flex justify-between py-10 z-10 px-32 font-poppins text-white w-full"
+		bind:clientHeight={$navHeight}
+	>
 		<div class="flex flex-row gap-20 items-center">
 			<a href="/">
-				<img src="https://placehold.co/100x60" alt="" />
+				<img src={logo} class="w-[100px] h-[50px] object-contain" alt="logo" />
 			</a>
 			<a href="/" class:font-semibold={page.url.pathname === '/'}>Home</a>
-			<a href="/services" class:font-semibold={page.url.pathname === '/services'}>Services</a>
-			<a href="#">Track</a>
-			<a href="/faq">FAQs</a>
+			<a href="/store" class:font-semibold={page.url.pathname.startsWith('/store')}>Store</a>
+			<a href="/track" class:font-semibold={page.url.pathname === '/track'}>Track</a>
+			<a href="/faq" class:font-semibold={page.url.pathname === '/faq'}>FAQs</a>
 		</div>
 		<div class="flex flex-row gap-14 items-center">
 			{#if $user}
-				{#if isStaffUser($user)}
-					<a href="/dashboard">Staff</a>
-					<button on:click={handleSignOut} class="hover:text-amber-300 transition-colors"
-						>Sign Out</button
-					>
-				{:else}
-					<a href="/cart">Cart</a>
-					<button on:click={handleSignOut} class="hover:text-amber-300 transition-colors"
-						>Sign Out</button
-					>
-				{/if}
+				<a href="/dashboard" class:font-semibold={page.url.pathname.startsWith('/dashboard')}
+					>Staff</a
+				>
+				<button onclick={handleSignOut} class="hover:text-amber-300 transition-colors"
+					>Sign Out</button
+				>
 			{:else}
-				<a href="/cart">Cart</a>
-				<a href="/login">Log In</a>
+				<a href="/cart" class:font-semibold={page.url.pathname === '/cart'}>Cart</a>
 			{/if}
 		</div>
 	</nav>

@@ -291,5 +291,3 @@ export const db = firebase.getDbInstance();
 export const functions = firebase.getFunctionsInstance();
 export const database = firebase.getDatabaseInstance();
 export const storage = firebase.getStorageInstance();
-
-// Product management functions

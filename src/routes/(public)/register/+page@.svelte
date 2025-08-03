@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
 	import {
 		createUserWithEmailAndPassword,
 		signInWithPopup,
@@ -83,13 +83,23 @@
 			errorMessages = [getFirebaseErrorMessage(err)];
 		}
 	};
+
+	import background from '$lib/imgs/backgrounds/img24.jpg';
+	import logo from '$lib/imgs/logo/white.png';
+	import Facebook from '$lib/imgs/logo/Facebook.png';
+	import Google from '$lib/imgs/logo/Google.svg';
 </script>
 
-<div class="register-container">
-	<div class="mx-auto w-96 text-gray-100 mt-5">
-		<span class="text-4xl font-spaceGrotesk font-bold">
-			<img src="https://placehold.co/60x50" alt="" class="inline" />
-			<span class="textOutline text-transparent">Studio</span> Lab
+<div class="register-container relative">
+	<div class="absolute inset-0 z-0 brightness-50">
+		<img src={background} class="w-full h-full object-cover" alt="" />
+	</div>
+	<div class="mx-auto w-96 text-gray-100 mt-5 absolute z-10">
+		<span
+			class="text-4xl font-spaceGrotesk font-bold flex items-baseline gap-2 leading-none text-white"
+		>
+			<img src={logo} class="w-[60px] inline object-contain" alt="logo" />
+			<p><span class="textOutline text-transparent">Studio</span> Lab</p>
 		</span>
 
 		<div class="mb-7 mt-8">
@@ -179,18 +189,26 @@
 			</button>
 		</form>
 
-		<a href="/" class="flex items-center gap-1 text-brand underline mt-4 mb-2"
-			><span>&larr;</span> Back to Home</a
-		>
+		<a href="/" class="flex items-center gap-1 text-brand underline mt-4 mb-2">
+			<span>&larr;</span> Back to Home
+		</a>
 
 		<div class="mt-5 mb-11">
-			<p>Or create an account using</p>
-			<div class="flex gap-2.5 mb-5">
-				<button type="button" on:click={handleGoogleSignIn}
-					><img src="https://placehold.co/40" alt="Sign up with Google" /></button
+			<p class="mb-2">Or create an account using</p>
+			<div class="flex gap-4 mb-5">
+				<button on:click={handleGoogleSignIn} class=""
+					><img
+						src={Google}
+						class="w-[40px] object-contain aspect-square"
+						alt="Login with Google"
+					/></button
 				>
-				<button type="button" on:click={handleFacebookSignIn}
-					><img src="https://placehold.co/40" alt="Sign up with Facebook" /></button
+				<button on:click={handleFacebookSignIn} class=""
+					><img
+						src={Facebook}
+						class="w-[40px] object-contain aspect-square"
+						alt="Login with Facebook"
+					/></button
 				>
 			</div>
 
@@ -211,4 +229,4 @@
 		background-position: center;
 		background-repeat: no-repeat;
 	}
-</style>
+</style> -->
