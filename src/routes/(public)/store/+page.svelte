@@ -5,7 +5,15 @@
 	let { products } = $derived(data);
 	let searchTerm = $state('');
 	let selectedCategory = $state('All');
+	let sortBy = $state('name-asc');
 	let categories = $derived(['All', ...new Set(products.map(p => p.category))]);
+
+	const sortOptions = [
+		{ value: 'name-asc', label: 'Name A-Z' },
+		{ value: 'name-desc', label: 'Name Z-A' },
+		{ value: 'price-high', label: 'Price High to Low' },
+		{ value: 'price-low', label: 'Price Low to High' }
+	];
 
 	$effect(() => {
 		console.log('Products loaded:', products.length);
@@ -13,24 +21,34 @@
 		console.log('Unique categories:', [...new Set(products.map(p => p.category))]);
 		console.log('Current search term:', searchTerm);
 		console.log('Selected category:', selectedCategory);
+		console.log('Sort by:', sortBy);
 	});
 
-	let filteredProducts = $derived(products.filter(
-		(product) => {
+	let filteredProducts = $derived(products
+		.filter((product) => {
 			const categoryMatch = selectedCategory === 'All' || product.category === selectedCategory;
 			const searchMatch = searchTerm === '' || 
 				product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				(product.itemCode && product.itemCode.toLowerCase().includes(searchTerm.toLowerCase()));
 			
-			// if (searchTerm === 'lomo') {
-			// 	console.log('Product:', product.name, 'Category:', product.category, 'ItemCode:', product.itemCode);
-			// 	console.log('Search match:', searchMatch, 'Category match:', categoryMatch);
-			// }
-			
 			return categoryMatch && searchMatch;
-		}
-	));
+		})
+		.sort((a, b) => {
+			switch (sortBy) {
+				case 'name-asc':
+					return a.name.localeCompare(b.name);
+				case 'name-desc':
+					return b.name.localeCompare(a.name);
+				case 'price-high':
+					return b.price - a.price;
+				case 'price-low':
+					return a.price - b.price;
+				default:
+					return 0;
+			}
+		})
+	);
 </script>
 
 <svelte:head>
@@ -120,6 +138,20 @@
 					{/each}
 				</select>
 			</div>
+			<div class="flex items-center gap-2">
+				<label for="sort-filter" class="text-sm font-semibold text-gray-700 whitespace-nowrap">
+					Sort by:
+				</label>
+				<select
+					id="sort-filter"
+					bind:value={sortBy}
+					class="px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent min-w-[180px]"
+				>
+					{#each sortOptions as option}
+						<option value={option.value}>{option.label}</option>
+					{/each}
+				</select>
+			</div>
 		</div>
 
 		<div class="mb-4">
@@ -132,6 +164,9 @@
 					{#if selectedCategory !== 'All'}
 						in category "{selectedCategory}"
 					{/if}
+				{/if}
+				{#if sortBy !== 'name-asc'}
+					• Sorted by {sortOptions.find(opt => opt.value === sortBy)?.label}
 				{/if}
 			</p>
 		</div>
