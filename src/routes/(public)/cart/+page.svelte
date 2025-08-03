@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { dev } from '$app/environment';
 	import { user } from '$lib/stores/auth';
+	import { goto } from '$app/navigation';
 	import {
 		cart,
 		clear,
@@ -14,6 +15,13 @@
 	import { page } from '$app/state';
 
 	import background1 from '$lib/imgs/backgrounds/img086.jpg';
+
+	// Redirect logged-in users (staff) to home page
+	$effect(() => {
+		if ($user) {
+			goto('/');
+		}
+	});
 
 	let total = $state(0);
 

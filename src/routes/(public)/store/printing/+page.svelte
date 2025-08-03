@@ -1,3 +1,7 @@
+<script lang="ts">
+	import { user } from '$lib/stores/auth';
+</script>
+
 <!-- <script lang="ts">
 	import { user, isStaff } from '$lib/stores/auth';
 	import { printingSchema, validateField } from '$lib/validation';
@@ -327,8 +331,13 @@
 			{/if}
 		</div>
 		<div class="flex gap-4 mt-6 items-center">
-			<button type="submit" class="bg-amber-300 rounded-4xl px-8 py-2 font-bold text-black"
+			<button 
+				type="submit" 
+				class="bg-amber-300 rounded-4xl px-8 py-2 font-bold text-black disabled:opacity-50"
+				disabled={!!$user}
+				title={$user ? "Staff users cannot add items to cart" : ""}
 				>Add to cart</button
+			>
 			>
 		</div>
 	</form>

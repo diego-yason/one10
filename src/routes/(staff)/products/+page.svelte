@@ -95,7 +95,6 @@
 			const expiryDateToSave =
 				formData.category !== 'Non-Film' && formData.expiryDate ? formData.expiryDate : null;
 			if (selectedProduct) {
-				// Update existing product
 				await productService.updateProduct(selectedProduct.id!, {
 					itemCode: formData.itemCode,
 					name: formData.name,
@@ -107,7 +106,6 @@
 					expiryDate: expiryDateToSave
 				});
 
-				// If a new image is provided, delete the old one first
 				if (formData.imageFile) {
 					if (selectedProduct.imageUrl) {
 						await productService.deleteProductImage(selectedProduct.imageUrl);
@@ -119,7 +117,6 @@
 					await productService.updateProduct(selectedProduct.id!, { imageUrl });
 				}
 			} else {
-				// Add new product
 				const productId = await productService.addProduct({
 					itemCode: formData.itemCode,
 					name: formData.name,
@@ -131,7 +128,6 @@
 					expiryDate: expiryDateToSave
 				});
 
-				// Upload image if provided
 				if (formData.imageFile) {
 					const imageUrl = await productService.uploadProductImage(formData.imageFile, productId);
 					await productService.updateProduct(productId, { imageUrl });
@@ -184,7 +180,6 @@
 		}
 	}
 
-	// Filter products based on search term and sort them
 	$: filteredProducts = $products
 		.filter(
 			(product) =>
@@ -326,7 +321,6 @@
 	{/if}
 </div>
 
-<!-- Edit Product Modal -->
 <Modal show={showModal} onClose={closeModal}>
 	<div class="flex flex-col space-y-3 mt-4 max-w-md mx-auto text-sm">
 		<h2 class="text-xl font-bold text-white mb-8">Edit Product</h2>
@@ -426,7 +420,6 @@
 	</div>
 </Modal>
 
-<!-- Add Product Modal -->
 <Modal show={showAddModal} onClose={closeModal}>
 	<div class="flex flex-col space-y-3 mt-4 max-w-md mx-auto text-sm">
 		<h2 class="text-xl font-bold text-white mb-8">Add New Product</h2>

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { add, showToast } from '$lib/stores/cart';
+	import { user } from '$lib/stores/auth';
 	import type { FirebaseProduct } from '$types/firebase/Products';
 
 	let { data } = $props();
@@ -8,7 +9,7 @@
 	let quantity = $state(1);
 
 	function addToCart() {
-		if (!product) return;
+		if (!product || $user) return; // Don't add to cart if user is logged in (staff)
 		add({
 			id: product.itemCode,
 			name: product.name,
@@ -71,7 +72,9 @@
 				<button
 					class="bg-amber-300 px-6 py-2 rounded-4xl font-bold text-black disabled:opacity-50"
 					onclick={addToCart}
-					disabled={product.stock === 0}>Add to cart</button
+					disabled={product.stock === 0 || !!$user}
+					title={$user ? "Staff users cannot add items to cart" : ""}
+					>Add to cart</button
 				>
 			</div>
 		</div>

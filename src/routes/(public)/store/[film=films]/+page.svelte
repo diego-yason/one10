@@ -201,8 +201,9 @@
 			</p>
 			<button
 				type="submit"
-				{disabled}
-				class="px-8 bg-amber-300 py-2 rounded-2xl font-bold text-black"
+				disabled={disabled || !!$user}
+				class="px-8 bg-amber-300 py-2 rounded-2xl font-bold text-black disabled:opacity-50"
+				title={$user ? "Staff users cannot add items to cart" : ""}
 			>
 				Add to cart
 			</button>

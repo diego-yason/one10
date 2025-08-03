@@ -6,7 +6,7 @@
 
 <script lang="ts">
 	import { page } from '$app/state';
-	import { user, isStaff } from '$lib/stores/auth';
+	import { user } from '$lib/stores/auth';
 	import { signOut } from 'firebase/auth';
 	import { auth } from '$lib/services/firebase';
 	import { goto } from '$app/navigation';
@@ -40,19 +40,12 @@
 		</div>
 		<div class="flex flex-row gap-14 items-center">
 			{#if $user}
-				{#if $isStaff}
-					<a href="/dashboard">Staff</a>
-					<button onclick={handleSignOut} class="hover:text-amber-300 transition-colors"
-						>Sign Out</button
-					>
-				{/if}
-				<!-- <a href="/cart">Cart</a>
+				<a href="/dashboard" class:font-semibold={page.url.pathname.startsWith('/dashboard')}>Staff</a>
 				<button onclick={handleSignOut} class="hover:text-amber-300 transition-colors"
 					>Sign Out</button
-				> -->
+				>
 			{:else}
 				<a href="/cart" class:font-semibold={page.url.pathname === '/cart'}>Cart</a>
-				<!-- <a href="/login">Log In</a> -->
 			{/if}
 		</div>
 	</nav>
