@@ -1,5 +1,5 @@
 import type { Actions } from './$types';
-import { PUBLIC_MAYA_KEY } from '$env/static/public';
+import { PUBLIC_MAYA_KEY, PUBLIC_BASE_URL, PUBLIC_MAYA_URL } from '$env/static/public';
 import { dev } from '$app/environment';
 import { fail, redirect } from '@sveltejs/kit';
 import { verifyCart } from '$lib/server/verifyCart';
@@ -9,8 +9,6 @@ import type { Order } from '$types/firebase/Orders';
 import { checkoutSchema } from './schema';
 
 import { adminDb } from '$lib/server/firebase';
-
-const baseUrl = dev ? new URL('http://localhost:5173') : new URL('https://your-production-url.com');
 
 export const actions = {
 	create: async ({ fetch, request }) => {
@@ -104,7 +102,7 @@ export const actions = {
 
 		try {
 			// make checkout request
-			const checkoutRes = await fetch('https://pg-sandbox.paymaya.com/checkout/v1/checkouts', {
+			const checkoutRes = await fetch(`${PUBLIC_MAYA_URL}/checkout/v1/checkouts`, {
 				method: 'POST',
 				headers: {
 					Authorization: `Basic ${Buffer.from(PUBLIC_MAYA_KEY).toString('base64')}`,
@@ -119,9 +117,9 @@ export const actions = {
 					items,
 					requestReferenceNumber: record.id,
 					redirectUrl: {
-						success: baseUrl + 'checkout/callback/?order=' + record.id,
-						failure: baseUrl + 'checkout/callback/?order=' + record.id,
-						cancel: baseUrl + 'checkout/callback/?order=' + record.id
+						success: PUBLIC_BASE_URL + 'checkout/callback/?order=' + record.id,
+						failure: PUBLIC_BASE_URL + 'checkout/callback/?order=' + record.id,
+						cancel: PUBLIC_BASE_URL + 'checkout/callback/?order=' + record.id
 					}
 				}),
 				signal: controller.signal
@@ -200,9 +198,7 @@ export const actions = {
 		if (!(orderData.status === 'payment_pending' || !orderData.maya_checkoutId))
 			status = (
 				await (
-					await fetch(
-						`https://pg-sandbox.paymaya.com/payments/v1/payments/${orderData.maya_checkoutId}/status`
-					)
+					await fetch(`${PUBLIC_MAYA_URL}/payments/v1/payments/${orderData.maya_checkoutId}/status`)
 				).json()
 			).status;
 
@@ -223,7 +219,7 @@ export const actions = {
 		if (!statuses.includes(status)) return fail(400, { error: 'There is no payment to be made.' });
 
 		// generate new checkout link
-		const mayaCheckoutRes = await fetch('https://pg-sandbox.paymaya.com/checkout/v1/checkouts', {
+		const mayaCheckoutRes = await fetch(`${PUBLIC_MAYA_URL}/checkout/v1/checkouts`, {
 			method: 'POST',
 			headers: {
 				Authorization: `Basic ${Buffer.from(PUBLIC_MAYA_KEY).toString('base64')}`,
@@ -238,9 +234,9 @@ export const actions = {
 				items: orderData.items,
 				requestReferenceNumber: orderData.id,
 				redirectUrl: {
-					success: baseUrl + 'checkout/callback/?order=' + orderData.id,
-					failure: baseUrl + 'checkout/callback/?order=' + orderData.id,
-					cancel: baseUrl + 'checkout/callback/?order=' + orderData.id
+					success: PUBLIC_BASE_URL + 'checkout/callback/?order=' + orderData.id,
+					failure: PUBLIC_BASE_URL + 'checkout/callback/?order=' + orderData.id,
+					cancel: PUBLIC_BASE_URL + 'checkout/callback/?order=' + orderData.id
 				}
 			})
 		});

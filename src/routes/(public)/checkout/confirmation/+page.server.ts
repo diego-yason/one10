@@ -4,6 +4,7 @@ import type { PageServerLoad } from './$types';
 import { redirect } from '@sveltejs/kit';
 
 import { MAYA_KEY } from '$env/static/private';
+import { PUBLIC_MAYA_URL } from '$env/static/public';
 
 export const load: PageServerLoad = async ({ url, fetch }) => {
 	const orderId = url.searchParams.get('order');
@@ -22,14 +23,11 @@ export const load: PageServerLoad = async ({ url, fetch }) => {
 	}
 
 	const data = await (
-		await fetch(
-			`https://pg-sandbox.paymaya.com/payments/v1/payments/${orderData.maya_checkoutId}`,
-			{
-				headers: {
-					Authorization: `Basic ${Buffer.from(MAYA_KEY).toString('base64')}`
-				}
+		await fetch(`${PUBLIC_MAYA_URL}/payments/v1/payments/${orderData.maya_checkoutId}`, {
+			headers: {
+				Authorization: `Basic ${Buffer.from(MAYA_KEY).toString('base64')}`
 			}
-		)
+		})
 	).json();
 	console.log('Payment status:', data);
 	const { status } = data;
