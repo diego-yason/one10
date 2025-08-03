@@ -23,56 +23,6 @@
 	// Get the first 3 products for display
 	$: homeProducts = $products.slice(0, 3);
 
-	let name = '';
-	let email = '';
-	let subject = '';
-	let message = '';
-	let formSuccess = false;
-	let errorMessages: string[] = [];
-	let fieldErrors: Record<string, string> = {};
-
-	const contactSchema = z.object({
-		name: z.string().min(1, 'Name is required.'),
-		email: z.string().email('Please enter a valid email address.'),
-		subject: z.string().min(1, 'Subject is required.'),
-		message: z.string().min(1, 'Message is required.')
-	});
-
-	function handleFieldChange(field: string, value: string) {
-		if (errorMessages.length > 0) errorMessages = [];
-		const error = validateField(contactSchema, field as keyof typeof contactSchema.shape, value);
-		if (error) {
-			fieldErrors = { ...fieldErrors, [field]: error };
-		} else {
-			const { [field]: _, ...rest } = fieldErrors;
-			fieldErrors = rest;
-		}
-	}
-
-	function handleSubmit(e: Event) {
-		e?.preventDefault?.();
-		errorMessages = [];
-		fieldErrors = {};
-		const result = contactSchema.safeParse({ name, email, subject, message });
-		if (!result.success) {
-			if (result.error && Array.isArray(result.error.errors)) {
-				result.error.errors.forEach((error) => {
-					const field = error.path[0] as string;
-					fieldErrors[field] = error.message;
-				});
-			} else {
-				errorMessages = ['Invalid input.'];
-			}
-			return;
-		}
-		const mailto = `mailto:contact@one10studiolab.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}`)}`;
-		window.location.href = mailto;
-		name = '';
-		email = '';
-		subject = '';
-		message = '';
-	}
-
 	import logo from '$lib/imgs/logo/white.png';
 	import background1 from '$lib/imgs/backgrounds/img51.jpg';
 	import background2 from '$lib/imgs/backgrounds/img22.jpg';
@@ -113,9 +63,9 @@
 				</p>
 			</div>
 			<p class="font-roboto text-white basis-1/2">
-				Lorem ipsum dolor sit amet consectetur, adipisicing elit. Quibusdam perspiciatis natus
-				eaque, suscipit, repellendus quos ad minus perferendis laborum praesentium repellat
-				necessitatibus ut accusantium consequuntur consequatur facere. Magni, voluptatem voluptatum?
+				Explore the world of creativity and innovation with our photography services. 
+				Whether you're capturing special moments or telling a compelling story, we provide the tools and expertise you need to bring your vision to life. 
+				Discover unique perspectives and immerse yourself in the art of photography. Let's embark on this journey together.
 			</p>
 		</div>
 		<div class="flex gap-24">
@@ -193,7 +143,7 @@
 						flex flex-col relative shadow-lg min-w-[260px] max-w-[340px] mx-4"
 					>
 						<div class="image-2 flex items-center justify-center relative">
-							<a href={`/product/${product.id}`}>
+							<a href={`/store/${product.id}`}>
 								{#if product.imageUrl}
 									<img src={product.imageUrl} alt={product.name} class="product-img" />
 								{:else}
@@ -214,7 +164,7 @@
 							<div class="w-full">
 								<p class="product-2-description text-center">{product.category}</p>
 								<p class="product-2-font text-center truncate-name">
-									<a href={`/product/${product.id}`} class="hover:text-amber-400">{product.name}</a>
+									<a href={`store/${product.id}`} class="hover:text-amber-400">{product.name}</a>
 								</p>
 							</div>
 							<div class="w-full flex flex-col items-center mt-4">
