@@ -36,22 +36,22 @@
 </div>
 
 <div
-	class="flex flex-col md:flex-row items-center justify-center min-h-[700px] pb-4 px-4 bg-[#6b7283]"
+	class="flex flex-col md:flex-row items-center justify-center min-h-[500px] py-8 px-4 bg-[#6b7283]"
 >
-	<div class="flex flex-col md:flex-row bg-transparent w-full max-w-3xl mx-auto rounded-2xl">
+	<div class="flex flex-col md:flex-row bg-transparent w-full max-w-4xl mx-auto rounded-2xl gap-8">
 		<div
-			class="bg-white rounded-2xl p-6 shadow-lg flex flex-col items-center md:mr-10 w-full max-w-xs"
+			class="bg-white rounded-2xl p-4 shadow-lg flex flex-col items-center w-full max-w-sm mx-auto md:mx-0"
 		>
 			<img
 				src={product.imageUrl || 'https://placehold.co/400x300'}
 				alt={product.name}
-				class="w-72 h-72 object-contain rounded-lg mb-4"
+				class="w-64 h-64 object-contain rounded-lg"
 			/>
 		</div>
-		<div class="mt-8 md:mt-0 flex flex-col items-start max-w-md w-full justify-center">
-			<h1 class="text-3xl font-bold mb-4">{product.name}</h1>
-			<p class="text-xl font-semibold mb-2">₱{product.price.toFixed(2)}</p>
-			<p class="mb-4 text-gray-700">{product.description}</p>
+		<div class="flex flex-col items-start max-w-md w-full justify-center">
+			<h1 class="text-3xl font-bold mb-3">{product.name}</h1>
+			<p class="text-xl font-semibold mb-3">₱{product.price.toFixed(2)}</p>
+			<p class="mb-3 text-gray-700">{product.description}</p>
 			<p
 				class="mb-4 text-base font-semibold"
 				class:text-gray-700={product.stock > 0}
@@ -60,7 +60,7 @@
 				{product.stock}
 				{product.stock > 0 ? 'in stock' : 'Out of stock'}
 			</p>
-			<div class="flex items-center gap-4 mt-4">
+			<div class="flex items-center gap-4">
 				<input
 					type="number"
 					min="1"
