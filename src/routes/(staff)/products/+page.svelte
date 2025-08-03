@@ -34,7 +34,6 @@
 		{ value: 'stock-low', label: 'Stock Low to High' }
 	];
 
-	// Form data for adding/editing products
 	let formData = {
 		itemCode: '',
 		name: '',
@@ -47,7 +46,6 @@
 		expiryDate: ''
 	};
 
-	// Load products on component mount
 	onMount(async () => {
 		await loadProducts();
 	});
@@ -322,96 +320,161 @@
 </div>
 
 <Modal show={showModal} onClose={closeModal}>
-	<div class="flex flex-col space-y-3 mt-4 max-w-md mx-auto text-sm">
-		<h2 class="text-xl font-bold text-white mb-8">Edit Product</h2>
-		<div class="flex space-x-1 items-center">
-			<p class="font-bold text-white w-20 text-xs">Item Code:</p>
-			<input
-				type="text"
-				class="px-2 py-1 bg-white rounded flex-1 border-0 text-xs"
-				placeholder="Enter item code"
-				bind:value={formData.itemCode}
-				required
-			/>
-		</div>
-		<div class="flex space-x-1 items-center">
-			<p class="font-bold text-white w-20 text-xs">Name:</p>
-			<input
-				type="text"
-				class="px-2 py-1 bg-white rounded flex-1 border-0 text-xs"
-				bind:value={formData.name}
-			/>
-		</div>
-		<div class="flex space-x-1 items-center">
-			<p class="font-bold text-white w-20 text-xs">Category:</p>
-			<select class="px-2 py-1 bg-white rounded border-0 text-xs" bind:value={formData.category}>
-				<option value="Non-Film">Non-Film</option>
-				<option value="Film 35mm">Film 35mm</option>
-				<option value="Film 120mm">Film 120mm</option>
-				<option value="Simple Use - Disposable Camera">Simple Use - Disposable Camera</option>
-			</select>
-		</div>
-		{#if formData.category !== 'Non-Film'}
-			<div class="flex space-x-1 items-center">
-				<p class="font-bold text-white w-20 text-xs">Expiry Date:</p>
-				<input
-					type="text"
-					class="px-2 py-1 bg-white rounded flex-1 border-0 text-xs"
-					placeholder="MM/YYYY or N/A"
-					bind:value={formData.expiryDate}
-				/>
+	<div class="flex flex-col space-y-4 mt-4 text-sm">
+		<h2 class="text-xl font-bold text-white mb-6">Edit Product</h2>
+		
+		<div class="bg-white rounded-lg p-4 space-y-4">
+			<div class="grid grid-cols-2 gap-4">
+				<div>
+					<label for="edit-itemCode" class="block font-semibold text-gray-700 mb-1">Item Code:</label>
+					<input
+						id="edit-itemCode"
+						type="text"
+						class="w-full px-3 py-2 bg-white rounded border border-gray-300 focus:border-blue-500 focus:outline-none"
+						placeholder="Enter item code"
+						bind:value={formData.itemCode}
+						required
+					/>
+				</div>
+				<div>
+					<label for="edit-name" class="block font-semibold text-gray-700 mb-1">Name:</label>
+					<input
+						id="edit-name"
+						type="text"
+						class="w-full px-3 py-2 bg-white rounded border border-gray-300 focus:border-blue-500 focus:outline-none"
+						bind:value={formData.name}
+					/>
+				</div>
 			</div>
-		{/if}
-		<div class="flex space-x-1 items-center">
-			<p class="font-bold text-white w-20 text-xs">Price:</p>
-			<input
-				type="number"
-				class="px-2 py-1 bg-white rounded w-20 border-0 text-xs"
-				bind:value={formData.price}
-			/>
+			
+			<div class="grid grid-cols-2 gap-4">
+				<div>
+					<label for="edit-category" class="block font-semibold text-gray-700 mb-1">Category:</label>
+					<select id="edit-category" class="w-full px-3 py-2 bg-white rounded border border-gray-300 focus:border-blue-500 focus:outline-none" bind:value={formData.category}>
+						<option value="Non-Film">Non-Film</option>
+						<option value="Film 35mm">Film 35mm</option>
+						<option value="Film 120mm">Film 120mm</option>
+						<option value="Simple Use - Disposable Camera">Simple Use - Disposable Camera</option>
+					</select>
+				</div>
+				<div>
+					<label for="edit-status" class="block font-semibold text-gray-700 mb-1">Status:</label>
+					<select id="edit-status" class="w-full px-3 py-2 bg-white rounded border border-gray-300 focus:border-blue-500 focus:outline-none" bind:value={formData.status}>
+						<option value="available">Available</option>
+						<option value="not_available">Not Available</option>
+						<option value="out_of_stock">Out of Stock</option>
+					</select>
+				</div>
+			</div>
+
+			{#if formData.category !== 'Non-Film'}
+				<div>
+					<label for="edit-expiryDate" class="block font-semibold text-gray-700 mb-1">Expiry Date:</label>
+					<input
+						id="edit-expiryDate"
+						type="text"
+						class="w-full px-3 py-2 bg-white rounded border border-gray-300 focus:border-blue-500 focus:outline-none"
+						placeholder="MM/YYYY or N/A"
+						bind:value={formData.expiryDate}
+					/>
+				</div>
+			{/if}
+
+			<div class="grid grid-cols-2 gap-4">
+				<div>
+					<label for="edit-price" class="block font-semibold text-gray-700 mb-1">Price:</label>
+					<input
+						id="edit-price"
+						type="number"
+						min="0"
+						class="w-full px-3 py-2 bg-white rounded border border-gray-300 focus:border-blue-500 focus:outline-none"
+						bind:value={formData.price}
+					/>
+				</div>
+				<div>
+					<label for="edit-stock" class="block font-semibold text-gray-700 mb-1">Stock:</label>
+					<input
+						id="edit-stock"
+						type="number"
+						min="0"
+						class="w-full px-3 py-2 bg-white rounded border border-gray-300 focus:border-blue-500 focus:outline-none"
+						bind:value={formData.stock}
+					/>
+				</div>
+			</div>
+
+			<div>
+				<label for="edit-image" class="block font-semibold text-gray-700 mb-1">Image:</label>
+				<div class="relative">
+					<input
+						id="edit-image"
+						type="file"
+						accept="image/*"
+						on:change={handleImageUpload}
+						class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+					/>
+					<div class="flex">
+						<button
+							type="button"
+							class="px-4 py-2 text-black rounded-l border transition-colors hover:text-black"
+							style="background-color: #fed22e; border-color: #fed22e;"
+							on:mouseenter={(e) => { 
+								const target = e.target as HTMLButtonElement;
+								if (target) {
+									target.style.backgroundColor='#ffb803'; 
+									target.style.borderColor='#ffb803'; 
+								}
+							}}
+							on:mouseleave={(e) => { 
+								const target = e.target as HTMLButtonElement;
+								if (target) {
+									target.style.backgroundColor='#fed22e'; 
+									target.style.borderColor='#fed22e'; 
+								}
+							}}
+						>
+							Choose File
+						</button>
+						<div class="flex-1 px-3 py-2 bg-gray-50 border border-l-0 border-gray-300 rounded-r text-gray-600 text-sm">
+							{formData.imageFile ? formData.imageFile.name : 'No file chosen'}
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div>
+				<label for="edit-description" class="block font-semibold text-gray-700 mb-1">Description:</label>
+				<textarea
+					id="edit-description"
+					class="w-full h-24 px-3 py-2 bg-white rounded border border-gray-300 focus:border-blue-500 focus:outline-none resize-none"
+					placeholder="Product description..."
+					bind:value={formData.description}
+				></textarea>
+			</div>
 		</div>
-		<div class="flex space-x-1 items-center">
-			<p class="font-bold text-white w-20 text-xs">Stock:</p>
-			<input
-				type="number"
-				class="px-2 py-1 bg-white rounded w-20 border-0 text-xs"
-				bind:value={formData.stock}
-			/>
-		</div>
-		<div class="flex space-x-1 items-center">
-			<p class="font-bold text-white w-20 text-xs">Status:</p>
-			<select class="px-2 py-1 bg-white rounded border-0 text-xs" bind:value={formData.status}>
-				<option value="available">Available</option>
-				<option value="not_available">Not Available</option>
-				<option value="out_of_stock">Out of Stock</option>
-			</select>
-		</div>
-		<div class="flex space-x-1 items-center">
-			<p class="font-bold text-white w-20 text-xs">Image:</p>
-			<input
-				type="file"
-				accept="image/*"
-				on:change={handleImageUpload}
-				class="px-2 py-1 bg-white rounded border-0 text-xs"
-			/>
-		</div>
-		<div class="flex flex-col space-y-1">
-			<p class="text-white font-bold text-xs">Description:</p>
-			<textarea
-				class="w-full h-20 px-2 py-1 bg-white rounded border-0 resize-none text-xs"
-				placeholder="Product description..."
-				bind:value={formData.description}
-			></textarea>
-		</div>
-		<div class="flex space-x-2 mt-2">
+
+		<div class="flex space-x-3 mt-6">
 			<button
-				class="bg-white text-black px-3 py-1 rounded hover:bg-gray-200 transition-colors flex-1 text-xs"
+				class="text-black px-6 py-2 rounded transition-colors flex-1 font-medium"
+				style="background-color: #fed22e;"
+				on:mouseenter={(e) => { 
+					const target = e.target as HTMLButtonElement;
+					if (target) {
+						target.style.backgroundColor='#ffb803'; 
+					}
+				}}
+				on:mouseleave={(e) => { 
+					const target = e.target as HTMLButtonElement;
+					if (target) {
+						target.style.backgroundColor='#fed22e'; 
+					}
+				}}
 				on:click={saveProduct}
 			>
 				Save Changes
 			</button>
 			<button
-				class="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600 transition-colors flex-1 text-xs"
+				class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition-colors flex-1 font-medium"
 				on:click={closeModal}
 			>
 				Cancel
@@ -421,96 +484,161 @@
 </Modal>
 
 <Modal show={showAddModal} onClose={closeModal}>
-	<div class="flex flex-col space-y-3 mt-4 max-w-md mx-auto text-sm">
-		<h2 class="text-xl font-bold text-white mb-8">Add New Product</h2>
-		<div class="flex space-x-1 items-center">
-			<p class="font-bold text-white w-20 text-xs">Item Code:</p>
-			<input
-				type="text"
-				class="px-2 py-1 bg-white rounded flex-1 border-0 text-xs"
-				placeholder="Enter item code"
-				bind:value={formData.itemCode}
-				required
-			/>
-		</div>
-		<div class="flex space-x-1 items-center">
-			<p class="font-bold text-white w-20 text-xs">Name:</p>
-			<input
-				type="text"
-				class="px-2 py-1 bg-white rounded flex-1 border-0 text-xs"
-				bind:value={formData.name}
-			/>
-		</div>
-		<div class="flex space-x-1 items-center">
-			<p class="font-bold text-white w-20 text-xs">Category:</p>
-			<select class="px-2 py-1 bg-white rounded border-0 text-xs" bind:value={formData.category}>
-				<option value="Non-Film">Non-Film</option>
-				<option value="Film 35mm">Film 35mm</option>
-				<option value="Film 120mm">Film 120mm</option>
-				<option value="Simple Use - Disposable Camera">Simple Use - Disposable Camera</option>
-			</select>
-		</div>
-		{#if formData.category !== 'Non-Film'}
-			<div class="flex space-x-1 items-center">
-				<p class="font-bold text-white w-20 text-xs">Expiry Date:</p>
-				<input
-					type="text"
-					class="px-2 py-1 bg-white rounded flex-1 border-0 text-xs"
-					placeholder="MM/YYYY or N/A"
-					bind:value={formData.expiryDate}
-				/>
+	<div class="flex flex-col space-y-4 mt-4 text-sm">
+		<h2 class="text-xl font-bold text-white mb-6">Add New Product</h2>
+		
+		<div class="bg-white rounded-lg p-4 space-y-4">
+			<div class="grid grid-cols-2 gap-4">
+				<div>
+					<label for="add-itemCode" class="block font-semibold text-gray-700 mb-1">Item Code:</label>
+					<input
+						id="add-itemCode"
+						type="text"
+						class="w-full px-3 py-2 bg-white rounded border border-gray-300 focus:border-blue-500 focus:outline-none"
+						placeholder="Enter item code"
+						bind:value={formData.itemCode}
+						required
+					/>
+				</div>
+				<div>
+					<label for="add-name" class="block font-semibold text-gray-700 mb-1">Name:</label>
+					<input
+						id="add-name"
+						type="text"
+						class="w-full px-3 py-2 bg-white rounded border border-gray-300 focus:border-blue-500 focus:outline-none"
+						bind:value={formData.name}
+					/>
+				</div>
 			</div>
-		{/if}
-		<div class="flex space-x-1 items-center">
-			<p class="font-bold text-white w-20 text-xs">Price:</p>
-			<input
-				type="number"
-				class="px-2 py-1 bg-white rounded w-20 border-0 text-xs"
-				bind:value={formData.price}
-			/>
+			
+			<div class="grid grid-cols-2 gap-4">
+				<div>
+					<label for="add-category" class="block font-semibold text-gray-700 mb-1">Category:</label>
+					<select id="add-category" class="w-full px-3 py-2 bg-white rounded border border-gray-300 focus:border-blue-500 focus:outline-none" bind:value={formData.category}>
+						<option value="Non-Film">Non-Film</option>
+						<option value="Film 35mm">Film 35mm</option>
+						<option value="Film 120mm">Film 120mm</option>
+						<option value="Simple Use - Disposable Camera">Simple Use - Disposable Camera</option>
+					</select>
+				</div>
+				<div>
+					<label for="add-status" class="block font-semibold text-gray-700 mb-1">Status:</label>
+					<select id="add-status" class="w-full px-3 py-2 bg-white rounded border border-gray-300 focus:border-blue-500 focus:outline-none" bind:value={formData.status}>
+						<option value="available">Available</option>
+						<option value="not_available">Not Available</option>
+						<option value="out_of_stock">Out of Stock</option>
+					</select>
+				</div>
+			</div>
+
+			{#if formData.category !== 'Non-Film'}
+				<div>
+					<label for="add-expiryDate" class="block font-semibold text-gray-700 mb-1">Expiry Date:</label>
+					<input
+						id="add-expiryDate"
+						type="text"
+						class="w-full px-3 py-2 bg-white rounded border border-gray-300 focus:border-blue-500 focus:outline-none"
+						placeholder="MM/YYYY or N/A"
+						bind:value={formData.expiryDate}
+					/>
+				</div>
+			{/if}
+
+			<div class="grid grid-cols-2 gap-4">
+				<div>
+					<label for="add-price" class="block font-semibold text-gray-700 mb-1">Price:</label>
+					<input
+						id="add-price"
+						type="number"
+						min="0"
+						class="w-full px-3 py-2 bg-white rounded border border-gray-300 focus:border-blue-500 focus:outline-none"
+						bind:value={formData.price}
+					/>
+				</div>
+				<div>
+					<label for="add-stock" class="block font-semibold text-gray-700 mb-1">Stock:</label>
+					<input
+						id="add-stock"
+						type="number"
+						min="0"
+						class="w-full px-3 py-2 bg-white rounded border border-gray-300 focus:border-blue-500 focus:outline-none"
+						bind:value={formData.stock}
+					/>
+				</div>
+			</div>
+
+			<div>
+				<label for="add-image" class="block font-semibold text-gray-700 mb-1">Image:</label>
+				<div class="relative">
+					<input
+						id="add-image"
+						type="file"
+						accept="image/*"
+						on:change={handleImageUpload}
+						class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+					/>
+					<div class="flex">
+						<button
+							type="button"
+							class="px-4 py-2 text-black rounded-l border transition-colors hover:text-black"
+							style="background-color: #fed22e; border-color: #fed22e;"
+							on:mouseenter={(e) => { 
+								const target = e.target as HTMLButtonElement;
+								if (target) {
+									target.style.backgroundColor='#ffb803'; 
+									target.style.borderColor='#ffb803'; 
+								}
+							}}
+							on:mouseleave={(e) => { 
+								const target = e.target as HTMLButtonElement;
+								if (target) {
+									target.style.backgroundColor='#fed22e'; 
+									target.style.borderColor='#fed22e'; 
+								}
+							}}
+						>
+							Choose File
+						</button>
+						<div class="flex-1 px-3 py-2 bg-gray-50 border border-l-0 border-gray-300 rounded-r text-gray-600 text-sm">
+							{formData.imageFile ? formData.imageFile.name : 'No file chosen'}
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div>
+				<label for="add-description" class="block font-semibold text-gray-700 mb-1">Description:</label>
+				<textarea
+					id="add-description"
+					class="w-full h-24 px-3 py-2 bg-white rounded border border-gray-300 focus:border-blue-500 focus:outline-none resize-none"
+					placeholder="Product description..."
+					bind:value={formData.description}
+				></textarea>
+			</div>
 		</div>
-		<div class="flex space-x-1 items-center">
-			<p class="font-bold text-white w-20 text-xs">Stock:</p>
-			<input
-				type="number"
-				class="px-2 py-1 bg-white rounded w-20 border-0 text-xs"
-				bind:value={formData.stock}
-			/>
-		</div>
-		<div class="flex space-x-1 items-center">
-			<p class="font-bold text-white w-20 text-xs">Status:</p>
-			<select class="px-2 py-1 bg-white rounded border-0 text-xs" bind:value={formData.status}>
-				<option value="available">Available</option>
-				<option value="not_available">Not Available</option>
-				<option value="out_of_stock">Out of Stock</option>
-			</select>
-		</div>
-		<div class="flex space-x-1 items-center">
-			<p class="font-bold text-white w-20 text-xs">Image:</p>
-			<input
-				type="file"
-				accept="image/*"
-				on:change={handleImageUpload}
-				class="px-2 py-1 bg-white rounded border-0 text-xs"
-			/>
-		</div>
-		<div class="flex flex-col space-y-1">
-			<p class="text-white font-bold text-xs">Description:</p>
-			<textarea
-				class="w-full h-20 px-2 py-1 bg-white rounded border-0 resize-none text-xs"
-				placeholder="Product description..."
-				bind:value={formData.description}
-			></textarea>
-		</div>
-		<div class="flex space-x-2 mt-2">
+
+		<div class="flex space-x-3 mt-6">
 			<button
-				class="bg-white text-black px-3 py-1 rounded hover:bg-gray-200 transition-colors flex-1 text-xs"
+				class="text-black px-6 py-2 rounded transition-colors flex-1 font-medium"
+				style="background-color: #fed22e;"
+				on:mouseenter={(e) => { 
+					const target = e.target as HTMLButtonElement;
+					if (target) {
+						target.style.backgroundColor='#ffb803'; 
+					}
+				}}
+				on:mouseleave={(e) => { 
+					const target = e.target as HTMLButtonElement;
+					if (target) {
+						target.style.backgroundColor='#fed22e'; 
+					}
+				}}
 				on:click={saveProduct}
 			>
 				Add Product
 			</button>
 			<button
-				class="bg-gray-500 text-white px-3 py-1 rounded hover:bg-gray-600 transition-colors flex-1 text-xs"
+				class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition-colors flex-1 font-medium"
 				on:click={closeModal}
 			>
 				Cancel

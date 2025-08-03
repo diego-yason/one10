@@ -17,7 +17,7 @@
     on:keydown={handleKeydown}
   ></button>
 
-  <div class="fixed right-0 top-0 h-full w-[400px] bg-neutral-600 shadow-2xl z-50 p-6 overflow-y-auto rounded-l-2xl">
+  <div class="fixed right-0 top-0 h-full w-[600px] bg-neutral-600 shadow-2xl z-50 p-6 overflow-y-auto rounded-l-2xl">
     <button
       class="absolute top-4 right-6 text-gray-500 text-xl hover:text-black"
       on:click={onClose}
