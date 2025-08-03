@@ -182,7 +182,8 @@
 		.filter(
 			(product) =>
 				(selectedCategory === 'All' || product.category === selectedCategory) &&
-				product.itemCode.toLowerCase().includes(searchTerm.toLowerCase())
+				(product.itemCode.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				product.name.toLowerCase().includes(searchTerm.toLowerCase()))
 		)
 		.sort((a, b) => {
 			switch (sortBy) {
@@ -209,7 +210,7 @@
 		<div class="flex flex-1 items-center gap-4">
 			<input
 				type="text"
-				placeholder="Search Product Code"
+				placeholder="Search by Product Code or Name"
 				class="px-5 py-3 rounded-lg bg-white border-0 w-full max-w-xs"
 				bind:value={searchTerm}
 			/>

@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
 	import {
 		createUserWithEmailAndPassword,
 		signInWithPopup,
@@ -229,4 +229,4 @@
 		background-position: center;
 		background-repeat: no-repeat;
 	}
-</style>
+</style> -->

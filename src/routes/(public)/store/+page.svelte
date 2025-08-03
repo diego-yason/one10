@@ -31,9 +31,7 @@
 		.filter((product) => {
 			const categoryMatch = selectedCategory === 'All' || product.category === selectedCategory;
 			const searchMatch = searchTerm === '' || 
-				product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				(product.itemCode && product.itemCode.toLowerCase().includes(searchTerm.toLowerCase()));
+				product.name.toLowerCase().includes(searchTerm.toLowerCase());
 			
 			return categoryMatch && searchMatch;
 		})
@@ -122,8 +120,8 @@
 			<div class="flex-1">
 				<input
 					type="text"
-					placeholder="Search products by name, category, or item code..."
-					class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent"
+					placeholder="Search products by name..."
+					class="w-full px-4 py-3 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent"
 					bind:value={searchTerm}
 				/>
 			</div>
@@ -134,7 +132,7 @@
 				<select
 					id="category-filter"
 					bind:value={selectedCategory}
-					class="px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent min-w-[200px]"
+					class="px-4 py-3 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent min-w-[200px]"
 				>
 					{#each categories as category}
 						<option value={category}>{category}</option>
@@ -148,7 +146,7 @@
 				<select
 					id="sort-filter"
 					bind:value={sortBy}
-					class="px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent min-w-[180px]"
+					class="px-4 py-3 rounded-lg border border-gray-300 bg-white focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent min-w-[180px]"
 				>
 					{#each sortOptions as option}
 						<option value={option.value}>{option.label}</option>

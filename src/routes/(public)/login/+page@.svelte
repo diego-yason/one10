@@ -15,43 +15,53 @@
 	let fieldErrors: Record<string, string> = {};
 
 	// Real-time validation function
-	function handleFieldChange(field: string, value: string) {
-		// Clear general errors when user starts typing
-		if (errorMessages.length > 0) {
-			errorMessages = [];
-		}
+	// function handleFieldChange(field: string, value: string) {
+	// 	// Clear general errors when user starts typing
+	// 	if (errorMessages.length > 0) {
+	// 		errorMessages = [];
+	// 	}
 
-		// Validate the specific field
-		const error = validateField(loginSchema, field as keyof typeof loginSchema.shape, value);
-		if (error) {
-			fieldErrors = { ...fieldErrors, [field]: error };
-		} else {
-			const { [field]: _, ...rest } = fieldErrors;
-			fieldErrors = rest;
-		}
-	}
+	// 	// Validate the specific field
+	// 	const error = validateField(loginSchema, field as keyof typeof loginSchema.shape, value);
+	// 	if (error) {
+	// 		fieldErrors = { ...fieldErrors, [field]: error };
+	// 	} else {
+	// 		const { [field]: _, ...rest } = fieldErrors;
+	// 		fieldErrors = rest;
+	// 	}
+	// }
 
 	const handleEmailLogin = async (e: SubmitEvent) => {
-		e.preventDefault();
+		// e.preventDefault();
+		// errorMessages = [];
+		// fieldErrors = {};
+
+		// const result = loginSchema.safeParse({ email, password });
+		// if (!result.success) {
+		// 	if (result.error && Array.isArray(result.error.errors)) {
+		// 		// Group errors by field
+		// 		result.error.errors.forEach((err: any) => {
+		// 			const field = err.path[0] as string;
+		// 			fieldErrors[field] = err.message;
+		// 		});
+		// 	} else {
+		// 		errorMessages = ['Invalid input.'];
+		// 	}
+		// 	return;
+		// }
+
+		// try {
+		// 	const userCredential = await signInWithEmailAndPassword(auth, email, password);
+		// 	// Always redirect to homepage, regardless of user type
+		// 	goto('/');
+		// } catch (err) {
+		// 	errorMessages = [getFirebaseErrorMessage(err)];
+		// }
+
 		errorMessages = [];
 		fieldErrors = {};
-
-		const result = loginSchema.safeParse({ email, password });
-		if (!result.success) {
-			if (result.error && Array.isArray(result.error.errors)) {
-				// Group errors by field
-				result.error.errors.forEach((err: any) => {
-					const field = err.path[0] as string;
-					fieldErrors[field] = err.message;
-				});
-			} else {
-				errorMessages = ['Invalid input.'];
-			}
-			return;
-		}
-
 		try {
-			const userCredential = await signInWithEmailAndPassword(auth, email, password);
+			const result = await signInWithPopup(auth, new GoogleAuthProvider());
 			// Always redirect to homepage, regardless of user type
 			goto('/');
 		} catch (err) {
@@ -98,8 +108,6 @@
 		<img src={background} class="w-full h-full object-cover" alt="" />
 	</div>
 	<div class="mx-auto absolute z-10 w-96 text-gray-100">
-		<!-- TODO: add 110 logo -->
-		<!-- TODO: add "Studio" outline -->
 		<span
 			class="text-4xl font-spaceGrotesk font-bold flex items-baseline gap-2 leading-none text-white"
 		>
@@ -108,11 +116,11 @@
 		</span>
 
 		<div class="mb-7 mt-10">
-			<p class="text-xs">Welcome back</p>
+			<p class="text-xs">Welcome back staff</p>
 			<h1 class="font-spaceGrotesk text-3xl font-bold">Login to your account</h1>
 		</div>
 
-		{#if errorMessages.length}
+		<!-- {#if errorMessages.length}
 			<div class="bg-red-500/10 border border-red-500 text-red-500 p-3 mb-5 rounded">
 				<ul>
 					{#each errorMessages as errMsg}
@@ -120,10 +128,10 @@
 					{/each}
 				</ul>
 			</div>
-		{/if}
+		{/if} -->
 
 		<form on:submit={handleEmailLogin} class="flex flex-col gap-6 mb-5">
-			<div>
+			<!-- <div>
 				<input
 					type="email"
 					name="email"
@@ -132,7 +140,6 @@
 						? 'border-2 border-red-500'
 						: ''}"
 					bind:value={email}
-					on:input={(e) => handleFieldChange('email', e.currentTarget.value)}
 				/>
 				{#if fieldErrors.email}
 					<p class="text-red-500 text-sm mt-1">{fieldErrors.email}</p>
@@ -148,26 +155,26 @@
 						? 'border-2 border-red-500'
 						: ''}"
 					bind:value={password}
-					on:input={(e) => handleFieldChange('password', e.currentTarget.value)}
 				/>
 				{#if fieldErrors.password}
 					<p class="text-red-500 text-sm mt-1">{fieldErrors.password}</p>
 				{/if}
-			</div>
+			</div> -->
 
 			<button
 				type="submit"
-				class="bg-amber-600 text-white py-2 hover:bg-amber-700 transition-colors"
+				class="bg-amber-600 text-white py-2 hover:bg-amber-700 transition-colors flex items-center justify-center gap-2"
 			>
-				Login
+				Sign In w/ Google
+				<img src={Google} class="w-5 h-5" alt="Google logo" />
 			</button>
 		</form>
-		<a href="/login/reset" class="text-[#F2C94C] underline">Forgot password?</a>
+		<!-- <a href="/login/reset" class="text-[#F2C94C] underline">Forgot password?</a> -->
 		<a href="/" class="flex items-center gap-1 text-brand underline mt-4 mb-2"
 			><span>&larr;</span> Back to Home</a
 		>
 
-		<div class="mt-5 mb-11">
+		<!-- <div class="mt-5 mb-11">
 			<p class="mb-2">Or login using</p>
 			<div class="flex gap-4 mb-5">
 				<button on:click={googleLogin} class=""
@@ -177,17 +184,17 @@
 						alt="Login with Google"
 					/></button
 				>
-				<!-- <button on:click={facebookLogin} class=""
+				<button on:click={facebookLogin} class=""
 					><img
 						src={Facebook}
 						class="w-[40px] object-contain aspect-square"
 						alt="Login with Facebook"
 					/></button
-				> -->
+				>
 			</div>
 
 			<p>Not registered? <a href="/register" class="text-brand underline">Create an account</a></p>
-		</div>
+		</div> -->
 	</div>
 </div>
 
