@@ -11,23 +11,23 @@
 </svelte:head>
 
 <form
-	class="flex justify-between flex-row mx-40"
+	class="flex justify-center items-center mx-40 pt-8"
 	onsubmit={(e) => {
 		e.preventDefault();
 		goto('/track/' + value);
 	}}
 >
-	<div class="flex flex-col">
-		<label for="orderId" class="text-xl basis-1/3 font-spaceGrotesk font-bold">Order ID</label>
+	<div class="flex gap-4 items-center">
+		<label for="orderId" class="text-xl font-spaceGrotesk font-bold">Order ID</label>
 		<input
 			type="text"
 			id="orderId"
 			name="orderId"
-			class="bg-slate-300 w-full p-2 rounded-md"
+			class="bg-slate-300 p-2 rounded-md w-64"
 			bind:value
 		/>
+		<button type="submit" class="bg-amber-400 px-6 py-2 rounded-md"> Track Order </button>
 	</div>
-	<button type="submit" class="bg-amber-400 px-2 py-1 rounded-md mt-4"> Track Order </button>
 </form>
 
 {@render children()}

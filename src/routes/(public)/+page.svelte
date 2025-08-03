@@ -317,12 +317,15 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
+		overflow: hidden;
+		border-radius: 8px;
 	}
 
 	.product-img {
 		width: 100%;
 		height: 100%;
-		object-fit: contain;
+		object-fit: cover;
+		object-position: center;
 		background: #fafafa;
 		display: block;
 	}
