@@ -50,7 +50,7 @@
 			description: product.description,
 			price: product.price,
 			stock: product.stock,
-			status: product.status,
+			status: product.status as typeof formData.status,
 			category: product.category,
 			imageFile: null,
 			expiryDate: product.expiryDate || ''
@@ -92,7 +92,7 @@
 					description: formData.description,
 					price: formData.price,
 					stock: formData.stock,
-					status: formData.status,
+					status: formData.status as typeof selectedProduct.status,
 					category: formData.category,
 					expiryDate: expiryDateToSave
 				});
