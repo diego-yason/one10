@@ -2,10 +2,11 @@
 	import type { PageProps } from './$types';
 	import type { Order } from '$types/firebase/Orders';
 	import Modal from '$lib/components/Modal.svelte';
-	
+	import { enhance } from '$app/forms';
+
 	let { data }: PageProps = $props();
 	let { orders } = $derived(data);
-	
+
 	let showDetailsModal = $state(false);
 	let selectedOrder: Order | null = $state(null);
 	let searchTerm = $state('');
@@ -30,7 +31,7 @@
 
 	async function updateOrderStatus() {
 		if (!selectedOrder || isUpdating) return;
-		
+
 		isUpdating = true;
 		try {
 			const response = await fetch('/api/orders', {
@@ -45,7 +46,7 @@
 				if (selectedOrder) {
 					selectedOrder.status = selectedStatus;
 				}
-				
+
 				location.reload();
 			} else {
 				console.error('Failed to update order status');
@@ -91,15 +92,16 @@
 
 	let filteredOrders = $derived.by(() => {
 		if (!orders || !Array.isArray(orders)) return [];
-		
+
 		let filtered = orders.filter((order: Order) => {
-			const searchMatch = searchTerm === '' || 
+			const searchMatch =
+				searchTerm === '' ||
 				order.id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				order.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
 				order.email?.toLowerCase().includes(searchTerm.toLowerCase());
-			
+
 			const statusMatch = statusFilter === 'all' || order.status === statusFilter;
-			
+
 			return searchMatch && statusMatch;
 		});
 
@@ -139,7 +141,9 @@
 				bind:value={searchTerm}
 			/>
 			<label for="status-filter" class="text-sm font-semibold ml-2 mr-2 mb-0">Status</label>
+			<input type="hidden" name="orderId" value={selectedOrder?.id || ''} />
 			<select
+				name="status"
 				id="status-filter"
 				bind:value={statusFilter}
 				class="px-5 py-3 rounded-lg bg-white border-0 text-sm w-44"
@@ -185,7 +189,7 @@
 
 	<div class="flex mb-5 justify-between">
 		<p class="font-bold text-xl">
-			Orders: 
+			Orders:
 			<span class="text-lg font-normal">
 				({filteredOrders.length} of {orders?.length || 0})
 			</span>
@@ -217,9 +221,7 @@
 
 						<p class="flex items-center gap-3">
 							{order.status.replace('_', ' ')}
-							<span
-								class="rounded-3xl w-5 h-5 {getStatusColor(order.status)}"
-							></span>
+							<span class="rounded-3xl w-5 h-5 {getStatusColor(order.status)}"></span>
 						</p>
 					</div>
 
@@ -243,14 +245,14 @@
 	{#if selectedOrder}
 		<div class="flex flex-col space-y-4 mt-4 text-sm">
 			<h2 class="text-xl font-bold text-white mb-4">Order Details</h2>
-			
+
 			<div class="bg-white rounded-lg p-4 space-y-3">
 				<h3 class="font-bold text-lg text-gray-800 border-b pb-2">Order Information</h3>
 				<div class="space-y-2 text-sm">
 					<div><span class="font-semibold">Order ID:</span> {selectedOrder.id}</div>
 					<div class="flex items-center gap-2">
-						<span class="font-semibold">Status:</span> 
-						<select 
+						<span class="font-semibold">Status:</span>
+						<select
 							bind:value={selectedStatus}
 							class="px-3 py-1 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
 						>
@@ -269,7 +271,10 @@
 					</div>
 					<div><span class="font-semibold">Total:</span> ₱{selectedOrder.grandTotal}</div>
 					{#if selectedOrder.maya_checkoutId}
-						<div><span class="font-semibold">Maya Checkout:</span> {selectedOrder.maya_checkoutId}</div>
+						<div>
+							<span class="font-semibold">Maya Checkout:</span>
+							{selectedOrder.maya_checkoutId}
+						</div>
 					{/if}
 				</div>
 			</div>
@@ -289,11 +294,24 @@
 					<div><span class="font-semibold">Address:</span> {selectedOrder.address.address}</div>
 					<div><span class="font-semibold">City:</span> {selectedOrder.address.city}</div>
 					<div><span class="font-semibold">Province:</span> {selectedOrder.address.province}</div>
-					<div><span class="font-semibold">Postal Code:</span> {selectedOrder.address.postalCode}</div>
+					<div>
+						<span class="font-semibold">Postal Code:</span>
+						{selectedOrder.address.postalCode}
+					</div>
 				</div>
 			</div>
 
-			<div class="bg-white rounded-lg p-4 space-y-3">
+			<form
+				action="?/updateStatus"
+				method="POST"
+				use:enhance={() => {
+					isUpdating = true;
+					return async function () {
+						isUpdating = false;
+					};
+				}}
+				class="bg-white rounded-lg p-4 space-y-3"
+			>
 				<h3 class="font-bold text-lg text-gray-800 border-b pb-2">Order Items</h3>
 				<div class="space-y-4">
 					{#each selectedOrder.items as item}
@@ -306,14 +324,18 @@
 									<div class="text-sm font-semibold">Price: ₱{item.price}</div>
 								</div>
 							</div>
-							
+
 							{#if item.details && Object.keys(item.details).length > 0}
 								<div class="mt-3 p-2 bg-white rounded border">
 									<div class="font-semibold text-sm mb-2">Item Details:</div>
 									<div class="text-xs space-y-1">
 										{#each Object.entries(item.details) as [key, value]}
 											<div>
-												<span class="font-medium">{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:</span>
+												<span class="font-medium"
+													>{key
+														.replace(/([A-Z])/g, ' $1')
+														.replace(/^./, (str) => str.toUpperCase())}:</span
+												>
 												{#if typeof value === 'boolean'}
 													{value ? 'Yes' : 'No'}
 												{:else}
@@ -348,7 +370,7 @@
 						</div>
 					{/each}
 				</div>
-			</div>
+			</form>
 
 			{#if selectedOrder.notes}
 				<div class="bg-white rounded-lg p-4 space-y-3">
@@ -359,26 +381,27 @@
 
 			<div class="flex justify-end gap-3 mt-6">
 				<button
+					type="submit"
 					class="text-black px-4 py-2 rounded transition-colors font-medium"
 					style="background-color: #fed22e;"
 					disabled={isUpdating}
-					onmouseenter={(e) => { 
+					onmouseenter={(e) => {
 						const target = e.target as HTMLButtonElement;
 						if (target && !target.disabled) {
-							target.style.backgroundColor='#ffb803'; 
+							target.style.backgroundColor = '#ffb803';
 						}
 					}}
-					onmouseleave={(e) => { 
+					onmouseleave={(e) => {
 						const target = e.target as HTMLButtonElement;
 						if (target && !target.disabled) {
-							target.style.backgroundColor='#fed22e'; 
+							target.style.backgroundColor = '#fed22e';
 						}
 					}}
-					onclick={updateOrderStatus}
 				>
 					{isUpdating ? 'Saving...' : 'Save Changes'}
 				</button>
 				<button
+					type="button"
 					class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
 					onclick={closeModal}
 				>

@@ -11,7 +11,8 @@
 	// Client-side route protection
 	onMount(() => {
 		const unsubscribe = user.subscribe(($user) => {
-			if (!$user || $isStaff) {
+			if (!$user) {
+				// only staff can login
 				goto('/');
 			}
 		});

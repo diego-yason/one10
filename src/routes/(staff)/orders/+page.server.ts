@@ -1,7 +1,8 @@
-import { adminDb } from '$lib/server/firebase';
 import type { QuerySnapshot, DocumentData, QueryDocumentSnapshot } from 'firebase-admin/firestore';
-import type { PageServerLoad } from './$types';
+import type { Actions, PageServerLoad } from './$types';
 import type { Order } from '$types/firebase/Orders';
+
+import { adminDb } from '$lib/server/firebase';
 
 export const load = (async () => {
 	const ordersSnap = (await adminDb.collection('orders').get()) as QuerySnapshot<DocumentData>;
@@ -34,3 +35,21 @@ export const load = (async () => {
 
 	return { orders: filteredOrders };
 }) satisfies PageServerLoad;
+
+export const actions: Actions = {
+	updateStatus: async ({ request }) => {
+		const formData = await request.formData();
+
+		const orderId = formData.get('orderId') as string;
+		const status = formData.get('status') as string;
+
+		const order = await adminDb.collection('orders').where('id', '==', orderId).limit(1).get();
+
+		if (order.empty) {
+			return { success: false, message: 'Order not found' };
+		}
+
+		await adminDb.collection('orders').doc(order.docs[0].id).update({ status });
+		return { success: true };
+	}
+};
