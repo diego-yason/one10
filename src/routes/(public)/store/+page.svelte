@@ -153,6 +153,18 @@
 					{/each}
 				</select>
 			</div>
+			<div class="flex items-center">
+				<button
+					class="bg-gray-600 text-white px-4 py-3 rounded-lg hover:bg-gray-700 transition-colors font-semibold text-sm"
+					onclick={() => {
+						searchTerm = '';
+						selectedCategory = 'All';
+						sortBy = 'name-asc';
+					}}
+				>
+					Clear Filters
+				</button>
+			</div>
 		</div>
 
 		<div class="mb-4">

@@ -92,18 +92,32 @@
 		try {
 			const expiryDateToSave =
 				formData.category !== 'Non-Film' && formData.expiryDate ? formData.expiryDate : null;
+			
 			if (selectedProduct) {
-				await productService.updateProduct(selectedProduct.id!, {
-					itemCode: formData.itemCode,
-					name: formData.name,
-					description: formData.description,
-					price: formData.price,
-					stock: formData.stock,
-					status: formData.status as typeof selectedProduct.status,
-					category: formData.category,
-					expiryDate: expiryDateToSave
+				// Update existing product using API
+				const response = await fetch('/api/products', {
+					method: 'PATCH',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						productId: selectedProduct.id,
+						itemCode: formData.itemCode,
+						name: formData.name,
+						description: formData.description,
+						price: formData.price,
+						stock: formData.stock,
+						status: formData.status,
+						category: formData.category,
+						expiryDate: expiryDateToSave
+					})
 				});
 
+				if (!response.ok) {
+					throw new Error('Failed to update product');
+				}
+
+				// Handle image upload separately using service
 				if (formData.imageFile) {
 					if (selectedProduct.imageUrl) {
 						await productService.deleteProductImage(selectedProduct.imageUrl);
@@ -112,23 +126,58 @@
 						formData.imageFile,
 						selectedProduct.id!
 					);
-					await productService.updateProduct(selectedProduct.id!, { imageUrl });
+					// Update with new image URL using API
+					await fetch('/api/products', {
+						method: 'PATCH',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({
+							productId: selectedProduct.id,
+							imageUrl
+						})
+					});
 				}
 			} else {
-				const productId = await productService.addProduct({
-					itemCode: formData.itemCode,
-					name: formData.name,
-					description: formData.description,
-					price: formData.price,
-					stock: formData.stock,
-					status: formData.status,
-					category: formData.category,
-					expiryDate: expiryDateToSave
+				// Create new product using API
+				const response = await fetch('/api/products', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						itemCode: formData.itemCode,
+						name: formData.name,
+						description: formData.description,
+						price: formData.price,
+						stock: formData.stock,
+						status: formData.status,
+						category: formData.category,
+						expiryDate: expiryDateToSave
+					})
 				});
 
+				if (!response.ok) {
+					throw new Error('Failed to create product');
+				}
+
+				const result = await response.json();
+				const productId = result.productId;
+
+				// Handle image upload separately using service
 				if (formData.imageFile) {
 					const imageUrl = await productService.uploadProductImage(formData.imageFile, productId);
-					await productService.updateProduct(productId, { imageUrl });
+					// Update with new image URL using API
+					await fetch('/api/products', {
+						method: 'PATCH',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({
+							productId,
+							imageUrl
+						})
+					});
 				}
 			}
 
@@ -160,10 +209,24 @@
 
 	async function deleteProduct(product: Product) {
 		try {
-			await productService.deleteProduct(product.id!);
+			// Delete product using API
+			const response = await fetch('/api/products', {
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ productId: product.id })
+			});
+
+			if (!response.ok) {
+				throw new Error('Failed to delete product');
+			}
+
+			// Delete image using service if it exists
 			if (product.imageUrl) {
 				await productService.deleteProductImage(product.imageUrl);
 			}
+			
 			await loadProducts();
 		} catch (error) {
 			console.error('Error deleting product:', error);
@@ -236,11 +299,24 @@
 			</select>
 		</div>
 		<button
-			on:click={openAddModal}
-			class="bg-amber-300 text-black px-6 py-3 rounded-lg hover:bg-amber-400 transition-colors font-semibold ml-4"
+			class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors font-semibold"
+			on:click={() => {
+				searchTerm = '';
+				selectedCategory = 'All';
+				sortBy = 'name-asc';
+			}}
 		>
-			+ Add New Product
+			Clear Filters
 		</button>
+	</div>
+
+	<div class="flex mb-5 justify-between">
+		<p class="font-bold text-xl">
+			Products: 
+			<span class="text-lg font-normal">
+				({filteredProducts.length} of {$products?.length || 0})
+			</span>
+		</p>
 	</div>
 
 	{#if errorMessage}
@@ -318,6 +394,15 @@
 			{/each}
 		</div>
 	{/if}
+
+	<div class="flex justify-end mt-8">
+		<button
+			on:click={openAddModal}
+			class="bg-amber-300 text-black px-8 py-4 rounded-lg hover:bg-amber-400 transition-colors font-semibold text-lg"
+		>
+			+ Add New Product
+		</button>
+	</div>
 </div>
 
 <Modal show={showModal} onClose={closeModal}>
@@ -454,9 +539,9 @@
 			</div>
 		</div>
 
-		<div class="flex space-x-3 mt-6">
+		<div class="flex justify-end gap-3 mt-6">
 			<button
-				class="text-black px-6 py-2 rounded transition-colors flex-1 font-medium"
+				class="text-black px-6 py-2 rounded transition-colors font-medium"
 				style="background-color: #fed22e;"
 				on:mouseenter={(e) => { 
 					const target = e.target as HTMLButtonElement;
@@ -475,7 +560,7 @@
 				Save Changes
 			</button>
 			<button
-				class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition-colors flex-1 font-medium"
+				class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition-colors font-medium"
 				on:click={closeModal}
 			>
 				Cancel
@@ -618,9 +703,9 @@
 			</div>
 		</div>
 
-		<div class="flex space-x-3 mt-6">
+		<div class="flex justify-end gap-3 mt-6">
 			<button
-				class="text-black px-6 py-2 rounded transition-colors flex-1 font-medium"
+				class="text-black px-6 py-2 rounded transition-colors font-medium"
 				style="background-color: #fed22e;"
 				on:mouseenter={(e) => { 
 					const target = e.target as HTMLButtonElement;
@@ -639,7 +724,7 @@
 				Add Product
 			</button>
 			<button
-				class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition-colors flex-1 font-medium"
+				class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition-colors font-medium"
 				on:click={closeModal}
 			>
 				Cancel
