@@ -236,10 +236,14 @@
 			</select>
 		</div>
 		<button
-			on:click={openAddModal}
-			class="bg-amber-300 text-black px-6 py-3 rounded-lg hover:bg-amber-400 transition-colors font-semibold ml-4"
+			class="bg-gray-600 text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors font-semibold"
+			on:click={() => {
+				searchTerm = '';
+				selectedCategory = 'All';
+				sortBy = 'name-asc';
+			}}
 		>
-			+ Add New Product
+			Clear Filters
 		</button>
 	</div>
 
@@ -318,6 +322,15 @@
 			{/each}
 		</div>
 	{/if}
+
+	<div class="flex justify-end mt-8">
+		<button
+			on:click={openAddModal}
+			class="bg-amber-300 text-black px-8 py-4 rounded-lg hover:bg-amber-400 transition-colors font-semibold text-lg"
+		>
+			+ Add New Product
+		</button>
+	</div>
 </div>
 
 <Modal show={showModal} onClose={closeModal}>
@@ -454,9 +467,9 @@
 			</div>
 		</div>
 
-		<div class="flex space-x-3 mt-6">
+		<div class="flex justify-end gap-3 mt-6">
 			<button
-				class="text-black px-6 py-2 rounded transition-colors flex-1 font-medium"
+				class="text-black px-6 py-2 rounded transition-colors font-medium"
 				style="background-color: #fed22e;"
 				on:mouseenter={(e) => { 
 					const target = e.target as HTMLButtonElement;
@@ -475,7 +488,7 @@
 				Save Changes
 			</button>
 			<button
-				class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition-colors flex-1 font-medium"
+				class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition-colors font-medium"
 				on:click={closeModal}
 			>
 				Cancel
@@ -618,9 +631,9 @@
 			</div>
 		</div>
 
-		<div class="flex space-x-3 mt-6">
+		<div class="flex justify-end gap-3 mt-6">
 			<button
-				class="text-black px-6 py-2 rounded transition-colors flex-1 font-medium"
+				class="text-black px-6 py-2 rounded transition-colors font-medium"
 				style="background-color: #fed22e;"
 				on:mouseenter={(e) => { 
 					const target = e.target as HTMLButtonElement;
@@ -639,7 +652,7 @@
 				Add Product
 			</button>
 			<button
-				class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition-colors flex-1 font-medium"
+				class="bg-gray-500 text-white px-6 py-2 rounded hover:bg-gray-600 transition-colors font-medium"
 				on:click={closeModal}
 			>
 				Cancel
