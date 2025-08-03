@@ -3,6 +3,34 @@
 
 	let { data } = $props();
 	let { products } = $derived(data);
+	let searchTerm = $state('');
+	let selectedCategory = $state('All');
+	let categories = $derived(['All', ...new Set(products.map(p => p.category))]);
+
+	$effect(() => {
+		console.log('Products loaded:', products.length);
+		console.log('First product:', products[0]);
+		console.log('Unique categories:', [...new Set(products.map(p => p.category))]);
+		console.log('Current search term:', searchTerm);
+		console.log('Selected category:', selectedCategory);
+	});
+
+	let filteredProducts = $derived(products.filter(
+		(product) => {
+			const categoryMatch = selectedCategory === 'All' || product.category === selectedCategory;
+			const searchMatch = searchTerm === '' || 
+				product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				product.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
+				(product.itemCode && product.itemCode.toLowerCase().includes(searchTerm.toLowerCase()));
+			
+			// if (searchTerm === 'lomo') {
+			// 	console.log('Product:', product.name, 'Category:', product.category, 'ItemCode:', product.itemCode);
+			// 	console.log('Search match:', searchMatch, 'Category match:', categoryMatch);
+			// }
+			
+			return categoryMatch && searchMatch;
+		}
+	));
 </script>
 
 <svelte:head>
@@ -69,41 +97,89 @@
 	<div class="flex flex-col px-32 py-8 mt-4">
 		<h1 class="text-[#333] font-spaceGrotesk text-7xl font-bold">Shop</h1>
 
-		<div class="flex flex-wrap justify-start gap-x-30 gap-y-10 py-10">
-			{#each products as product}
-				<div
-					class="px-5 py-2.5 items-center self-stretch bg-[#fafafa] rounded-2xl
-				flex flex-col relative"
+		<div class="flex flex-col sm:flex-row gap-4 my-6">
+			<div class="flex-1">
+				<input
+					type="text"
+					placeholder="Search products by name, category, or item code..."
+					class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent"
+					bind:value={searchTerm}
+				/>
+			</div>
+			<div class="flex items-center gap-2">
+				<label for="category-filter" class="text-sm font-semibold text-gray-700 whitespace-nowrap">
+					Category:
+				</label>
+				<select
+					id="category-filter"
+					bind:value={selectedCategory}
+					class="px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-300 focus:border-transparent min-w-[200px]"
 				>
-					<div class="image-2 flex items-center justify-center relative bg-[#FAFAFA]">
-						<a href={`/store/${product.id}`}>
-							{#if product.imageUrl}
-								<img src={product.imageUrl} alt={product.name} class="product-img" />
-							{:else}
-								<span class="text-gray-400">No Image</span>
-							{/if}
-						</a>
-						{#if product.status !== 'available'}
-							<span
-								class="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded z-10"
-								>Sold Out</span
-							>
-						{/if}
-					</div>
-					<div class="flex flex-col flex-1 justify-between items-center py-10 w-full min-h-[160px]">
-						<div class="w-full">
-							<p class="product-2-description">{product.category}</p>
-							<p class="product-2-font truncate-name">
-								<a href={`/store/${product.id}`} class="hover:text-amber-400">{product.name}</a>
-							</p>
-						</div>
-						<div class="w-full flex flex-col items-center mt-4">
-							<p class="text-sm text-gray-600 mt-2">₱{product.price.toFixed(2)}</p>
-							<p class="text-xs text-gray-500 mt-1">Stock: {product.stock}</p>
-						</div>
-					</div>
+					{#each categories as category}
+						<option value={category}>{category}</option>
+					{/each}
+				</select>
+			</div>
+		</div>
+
+		<div class="mb-4">
+			<p class="text-sm text-gray-600">
+				Showing {filteredProducts.length} of {products.length} products
+				{#if searchTerm || selectedCategory !== 'All'}
+					{#if searchTerm}
+						for "{searchTerm}"
+					{/if}
+					{#if selectedCategory !== 'All'}
+						in category "{selectedCategory}"
+					{/if}
+				{/if}
+			</p>
+		</div>
+
+		<div class="flex flex-wrap justify-start gap-x-30 gap-y-10 py-10">
+			{#if filteredProducts.length === 0}
+				<div class="w-full flex flex-col items-center justify-center py-20">
+					<p class="text-lg text-gray-600 mb-2">No products found</p>
+					{#if searchTerm || selectedCategory !== 'All'}
+						<p class="text-sm text-gray-500">Try adjusting your search or filter criteria</p>
+					{/if}
 				</div>
-			{/each}
+			{:else}
+				{#each filteredProducts as product}
+					<div
+						class="px-5 py-2.5 items-center self-stretch bg-[#fafafa] rounded-2xl
+					flex flex-col relative"
+					>
+						<div class="image-2 flex items-center justify-center relative bg-[#FAFAFA]">
+							<a href={`/store/${product.id}`}>
+								{#if product.imageUrl}
+									<img src={product.imageUrl} alt={product.name} class="product-img" />
+								{:else}
+									<span class="text-gray-400">No Image</span>
+								{/if}
+							</a>
+							{#if product.status !== 'available'}
+								<span
+									class="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded z-10"
+									>Sold Out</span
+								>
+							{/if}
+						</div>
+						<div class="flex flex-col flex-1 justify-between items-center py-10 w-full min-h-[160px]">
+							<div class="w-full">
+								<p class="product-2-description">{product.category}</p>
+								<p class="product-2-font truncate-name">
+									<a href={`/store/${product.id}`} class="hover:text-amber-400">{product.name}</a>
+								</p>
+							</div>
+							<div class="w-full flex flex-col items-center mt-4">
+								<p class="text-sm text-gray-600 mt-2">₱{product.price.toFixed(2)}</p>
+								<p class="text-xs text-gray-500 mt-1">Stock: {product.stock}</p>
+							</div>
+						</div>
+					</div>
+				{/each}
+			{/if}
 		</div>
 	</div>
 </div>
