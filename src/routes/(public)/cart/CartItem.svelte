@@ -35,7 +35,7 @@
 		});
 
 		let timeout: NodeJS.Timeout;
-		quill.on('selection-change', (range) => {
+		quill.on('selection-change', (range: any) => {
 			function saveContent() {
 				const html = quill.getSemanticHTML();
 
