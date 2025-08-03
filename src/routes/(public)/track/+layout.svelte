@@ -1,9 +1,13 @@
 <script lang="ts">
-	import { goto } from '$app/navigation';
+	import { goto, preloadData } from '$app/navigation';
 
 	let { children } = $props();
 
 	let value = $state('');
+
+	function preloadTrack() {
+		preloadData('/track/' + value);
+	}
 </script>
 
 <svelte:head>
@@ -26,7 +30,14 @@
 			class="bg-slate-300 p-2 rounded-md w-64"
 			bind:value
 		/>
-		<button type="submit" class="bg-amber-400 px-6 py-2 rounded-md"> Track Order </button>
+		<button
+			type="submit"
+			onfocus={preloadTrack}
+			onmouseover={preloadTrack}
+			class="bg-amber-400 px-6 py-2 rounded-md"
+		>
+			Track Order
+		</button>
 	</div>
 </form>
 
