@@ -1,5 +1,8 @@
 <script lang="ts">
 	import { user } from '$lib/stores/auth';
+	import background1 from '$lib/imgs/backgrounds/img039.jpg';
+	import background2 from '$lib/imgs/backgrounds/img60.jpg';
+	import background3 from '$lib/imgs/backgrounds/img61.jpg';
 
 	let { data } = $props();
 	let { products } = $derived(data);
@@ -64,7 +67,7 @@
 				class="products flex flex-col cursor-pointer shadow-lg min-w-[260px] max-w-[340px] bg-white rounded-2xl overflow-hidden"
 			>
 				<img
-					src="https://placehold.co/350x250"
+					src={background1 || 'https://placehold.co/350x250'}
 					alt="Disposable Camera"
 					class="w-full h-36 object-cover"
 				/>
@@ -77,7 +80,7 @@
 				href="/store/35mm"
 				class="products flex flex-col cursor-pointer shadow-lg min-w-[260px] max-w-[340px] bg-white rounded-2xl overflow-hidden"
 			>
-				<img src="https://placehold.co/350x250" alt="35mm Film" class="w-full h-36 object-cover" />
+				<img src={background2 || 'https://placehold.co/350x250'} alt="35mm Film" class="w-full h-36 object-cover" />
 				<div class="bg-amber-300 flex flex-col items-center justify-center rounded-b-2xl pt-2 pb-2">
 					<p class="font-bold underline text-base mb-1">35mm Services</p>
 					<p class="text-sm">from P150</p>
@@ -87,7 +90,7 @@
 				href="/store/120mm"
 				class="products flex flex-col cursor-pointer shadow-lg min-w-[260px] max-w-[340px] bg-white rounded-2xl overflow-hidden"
 			>
-				<img src="https://placehold.co/350x250" alt="120mm Film" class="w-full h-36 object-cover" />
+				<img src= {background3 || 'https://placehold.co/350x250'} alt="120mm Film" class="w-full h-36 object-cover" />
 				<div class="bg-amber-300 flex flex-col items-center justify-center rounded-b-2xl pt-2 pb-2">
 					<p class="font-bold underline text-base mb-1">120 Film Services</p>
 					<p class="text-sm">from P200</p>

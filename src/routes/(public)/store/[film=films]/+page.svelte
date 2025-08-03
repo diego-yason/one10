@@ -7,6 +7,9 @@
 	import type { CartItem } from '$types/Cart';
 	import { addonNames } from './schema.js';
 
+	import background1 from '$lib/imgs/backgrounds/DSC05586.jpeg';
+	import background2 from '$lib/imgs/backgrounds/img086.jpg';
+
 	let { data, form }: PageProps = $props();
 	const { film, filmCode } = $derived(data);
 
@@ -42,13 +45,22 @@
 	<title>{film} Development | Services | One10 Studio Labs</title>
 </svelte:head>
 
+<div class="px-30">
+	<a href="/store" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors">
+		<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+		</svg>
+		Back to Store
+	</a>
+</div>
+
 <div class="flex flex-col max-w-4xl w-full ml-32 mx-auto">
 	<div class="flex flex-col items-start mb-12">
 		<h2 class="font-spaceGrotesk font-bold text-7xl mb-8">
 			Develop <span class="textOutline text-transparent">+ Scanning</span>
 		</h2>
 		<img
-			src="https://placehold.co/350x250"
+			src={background1 || 'https://placehold.co/350x250'}
 			alt={film}
 			class="rounded-lg w-[350px] h-[250px] object-cover bg-white"
 		/>
@@ -217,7 +229,7 @@
 	</div>
 	<div
 		class="flex-1 flex flex-col justify-center items-center relative min-h-[300px] bg-cover bg-center"
-		style="background-image: url('https://placehold.co/350x250');"
+		style="background-image: url({background2});"
 	>
 		<h2 class="text-3xl font-bold mb-6 text-black">Got some questions?</h2>
 		<a href="/faq" class="bg-amber-300 rounded-4xl px-8 py-3 font-bold text-black text-lg"
@@ -225,7 +237,7 @@
 		>
 	</div>
 </section>
-{#if !$user}
+<!-- {#if !$user}
 	<div class="flex justify-between px-40 background-color py-24">
 		<div>
 			<h2 class="font-spaceGrotesk font-bold text-8xl text-white mb-7">
@@ -237,7 +249,7 @@
 			Register / Log in
 		</a>
 	</div>
-{/if}
+{/if} -->
 
 <style>
 	input[type='range'].w-40::-webkit-slider-runnable-track {
@@ -245,9 +257,6 @@
 	}
 	input[type='range'].w-40::-webkit-slider-thumb {
 		-webkit-appearance: none;
-	}
-	input[type='range'].w-40::-webkit-slider-thumb {
-		/* No size or color changes here */
 	}
 	input[type='range'].w-40::-webkit-slider-runnable-track {
 		background: linear-gradient(

@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
 	import { user, isStaff } from '$lib/stores/auth';
 	import { printingSchema, validateField } from '$lib/validation';
 	import { cart, showToast, add } from '$lib/stores/cart';
@@ -96,6 +96,15 @@
 		showToast('Added to cart!');
 	};
 </script>
+
+<div class="px-30">
+	<a href="/store" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors">
+		<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+		</svg>
+		Back to Store
+	</a>
+</div>
 
 <div class="flex flex-col max-w-4xl w-full ml-32 mx-auto">
 	<div class="flex flex-col items-start mb-12">
@@ -364,4 +373,4 @@
 			>Register / Log in</a
 		>
 	</div>
-{/if}
+{/if} -->

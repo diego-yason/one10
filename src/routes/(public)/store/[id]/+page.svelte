@@ -26,7 +26,7 @@
 	<title>{product.name} | Products | One10 Studio Labs</title>
 </svelte:head>
 
-<div class="px-35 py-4">
+<div class="px-30">
 	<a href="/store" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors">
 		<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
@@ -36,7 +36,7 @@
 </div>
 
 <div
-	class="flex flex-col md:flex-row items-center justify-center min-h-[700px] py-4 px-4 bg-[#6b7283]"
+	class="flex flex-col md:flex-row items-center justify-center min-h-[700px] pb-4 px-4 bg-[#6b7283]"
 >
 	<div class="flex flex-col md:flex-row bg-transparent w-full max-w-3xl mx-auto rounded-2xl">
 		<div
@@ -70,7 +70,7 @@
 				/>
 				<button
 					class="bg-amber-300 px-6 py-2 rounded-4xl font-bold text-black disabled:opacity-50"
-					on:click={addToCart}
+					onclick={addToCart}
 					disabled={product.stock === 0}>Add to cart</button
 				>
 			</div>
