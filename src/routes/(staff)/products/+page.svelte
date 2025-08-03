@@ -92,18 +92,32 @@
 		try {
 			const expiryDateToSave =
 				formData.category !== 'Non-Film' && formData.expiryDate ? formData.expiryDate : null;
+			
 			if (selectedProduct) {
-				await productService.updateProduct(selectedProduct.id!, {
-					itemCode: formData.itemCode,
-					name: formData.name,
-					description: formData.description,
-					price: formData.price,
-					stock: formData.stock,
-					status: formData.status as typeof selectedProduct.status,
-					category: formData.category,
-					expiryDate: expiryDateToSave
+				// Update existing product using API
+				const response = await fetch('/api/products', {
+					method: 'PATCH',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						productId: selectedProduct.id,
+						itemCode: formData.itemCode,
+						name: formData.name,
+						description: formData.description,
+						price: formData.price,
+						stock: formData.stock,
+						status: formData.status,
+						category: formData.category,
+						expiryDate: expiryDateToSave
+					})
 				});
 
+				if (!response.ok) {
+					throw new Error('Failed to update product');
+				}
+
+				// Handle image upload separately using service
 				if (formData.imageFile) {
 					if (selectedProduct.imageUrl) {
 						await productService.deleteProductImage(selectedProduct.imageUrl);
@@ -112,23 +126,58 @@
 						formData.imageFile,
 						selectedProduct.id!
 					);
-					await productService.updateProduct(selectedProduct.id!, { imageUrl });
+					// Update with new image URL using API
+					await fetch('/api/products', {
+						method: 'PATCH',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({
+							productId: selectedProduct.id,
+							imageUrl
+						})
+					});
 				}
 			} else {
-				const productId = await productService.addProduct({
-					itemCode: formData.itemCode,
-					name: formData.name,
-					description: formData.description,
-					price: formData.price,
-					stock: formData.stock,
-					status: formData.status,
-					category: formData.category,
-					expiryDate: expiryDateToSave
+				// Create new product using API
+				const response = await fetch('/api/products', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json'
+					},
+					body: JSON.stringify({
+						itemCode: formData.itemCode,
+						name: formData.name,
+						description: formData.description,
+						price: formData.price,
+						stock: formData.stock,
+						status: formData.status,
+						category: formData.category,
+						expiryDate: expiryDateToSave
+					})
 				});
 
+				if (!response.ok) {
+					throw new Error('Failed to create product');
+				}
+
+				const result = await response.json();
+				const productId = result.productId;
+
+				// Handle image upload separately using service
 				if (formData.imageFile) {
 					const imageUrl = await productService.uploadProductImage(formData.imageFile, productId);
-					await productService.updateProduct(productId, { imageUrl });
+					// Update with new image URL using API
+					await fetch('/api/products', {
+						method: 'PATCH',
+						headers: {
+							'Content-Type': 'application/json'
+						},
+						body: JSON.stringify({
+							productId,
+							imageUrl
+						})
+					});
 				}
 			}
 
@@ -160,10 +209,24 @@
 
 	async function deleteProduct(product: Product) {
 		try {
-			await productService.deleteProduct(product.id!);
+			// Delete product using API
+			const response = await fetch('/api/products', {
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({ productId: product.id })
+			});
+
+			if (!response.ok) {
+				throw new Error('Failed to delete product');
+			}
+
+			// Delete image using service if it exists
 			if (product.imageUrl) {
 				await productService.deleteProductImage(product.imageUrl);
 			}
+			
 			await loadProducts();
 		} catch (error) {
 			console.error('Error deleting product:', error);
@@ -245,6 +308,15 @@
 		>
 			Clear Filters
 		</button>
+	</div>
+
+	<div class="flex mb-5 justify-between">
+		<p class="font-bold text-xl">
+			Products: 
+			<span class="text-lg font-normal">
+				({filteredProducts.length} of {$products?.length || 0})
+			</span>
+		</p>
 	</div>
 
 	{#if errorMessage}
