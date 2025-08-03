@@ -19,8 +19,7 @@ interface Order {
 	}[];
 	grandTotal: number;
 	address: {
-		line1: string;
-		line2?: string;
+		address: string;
 		city: string;
 		province: string;
 		postalCode: string;
@@ -34,4 +33,7 @@ interface Order {
 		| 'cancelled'
 		| 'refunded';
 	maya_checkoutId?: string;
+	name: string;
+	email: string;
+	phone: string;
 }

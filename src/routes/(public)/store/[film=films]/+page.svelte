@@ -16,7 +16,7 @@
 	let returningNegatives = $state('');
 	let scanOption = $state('');
 
-	import prices from './priceRef.json';
+	import prices from '$lib/references/filmDevPrices.json';
 	const { pushProcess: pushProcessPrice, scan: scanAddon, process: processPrice } = prices;
 
 	let isGeneric = $state(false);
@@ -37,6 +37,10 @@
 		return push + scan + process;
 	});
 </script>
+
+<svelte:head>
+	<title>{film} Development | Services | One10 Studio Labs</title>
+</svelte:head>
 
 <div class="flex flex-col max-w-4xl w-full ml-32 mx-auto">
 	<div class="flex flex-col items-start mb-12">

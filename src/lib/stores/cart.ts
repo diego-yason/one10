@@ -80,23 +80,58 @@ export function showToast(message: string) {
 	setTimeout(() => toast.set(null), 2000);
 }
 
+import { process, pushProcess, scan } from '$lib/references/filmDevPrices.json';
 // verify with server, and ensure no items with zero quantity
-export async function verifyCart() {
-	return; //disable for now
+export async function verifyCart(): Promise<boolean> {
+	// return; //disable for now
 	const tempCart = Object.create(cartStatic) as CartItem[];
 
 	const promises = tempCart.map(async (item) => {
+		// NOTE: this method of checking if it is a service is NOT compatible with printing, for future purposes.
+		if (item.id.startsWith('dev-')) {
+			// For services, we don't need to check availability
+			if (item.quantity <= 0) {
+				showToast(`Service ${item.name} is no longer available.`);
+				return null;
+			}
+
+			// check for price
+			if (item.price !== process[item.details.process as keyof typeof process]) {
+				showToast(`Price for ${item.name} has been updated.`);
+				item.price = process[item.details.process as keyof typeof process];
+			}
+
+			if (item.addons)
+				item.addons.map((addon) => {
+					let price;
+					if (addon.id === 'scan') {
+						price = scan[item.details.process as keyof typeof scan] ?? 0;
+					} else if (addon.id === 'pushProcessing') {
+						price = pushProcess[addon.quantity!] ?? 0;
+					}
+
+					if (price && addon.price !== price) {
+						showToast(`Price for ${addon.name} has been updated.`);
+						addon.price = price;
+					}
+
+					return addon;
+				});
+
+			return item;
+		}
+
 		const q = query(collection(db, 'products'), where('itemCode', '==', item.id), limit(1));
 		const querySnapshot = await getDocs(q);
 		if (querySnapshot.empty) return null;
 
-		const doc = querySnapshot.docs[0];
-		if (!doc.exists()) {
+		const docSnapshot = querySnapshot.docs[0];
+		if (!docSnapshot.exists()) {
 			showToast(`Item ${item.name} is no longer available.`);
 			return null;
 		}
 
-		const data = doc.data();
+		const data = docSnapshot.data();
 		if (data.quantity < item.quantity) {
 			showToast(`Only ${data.quantity} of ${item.name} is available.`);
 			item.quantity = data.quantity;
@@ -120,4 +155,13 @@ export async function verifyCart() {
 	)) as CartItem[];
 
 	cart.set(newCart);
+
+	console.log('Cart verified and updated.');
+	return !_.isEqual(cartStatic, newCart);
+}
+
+export function getTotalPrice(item: CartItem): number {
+	return (
+		(item.price + (item.addons?.reduce((sum, addon) => sum + addon.price, 0) ?? 0)) * item.quantity
+	);
 }

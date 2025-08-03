@@ -2,8 +2,7 @@ import { filmOrderSchema, addonNames } from './schema';
 import { fail } from '@sveltejs/kit';
 import type { z } from 'zod';
 import type { CartItem } from '$types/Cart';
-import { process, pushProcess, scan } from './priceRef.json';
-type FilmOrder = z.infer<typeof filmOrderSchema>;
+import { process, pushProcess, scan } from '$lib/references/filmDevPrices.json';
 
 export const actions = {
 	default: async ({ request, params }) => {

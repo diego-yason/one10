@@ -20,6 +20,10 @@
 	import logo from '$lib/imgs/logo/white.png';
 </script>
 
+<svelte:head>
+	<title>Home | One10 Studio Labs</title>
+</svelte:head>
+
 <div class="min-h-screen flex flex-col">
 	<nav
 		class="flex justify-between py-10 z-10 px-32 font-poppins text-white w-full"
@@ -31,7 +35,7 @@
 			</a>
 			<a href="/" class:font-semibold={page.url.pathname === '/'}>Home</a>
 			<a href="/store" class:font-semibold={page.url.pathname.startsWith('/store')}>Store</a>
-			<a href="#">Track</a>
+			<a href="/track" class:font-semibold={page.url.pathname === '/track'}>Track</a>
 			<a href="/faq" class:font-semibold={page.url.pathname === '/faq'}>FAQs</a>
 		</div>
 		<div class="flex flex-row gap-14 items-center">
@@ -42,13 +46,13 @@
 						>Sign Out</button
 					>
 				{/if}
-				<a href="/cart">Cart</a>
+				<!-- <a href="/cart">Cart</a>
 				<button onclick={handleSignOut} class="hover:text-amber-300 transition-colors"
 					>Sign Out</button
-				>
+				> -->
 			{:else}
 				<a href="/cart">Cart</a>
-				<a href="/login">Log In</a>
+				<!-- <a href="/login">Log In</a> -->
 			{/if}
 		</div>
 	</nav>

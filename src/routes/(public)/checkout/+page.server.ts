@@ -2,10 +2,11 @@ import type { Actions } from './$types';
 import { PUBLIC_MAYA_KEY } from '$env/static/public';
 import { dev } from '$app/environment';
 import { fail, redirect } from '@sveltejs/kit';
-import { cart, verifyCart } from '$lib/stores/cart';
-import _ from 'lodash';
+import { verifyCart } from '$lib/server/verifyCart';
 import type { CartItem } from '$types/Cart';
 import type { Order } from '$types/firebase/Orders';
+
+import { checkoutSchema } from './schema';
 
 import { adminDb } from '$lib/server/firebase';
 
@@ -13,20 +14,38 @@ const baseUrl = dev ? new URL('http://localhost:5173') : new URL('https://your-p
 
 export const actions = {
 	default: async ({ fetch, request }) => {
-		// TODO: implement logic for dynamic checkout
-		// pretend a full cart
 		const formData = await request.formData();
-		const data = JSON.parse(formData.get('cart') as string) as CartItem[]; // TODO: set to cart from request
 
-		cart.set(data);
+		// validate user data
+		const {
+			success,
+			data: userData,
+			error
+		} = checkoutSchema.safeParse({
+			address: formData.get('address'),
+			city: formData.get('city'),
+			email: formData.get('email'),
+			fullName: formData.get('fullName'),
+			province: formData.get('province'),
+			phone: formData.get('phone'),
+			zip: formData.get('zip')
+		});
+		if (!success) {
+			const issues = Object.fromEntries(
+				error.issues.map((issue) => [issue.path.join('.'), issue.message])
+			);
+			return fail(400, { error: true, issues });
+		}
+		const data = JSON.parse(formData.get('cart') as string) as CartItem[];
+
 		// verify
-		verifyCart();
-		// cart changed, need to reconfirm
-		// if (!_.isEqual(cart, data)) return redirect(303, '/cart?invalid-cart');
+		console.log('calling verify cart');
+		const isCartValid = await verifyCart(data);
+		if (!isCartValid) return redirect(303, '/cart?invalid-cart');
 
 		let grandTotal = 0;
 		// process cart
-		const items = data.map(({ name, price, addons, id, quantity }) => {
+		const items = data.map(({ name, price, addons, id, quantity, details }) => {
 			// add up addons
 			const total = addons?.reduce((sum, addon) => sum + (addon?.price ?? 0), price) ?? price;
 			grandTotal += total * quantity;
@@ -39,7 +58,9 @@ export const actions = {
 				},
 				totalAmount: {
 					value: total * quantity
-				}
+				},
+				addons,
+				details
 			};
 		});
 
@@ -51,20 +72,22 @@ export const actions = {
 				quantity: item.quantity,
 				name: item.name,
 				price: item.amount.value,
-				addons: [],
-				details: {},
+				addons: item.addons ?? [],
+				details: item.details ?? {},
 				notes: ''
 			})),
 			grandTotal,
 			address: {
-				line1: '123 Main St',
-				line2: 'Apt 4B',
-				city: 'Metropolis',
-				province: 'Gotham',
-				postalCode: '12345'
+				address: userData.address,
+				city: userData.city,
+				province: userData.province,
+				postalCode: userData.zip
 			},
 			notes: 'Please deliver between 9am and 5pm.',
-			status: 'pending_payment'
+			status: 'pending_payment',
+			name: userData.fullName,
+			email: userData.email,
+			phone: userData.phone
 		};
 
 		const record = await adminDb.collection('orders').add(order);
@@ -119,6 +142,11 @@ export const actions = {
 			clearTimeout(responseTimeout);
 
 			console.log('Successfully created checkout:', checkoutId);
+			if (redirectUrl)
+				return {
+					success: true,
+					redirectUrl
+				};
 		} catch (error) {
 			// Clear any remaining timeouts
 			clearTimeout(connectionTimeout);
@@ -135,6 +163,7 @@ export const actions = {
 				message: 'An error occurred while processing your request. Please try again later.'
 			});
 		}
-		if (redirectUrl) return redirect(303, redirectUrl);
+
+		return fail(500);
 	}
 } satisfies Actions;

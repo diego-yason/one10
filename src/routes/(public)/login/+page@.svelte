@@ -82,15 +82,29 @@
 			errorMessages = [getFirebaseErrorMessage(err)];
 		}
 	};
+
+	import background from '$lib/imgs/backgrounds/img24.jpg';
+	import logo from '$lib/imgs/logo/white.png';
+	import Facebook from '$lib/imgs/logo/Facebook.png';
+	import Google from '$lib/imgs/logo/Google.svg';
 </script>
 
-<div class="login-container">
-	<div class="mx-auto w-96 text-gray-100">
+<svelte:head>
+	<title>Login | One10 Studio Labs</title>
+</svelte:head>
+
+<div class="login-container relative">
+	<div class="absolute inset-0 z-0 brightness-50">
+		<img src={background} class="w-full h-full object-cover" alt="" />
+	</div>
+	<div class="mx-auto absolute z-10 w-96 text-gray-100">
 		<!-- TODO: add 110 logo -->
 		<!-- TODO: add "Studio" outline -->
-		<span class="text-4xl font-spaceGrotesk font-bold">
-			<img src="https://placehold.co/60x50" alt="" class="inline" />
-			<span class="textOutline text-transparent">Studio</span> Lab
+		<span
+			class="text-4xl font-spaceGrotesk font-bold flex items-baseline gap-2 leading-none text-white"
+		>
+			<img src={logo} class="w-[60px] inline object-contain" alt="logo" />
+			<p><span class="textOutline text-transparent">Studio</span> Lab</p>
 		</span>
 
 		<div class="mb-7 mt-10">
@@ -154,17 +168,25 @@
 		>
 
 		<div class="mt-5 mb-11">
-			<p>Or login using</p>
-			<div class="flex gap-2.5 mb-5">
+			<p class="mb-2">Or login using</p>
+			<div class="flex gap-4 mb-5">
 				<button on:click={googleLogin} class=""
-					><img src="https://placehold.co/40" alt="Login with Google" /></button
+					><img
+						src={Google}
+						class="w-[40px] object-contain aspect-square"
+						alt="Login with Google"
+					/></button
 				>
 				<button on:click={facebookLogin} class=""
-					><img src="https://placehold.co/40" alt="Login with Facebook" /></button
+					><img
+						src={Facebook}
+						class="w-[40px] object-contain aspect-square"
+						alt="Login with Facebook"
+					/></button
 				>
 			</div>
 
-			Not registered?<a href="/register" class="text-brand underline">Create an account</a>
+			<p>Not registered? <a href="/register" class="text-brand underline">Create an account</a></p>
 		</div>
 	</div>
 </div>
@@ -175,9 +197,5 @@
 		justify-content: center;
 		align-items: center;
 		min-height: 100vh;
-		background-image: url('https://www.pbs.org/wnet/nature/files/2021/01/pexels-denis-linine-714258.png');
-		background-size: cover;
-		background-position: center;
-		background-repeat: no-repeat;
 	}
 </style>

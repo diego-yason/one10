@@ -22,6 +22,10 @@
 	}
 </script>
 
+<svelte:head>
+	<title>{product.name} | Products | One10 Studio Labs</title>
+</svelte:head>
+
 <div
 	class="flex flex-col md:flex-row items-center justify-center min-h-[700px] py-4 px-4 bg-[#6b7283]"
 >

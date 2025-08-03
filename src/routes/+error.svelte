@@ -25,8 +25,9 @@
 		},
 		500: {
 			title: 'Internal Server Error',
-			message: 'Something went wrong on our end. Our team has been notified.',
-			suggestion: 'Please try again later or try a different action.'
+			message: 'Something went wrong on our end.',
+			suggestion:
+				'Please try again later or try a different action. Inform support if the issue persists.'
 		},
 		502: {
 			title: 'Bad Gateway',

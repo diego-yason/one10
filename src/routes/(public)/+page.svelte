@@ -8,13 +8,15 @@
 
 	import { navHeight } from './+layout.svelte';
 
+	let container: HTMLElement;
 	let bg: HTMLElement;
 	let hero: HTMLElement;
 	onMount(() => {
 		loadProducts();
 		navHeight.subscribe((height) => {
 			bg.style.setProperty('top', `-${height}px`);
-			hero.style.setProperty('top', `calc(-${height}px + 50%)`);
+			hero.style.setProperty('top', `calc(-${height}px + 57%)`);
+			container.style.setProperty('height', `calc(100vh - ${height}px)`);
 		});
 	});
 
@@ -72,12 +74,18 @@
 	}
 
 	import logo from '$lib/imgs/logo/white.png';
-	import background from '$lib/imgs/backgrounds/img51.jpg';
+	import background1 from '$lib/imgs/backgrounds/img51.jpg';
+	import background2 from '$lib/imgs/backgrounds/img22.jpg';
+	import background3 from '$lib/imgs/backgrounds/img9.jpg';
+	import background4 from '$lib/imgs/backgrounds/img16.jpg';
+	import film from '$lib/imgs/icons/film.svg';
+	import prints from '$lib/imgs/icons/photoPrints.svg';
+	import studio from '$lib/imgs/icons/cameraIndoor.svg';
 </script>
 
-<div class="relative min-h-[700px] h-screen">
+<div class="relative min-h-[700px] h-[781px]" bind:this={container}>
 	<div class="absolute inset-0 z-0 brightness-50 -top-[130px]" bind:this={bg}>
-		<img src={background} alt="Background" class="w-full h-full object-cover" />
+		<img src={background1} alt="Background" class="w-full h-full object-cover" />
 	</div>
 	<div
 		class="flex flex-col items-center justify-center text-center z-10 relative
@@ -97,7 +105,9 @@
 	<div class="max-w-screen-xl w-full mx-auto">
 		<div class="flex flex-row justify-around gap-40 mb-28">
 			<div class="grow">
-				<h2 class="text-amber-300 uppercase font-spaceGrotesk text-sm">--- Our Mission</h2>
+				<h2 class="text-amber-300 uppercase font-spaceGrotesk text-sm">
+					<span class="tracking-[-0.2em]">——————————</span> Our Mission
+				</h2>
 				<p class="font-spaceGrotesk text-4xl text-white font-bold">
 					Photography leads us to more interpretations of reality.
 				</p>
@@ -109,39 +119,45 @@
 			</p>
 		</div>
 		<div class="flex gap-24">
-			<div>
-				<img src="https://placehold.co/72" alt="" class="mb-8" />
+			<div class="basis-1/3">
+				<img src={film} alt="" class="mb-8 h-[72px] aspect-square rotate-90" />
 				<p class="font-spaceGrotesk text-2xl text-white font-bold">Develop + Scan</p>
-				<p class="mt-5 mb-8">
-					Lorem ipsum dolor sit amet, consectetur adipisicing elit. Mollitia, ducimus. Sit animi
-					fugiat fuga mollitia! Voluptates.
+				<p class="mt-5 mb-8 text-white">
+					Get your film processed and scanned with care, ready for digital archiving.
 				</p>
-				<a href="/store" class="bg-amber-300 rounded-4xl px-6 py-2">Send us your film!</a>
+				<a href="/store" class="bg-amber-300 rounded-4xl px-6 py-2">Let us process your film</a>
 			</div>
-			<div>
-				<img src="https://placehold.co/72" alt="" class="mb-8" />
+			<div class="basis-1/3">
+				<img src={prints} alt="" class="mb-8 h-[72px] aspect-square" />
 				<p class="font-spaceGrotesk text-2xl text-white font-bold">Printing</p>
-				<p class="mt-5 mb-8">
-					Lorem ipsum dolor sit amet, consectetur adipisicing elit. Tempore est exercitationem velit
-					earum?
-				</p>
-				<a href="/store" class="bg-amber-300 rounded-4xl px-6 py-2">Print your work</a>
-			</div>
-			<div>
-				<img src="https://placehold.co/72" alt="" class="mb-8" />
-				<p class="font-spaceGrotesk text-2xl text-white font-bold">Studio Rental</p>
-				<p class="mt-5 mb-8">
-					Lorem ipsum dolor, sit amet consectetur adipisicing elit. Nam, at! Officiis unde
-					reprehenderit blanditiis optio.
+				<p class="mt-5 mb-8 text-white">
+					Bring your images to life with high-quality prints made for lasting memories.
 				</p>
 				<p class="text-amber-300">Coming soon</p>
+				<!-- <a href="/store" class="bg-amber-300 rounded-4xl px-6 py-2">Print your work</a> -->
+			</div>
+			<div class="basis-1/3">
+				<img src={studio} alt="" class="mb-8 h-[72px] aspect-square" />
+				<p class="font-spaceGrotesk text-2xl text-white font-bold">Studio Rental</p>
+				<p class="mt-5 mb-8 text-white">
+					A private creative space; perfect for portrait sessions, product shoots, and creative
+					projects. Flexible rental options for both pros and hobbyists, right here in Muntinlupa
+					City.
+				</p>
+				<p class="text-amber-300">Coming soon</p>
+				<!-- <a href="" class="bg-amber-300 rounded-4xl px-6 py-2">Book your shoot</a> -->
 			</div>
 		</div>
 	</div>
 </div>
-<div class="py-24 bg-transparent">
-	<h2 class="text-center font-spaceGrotesk text-4xl font-bold mb-20">Need some fresh rolls?</h2>
-	<div class="max-w-6xl mx-auto w-full">
+<div class="py-24 relative bg-transparent">
+	<div class="absolute inset-0 z-0 brightness-50">
+		<img src={background4} alt="" class="w-full h-full object-cover" />
+	</div>
+	<h2 class="text-center text-white z-10 relative font-spaceGrotesk text-4xl font-bold mb-20">
+		Need some fresh rolls?
+	</h2>
+	<div class="max-w-6xl mx-auto relative z-10 w-full">
 		{#if $loading}
 			<div class="flex justify-center items-center py-20">
 				<p class="text-lg">Loading products...</p>
@@ -187,8 +203,9 @@
 							{#if product.status !== 'available'}
 								<span
 									class="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded z-10"
-									>Sold Out</span
 								>
+									Sold Out
+								</span>
 							{/if}
 						</div>
 						<div
@@ -217,11 +234,17 @@
 		</a>
 	</div>
 </div>
-<div class="text-center py-24 bg-gray-300">
-	<h2 class="font-spaceGrotesk font-bold text-4xl mb-6">Got some questions?</h2>
-	<a href="/faq" class="border-2 border-white rounded-4xl px-6 py-2">Read our FAQs</a>
+<div class="relative text-center py-24 bg-gray-300">
+	<div class="absolute inset-0 grayscale z-0">
+		<img src={background3} alt="Background" class="w-full h-full object-cover" />
+	</div>
+	<h2 class="font-spaceGrotesk font-bold text-4xl relative text-white z-10 mb-6">
+		Got some questions?
+	</h2>
+	<a href="/faq" class="bg-amber-400 relative z-10 rounded-4xl px-6 py-2">Read our FAQs</a>
 </div>
-{#if !$user}
+
+<!-- {#if !$user}
 	<div class="py-32 px-40 flex flex-row items-center justify-between">
 		<div class="flex flex-col justify-center" style="min-width: 480px;">
 			<h2 class="font-spaceGrotesk font-bold text-8xl text-white mb-2">
@@ -235,8 +258,8 @@
 			>
 		</div>
 	</div>
-{/if}
-<div class="py-24 bg-gray-100">
+{/if} -->
+<!-- <div class="py-24 bg-gray-100">
 	<h2 class="text-center font-spaceGrotesk text-4xl font-bold mb-12">Contact Us</h2>
 	<div class="max-w-2xl mx-auto bg-white rounded-2xl shadow-lg p-10">
 		{#if formSuccess}
@@ -328,7 +351,7 @@
 			</form>
 		{/if}
 	</div>
-</div>
+</div> -->
 
 <style>
 	.image-2 {

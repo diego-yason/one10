@@ -1,7 +1,17 @@
 <script lang="ts">
 	import { dev } from '$app/environment';
 	import { user } from '$lib/stores/auth';
-	import { cart, clear, remove, updateQuantity, add, verifyCart } from '$lib/stores/cart';
+	import {
+		cart,
+		clear,
+		remove,
+		updateQuantity,
+		add,
+		verifyCart,
+		showToast
+	} from '$lib/stores/cart';
+	import { onMount } from 'svelte';
+	import { page } from '$app/state';
 
 	let total = $state(0);
 
@@ -18,6 +28,13 @@
 		);
 	});
 
+	onMount(() => {
+		if (page.url.searchParams.has('invalid-cart'))
+			showToast(
+				'Your cart has been updated. Please review your cart before proceeding to checkout.'
+			);
+	});
+
 	function removeItem(index: number) {
 		remove(index);
 	}
@@ -26,6 +43,10 @@
 
 	let hideDev = $state(false);
 </script>
+
+<svelte:head>
+	<title>Cart | One10 Studio Labs</title>
+</svelte:head>
 
 {#if dev && !hideDev}
 	<button class="bg-red-400 py-1.5 ml-2" onclick={() => (hideDev = true)}>
@@ -126,7 +147,7 @@
 	</div>
 </section>
 
-{#if $user === null}
+<!-- {#if $user === null}
 	<div class="py-48 flex justify-between px-40 background-color">
 		<div>
 			<h2 class="font-spaceGrotesk font-bold text-8xl text-white mb-7">
@@ -138,7 +159,7 @@
 			>Register / Log in</a
 		>
 	</div>
-{/if}
+{/if} -->
 
 <style>
 	.background-color {

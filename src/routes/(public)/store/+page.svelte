@@ -5,6 +5,10 @@
 	let { products } = $derived(data);
 </script>
 
+<svelte:head>
+	<title>Shop & Services | One10 Studio Labs</title>
+</svelte:head>
+
 <div class="py-10">
 	<div class="flex flex-col ml-20 p-4 sm:p-8 md:p-12">
 		<h1 class="text-[#333] font-spaceGrotesk text-7xl font-bold">Services</h1>
@@ -104,7 +108,7 @@
 	</div>
 </div>
 
-{#if !$user}
+<!-- {#if !$user}
 	<div class="flex justify-between px-40 background-color py-24">
 		<div>
 			<h2 class="font-spaceGrotesk font-bold text-8xl text-white mb-7">
@@ -116,7 +120,7 @@
 			>Register / Log in</a
 		>
 	</div>
-{/if}
+{/if} -->
 
 <style>
 	.products {

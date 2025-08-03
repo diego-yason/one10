@@ -11,28 +11,30 @@
 	// Client-side route protection
 	onMount(() => {
 		const unsubscribe = user.subscribe(($user) => {
-			if (!$user || $isStaff) {
-				goto('/');
-			}
+			// if (!$user || $isStaff) {
+			// 	goto('/');
+			// }
 		});
 		return unsubscribe;
 	});
+
+	import Logo from '$lib/imgs/logo/white.png';
 </script>
 
 <div class="layout-container">
-	<div class="sidebar">
+	<div class="sidebar bg-amber-800">
 		<div>
 			<a href="/dashboard">
-				<img src="https://placehold.co/100x60" alt="" />
+				<img src={Logo} alt="Logo" />
 			</a>
 			<hr style="margin-bottom:2rem;" />
 			<nav>
 				<a href="/dashboard" class:active={$page.url.pathname === '/dashboard'}>Dashboard</a>
 				<a href="/orders" class:active={$page.url.pathname.startsWith('/orders')}>Manage Orders</a>
-				<a href="/products" class:active={$page.url.pathname.startsWith('/products')}
-					>Manage Products</a
-				>
-				<a href="/messages" class:active={$page.url.pathname.startsWith('/messages')}>Messages</a>
+				<a href="/products" class:active={$page.url.pathname.startsWith('/products')}>
+					Manage Products
+				</a>
+				<!-- <a href="/messages" class:active={$page.url.pathname.startsWith('/messages')}>Messages</a> -->
 			</nav>
 		</div>
 		<button on:click={returnToNormalView}>Back</button>
@@ -42,7 +44,8 @@
 	</div>
 </div>
 
-<style>
+<style lang="postcss">
+	@reference "../../app.css"
 	:global(body) {
 		background: #ddd;
 		margin: 0;
@@ -56,7 +59,7 @@
 	}
 	.sidebar {
 		width: 260px;
-		background: #666;
+		/* background: #666; */
 		color: #fff;
 		padding: 2rem 1rem 1rem 1rem;
 		border-top-right-radius: 20px;
@@ -78,9 +81,9 @@
 		border-radius: 20px;
 	}
 	.sidebar .active {
-		background: #bbb;
 		color: #222;
 		font-weight: bold;
+		@apply bg-amber-400;
 	}
 	.sidebar button {
 		margin-top: 2rem;
