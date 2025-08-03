@@ -13,7 +13,7 @@ import { adminDb } from '$lib/server/firebase';
 const baseUrl = dev ? new URL('http://localhost:5173') : new URL('https://your-production-url.com');
 
 export const actions = {
-	default: async ({ fetch, request }) => {
+	create: async ({ fetch, request }) => {
 		const formData = await request.formData();
 
 		// validate user data
@@ -84,7 +84,7 @@ export const actions = {
 				postalCode: userData.zip
 			},
 			notes: 'Please deliver between 9am and 5pm.',
-			status: 'pending_payment',
+			status: 'payment_pending',
 			name: userData.fullName,
 			email: userData.email,
 			phone: userData.phone
@@ -119,9 +119,9 @@ export const actions = {
 					items,
 					requestReferenceNumber: record.id,
 					redirectUrl: {
-						success: baseUrl + 'checkout/success',
-						failure: baseUrl + 'checkout/failure',
-						cancel: baseUrl + 'checkout/cancel'
+						success: baseUrl + 'checkout/callback/?order=' + record.id,
+						failure: baseUrl + 'checkout/callback/?order=' + record.id,
+						cancel: baseUrl + 'checkout/callback/?order=' + record.id
 					}
 				}),
 				signal: controller.signal
@@ -142,11 +142,17 @@ export const actions = {
 			clearTimeout(responseTimeout);
 
 			console.log('Successfully created checkout:', checkoutId);
-			if (redirectUrl)
+			if (redirectUrl) {
+				// update order with checkoutId
+				await adminDb.collection('orders').doc(record.id).update({
+					maya_checkoutId: checkoutId
+				});
+
 				return {
 					success: true,
 					redirectUrl
 				};
+			}
 		} catch (error) {
 			// Clear any remaining timeouts
 			clearTimeout(connectionTimeout);
@@ -165,5 +171,84 @@ export const actions = {
 		}
 
 		return fail(500);
+	},
+	getPayment: async ({ fetch, request }) => {
+		const formData = await request.formData();
+		const orderId = formData.get('orderId') as string;
+
+		if (!orderId) return fail(400, { error: 'Order ID is required' });
+
+		const orderDoc = await adminDb.collection('orders').where('id', '==', orderId).get();
+		if (orderDoc.empty) return fail(404, { error: 'Order not found' });
+		const orderData = orderDoc.docs[0].data() as Order;
+
+		let status;
+		if (!(orderData.status === 'payment_pending' || !orderData.maya_checkoutId))
+			status = (
+				await (
+					await fetch(
+						`https://pg-sandbox.paymaya.com/payments/v1/payments/${orderData.maya_checkoutId}/status`
+					)
+				).json()
+			).status;
+
+		const statuses = [
+			'PENDING_TOKEN',
+			'PENDING_PAYMENT',
+			'FOR_AUTHENTICATION',
+			'AUTHENTICATING',
+			'AUTH_NOT_ENROLLED',
+			'AUTH_FAILED',
+			'PAYMENT_FAILED',
+			'AUTHORIZED',
+			'PAYMENT_EXPIRED',
+			'PAYMENT_CANCELLED',
+			'PAYMENT_INVALID'
+		];
+
+		if (!statuses.includes(status)) return fail(400, { error: 'There is no payment to be made.' });
+
+		// generate new checkout link
+		const mayaCheckoutRes = await fetch('https://pg-sandbox.paymaya.com/checkout/v1/checkouts', {
+			method: 'POST',
+			headers: {
+				Authorization: `Basic ${Buffer.from(PUBLIC_MAYA_KEY).toString('base64')}`,
+				'Content-Type': 'application/json',
+				Accept: 'application/json'
+			},
+			body: JSON.stringify({
+				totalAmount: {
+					value: orderData.grandTotal,
+					currency: 'PHP'
+				},
+				items: orderData.items,
+				requestReferenceNumber: orderData.id,
+				redirectUrl: {
+					success: baseUrl + 'checkout/callback/?order=' + orderData.id,
+					failure: baseUrl + 'checkout/callback/?order=' + orderData.id,
+					cancel: baseUrl + 'checkout/callback/?order=' + orderData.id
+				}
+			})
+		});
+
+		if (!mayaCheckoutRes.ok) {
+			const errorData = await mayaCheckoutRes.json();
+			console.error('Maya checkout error:', errorData);
+			return fail(500, { error: 'Failed to create Maya checkout link' });
+		}
+
+		const { checkoutId, redirectUrl } = await mayaCheckoutRes.json();
+		if (!checkoutId || !redirectUrl) {
+			console.error('Maya checkout response missing data:', { checkoutId, redirectUrl });
+			return fail(500, { error: 'Invalid response from Maya checkout' });
+		}
+
+		// update order with new checkoutId
+		await adminDb.collection('orders').doc(orderDoc.docs[0].id).update({
+			maya_checkoutId: checkoutId,
+			status: 'payment_pending'
+		});
+
+		return redirect(303, redirectUrl);
 	}
 } satisfies Actions;

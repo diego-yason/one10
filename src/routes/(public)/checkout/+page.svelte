@@ -21,6 +21,7 @@
 
 <form
 	method="POST"
+	action="?/create"
 	use:enhance={async () => {
 		disabled = true;
 		return async ({ result }) => {
