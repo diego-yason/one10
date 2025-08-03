@@ -51,7 +51,7 @@
 					>Sign Out</button
 				> -->
 			{:else}
-				<a href="/cart">Cart</a>
+				<a href="/cart" class:font-semibold={page.url.pathname === '/cart'}>Cart</a>
 				<!-- <a href="/login">Log In</a> -->
 			{/if}
 		</div>

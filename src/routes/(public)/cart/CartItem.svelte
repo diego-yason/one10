@@ -64,12 +64,12 @@
 	});
 </script>
 
-<div class="flex bg-[#D9D9D9] p-4 rounded-lg mt-4 items-center">
-	<div class="self-start basis-1/6 rounded-2xl mr-8">
-		<img src="https://placehold.co/185x137" class="rounded-xl overflow-clip" alt={name} />
+<div class="flex bg-[#D9D9D9] p-4 rounded-lg mt-4 items-start">
+	<div class="basis-1/6 rounded-2xl mr-8 mt-5">
+		<img src={imageUrl || "https://placehold.co/185x137"} class="rounded-xl overflow-clip" alt={name} />
 	</div>
 	<div class="flex basis-5/6 min-w-0 overflow-hidden">
-		<div class="space-y-35 grow min-w-0">
+		<div class="space-y-2 grow min-w-0">
 			<div class="min-w-0">
 				<h6 class="m-5 font-spaceGrotesk font-bold break-words">
 					{name}

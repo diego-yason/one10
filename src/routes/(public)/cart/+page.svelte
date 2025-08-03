@@ -13,6 +13,8 @@
 	import { onMount } from 'svelte';
 	import { page } from '$app/state';
 
+	import background1 from '$lib/imgs/backgrounds/img086.jpg';
+
 	let total = $state(0);
 
 	verifyCart();
@@ -48,7 +50,7 @@
 	<title>Cart | One10 Studio Labs</title>
 </svelte:head>
 
-{#if dev && !hideDev}
+<!-- {#if dev && !hideDev}
 	<button class="bg-red-400 py-1.5 ml-2" onclick={() => (hideDev = true)}>
 		hide (refresh to return)
 	</button>
@@ -74,16 +76,16 @@
 	<button onclick={() => clear()} class="bg-green-500 text-white px-4 py-2 rounded">
 		Clear Storage
 	</button>
-{/if}
+{/if} -->
 
 <h2 class="text-gray-800 px-32 font-spaceGrotesk text-7xl font-bold text-left w-3/4 h-30">Cart</h2>
 <div class="flex flex-col px-32 pb-24 space-y-6">
-	<!--Item container-->
+
 	{#if $cart.length === 0}
 		<div class="flex flex-col bg-gray-200 rounded-lg items-center justify-center py-20">
 			<p class="text-lg mb-4 font-bold">Your cart is empty.</p>
 			<a
-				href="/services"
+				href="/store"
 				class="bg-amber-300 rounded-4xl px-8 py-2 font-bold text-black hover:bg-amber-400 transition"
 			>
 				Go to Products
@@ -95,25 +97,27 @@
 				<CartItem {...item} {updateQuantity} {removeItem} {i}></CartItem>
 			{/key}
 		{/each}
-		<div class="flex border-1 rounded-lg my-auto y-100 p-5 text-left font-bold py-15">
-			<div>
-				<h2>Order Summary</h2>
-				<h3 class="flex space-x-4 items-center">
-					<span class="font-normal">Total</span>
-					<span class="bg-amber-400 px-3 py-2 rounded-xl">P{total}</span>
-				</h3>
-			</div>
-			<div class="ml-auto flex gap-4">
-				<button
-					class="bg-yellow-600 text-white py-2 px-4 rounded-lg hover:bg-amber-700 transition duration-300"
-					onclick={clear}>Clear Cart</button
-				>
-				<a
-					href="/checkout"
-					class="bg-yellow-600 flex items-center text-white py-2 px-4 rounded-lg hover:bg-amber-700 transition duration-300"
-				>
-					Checkout
-				</a>
+		<div class="border-1 rounded-lg my-auto p-3 font-bold">
+			<h2 class="text-4xl font-bold mb-6">Order Summary</h2>
+			<div class="flex justify-between items-center">
+				<div>
+					<h3 class="flex space-x-4 items-center">
+						<span class="font-normal text-2xl">Total</span>
+						<span class="bg-amber-400 px-3 py-2 rounded-xl text-xl">P{total}</span>
+					</h3>
+				</div>
+				<div class="flex gap-4">
+					<button
+						class="bg-yellow-600 text-white py-2 px-4 rounded-lg hover:bg-amber-700 transition duration-300"
+						onclick={clear}>Clear Cart</button
+					>
+					<a
+						href="/checkout"
+						class="bg-yellow-600 flex items-center text-white py-2 px-4 rounded-lg hover:bg-amber-700 transition duration-300"
+					>
+						Checkout
+					</a>
+				</div>
 			</div>
 		</div>
 	{/if}
@@ -138,7 +142,7 @@
 	</div>
 	<div
 		class="flex-1 flex flex-col justify-center items-center relative min-h-[300px] bg-cover bg-center"
-		style="background-image: url('https://placehold.co/350x250');"
+		style="background-image: url({background1});"
 	>
 		<h2 class="text-3xl font-bold mb-6 text-black">Got some questions?</h2>
 		<a href="/faq" class="bg-amber-300 rounded-4xl px-8 py-3 font-bold text-black text-lg"
@@ -162,7 +166,7 @@
 {/if} -->
 
 <style>
-	.background-color {
+	/* .background-color {
 		background: var(--Gray-2, #4f4f4f);
-	}
+	} */
 </style>
