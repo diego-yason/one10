@@ -14,7 +14,7 @@ export const load: PageServerLoad = async () => {
 	const pendingArray: Promise<unknown>[] = [];
 	const paidArray: Promise<unknown>[] = [];
 	const completedArray: Promise<unknown>[] = [];
-	pendingArray.push(ordersCollection.where('status', '==', 'pending_payment').count().get());
+	pendingArray.push(ordersCollection.where('status', '==', 'payment_pending').count().get());
 	pendingArray.push(ordersCollection.where('status', '==', 'awaiting_films').count().get());
 
 	// @ts-expect-error firestore types are useless to properly type in this scenario

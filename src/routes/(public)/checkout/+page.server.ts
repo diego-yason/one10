@@ -84,7 +84,7 @@ export const actions = {
 				postalCode: userData.zip
 			},
 			notes: 'Please deliver between 9am and 5pm.',
-			status: 'pending_payment',
+			status: 'payment_pending',
 			name: userData.fullName,
 			email: userData.email,
 			phone: userData.phone
