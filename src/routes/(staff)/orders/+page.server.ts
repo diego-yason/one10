@@ -50,6 +50,7 @@ export const actions: Actions = {
 		}
 
 		await adminDb.collection('orders').doc(order.docs[0].id).update({ status });
+		console.log(`Order ${orderId} status updated to ${status}`);
 		return { success: true };
 	}
 };

@@ -141,9 +141,7 @@
 				bind:value={searchTerm}
 			/>
 			<label for="status-filter" class="text-sm font-semibold ml-2 mr-2 mb-0">Status</label>
-			<input type="hidden" name="orderId" value={selectedOrder?.id || ''} />
 			<select
-				name="status"
 				id="status-filter"
 				bind:value={statusFilter}
 				class="px-5 py-3 rounded-lg bg-white border-0 text-sm w-44"
@@ -243,7 +241,18 @@
 
 <Modal show={showDetailsModal} onClose={closeModal}>
 	{#if selectedOrder}
-		<div class="flex flex-col space-y-4 mt-4 text-sm">
+		<form
+			action="?/updateStatus"
+			method="POST"
+			use:enhance={() => {
+				isUpdating = true;
+				return async function () {
+					isUpdating = false;
+				};
+			}}
+			class="flex flex-col space-y-4 mt-4 text-sm"
+		>
+			<input type="hidden" name="orderId" value={selectedOrder?.id || ''} />
 			<h2 class="text-xl font-bold text-white mb-4">Order Details</h2>
 
 			<div class="bg-white rounded-lg p-4 space-y-3">
@@ -253,6 +262,7 @@
 					<div class="flex items-center gap-2">
 						<span class="font-semibold">Status:</span>
 						<select
+							name="status"
 							bind:value={selectedStatus}
 							class="px-3 py-1 rounded border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
 						>
@@ -301,17 +311,7 @@
 				</div>
 			</div>
 
-			<form
-				action="?/updateStatus"
-				method="POST"
-				use:enhance={() => {
-					isUpdating = true;
-					return async function () {
-						isUpdating = false;
-					};
-				}}
-				class="bg-white rounded-lg p-4 space-y-3"
-			>
+			<div class="bg-white rounded-lg p-4 space-y-3">
 				<h3 class="font-bold text-lg text-gray-800 border-b pb-2">Order Items</h3>
 				<div class="space-y-4">
 					{#each selectedOrder.items as item}
@@ -370,7 +370,7 @@
 						</div>
 					{/each}
 				</div>
-			</form>
+			</div>
 
 			{#if selectedOrder.notes}
 				<div class="bg-white rounded-lg p-4 space-y-3">
@@ -408,6 +408,6 @@
 					Cancel
 				</button>
 			</div>
-		</div>
+		</form>
 	{/if}
 </Modal>
