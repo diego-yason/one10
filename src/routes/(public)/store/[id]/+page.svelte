@@ -26,6 +26,15 @@
 	<title>{product.name} | Products | One10 Studio Labs</title>
 </svelte:head>
 
+<div class="px-35 py-4">
+	<a href="/store" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors">
+		<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+		</svg>
+		Back to Store
+	</a>
+</div>
+
 <div
 	class="flex flex-col md:flex-row items-center justify-center min-h-[700px] py-4 px-4 bg-[#6b7283]"
 >
@@ -36,7 +45,7 @@
 			<img
 				src={product.imageUrl || 'https://placehold.co/400x300'}
 				alt={product.name}
-				class="w-72 h-72 object-cover rounded-lg mb-4"
+				class="w-72 h-72 object-contain rounded-lg mb-4"
 			/>
 		</div>
 		<div class="mt-8 md:mt-0 flex flex-col items-start max-w-md w-full justify-center">
