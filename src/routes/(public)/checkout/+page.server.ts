@@ -119,9 +119,9 @@ export const actions = {
 					items,
 					requestReferenceNumber: record.id,
 					redirectUrl: {
-						success: baseUrl + 'checkout/callback/?order=' + record.id,
-						failure: baseUrl + 'checkout/callback/?order=' + record.id,
-						cancel: baseUrl + 'checkout/callback/?order=' + record.id
+						success: baseUrl + 'checkout/confirmation/?order=' + record.id,
+						failure: baseUrl + 'checkout/confirmation/?order=' + record.id,
+						cancel: baseUrl + 'checkout/confirmation/?order=' + record.id
 					}
 				}),
 				signal: controller.signal
@@ -238,9 +238,9 @@ export const actions = {
 				items: orderData.items,
 				requestReferenceNumber: orderData.id,
 				redirectUrl: {
-					success: baseUrl + 'checkout/callback/?order=' + orderData.id,
-					failure: baseUrl + 'checkout/callback/?order=' + orderData.id,
-					cancel: baseUrl + 'checkout/callback/?order=' + orderData.id
+					success: baseUrl + 'checkout/confirmation/?order=' + orderData.id,
+					failure: baseUrl + 'checkout/confirmation/?order=' + orderData.id,
+					cancel: baseUrl + 'checkout/confirmation/?order=' + orderData.id
 				}
 			})
 		});

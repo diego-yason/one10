@@ -1,5 +1,5 @@
 import { adminDb } from '$lib/server/firebase';
-import type { PageServerLoad } from './$types';
+import type { PageServerLoad } from '../callback/$types';
 import { redirect } from '@sveltejs/kit';
 
 export const load: PageServerLoad = async ({ url, fetch }) => {
