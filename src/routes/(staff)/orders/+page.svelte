@@ -324,7 +324,6 @@
 									<div class="text-sm font-semibold">Price: ₱{item.price}</div>
 								</div>
 							</div>
-
 							{#if item.details && Object.keys(item.details).length > 0}
 								<div class="mt-3 p-2 bg-white rounded border">
 									<div class="font-semibold text-sm mb-2">Item Details:</div>
