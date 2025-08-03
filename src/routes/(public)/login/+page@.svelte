@@ -40,9 +40,9 @@
 		if (!result.success) {
 			if (result.error && Array.isArray(result.error.errors)) {
 				// Group errors by field
-				result.error.errors.forEach((error) => {
-					const field = error.path[0] as string;
-					fieldErrors[field] = error.message;
+				result.error.errors.forEach((err: any) => {
+					const field = err.path[0] as string;
+					fieldErrors[field] = err.message;
 				});
 			} else {
 				errorMessages = ['Invalid input.'];
@@ -71,21 +71,21 @@
 		}
 	};
 
-	const facebookLogin = async () => {
-		errorMessages = [];
-		fieldErrors = {};
-		try {
-			const result = await signInWithPopup(auth, new FacebookAuthProvider());
-			// Always redirect to homepage, regardless of user type
-			goto('/');
-		} catch (err) {
-			errorMessages = [getFirebaseErrorMessage(err)];
-		}
-	};
+	// const facebookLogin = async () => {
+	// 	errorMessages = [];
+	// 	fieldErrors = {};
+	// 	try {
+	// 		const result = await signInWithPopup(auth, new FacebookAuthProvider());
+	// 		// Always redirect to homepage, regardless of user type
+	// 		goto('/');
+	// 	} catch (err) {
+	// 		errorMessages = [getFirebaseErrorMessage(err)];
+	// 	}
+	// };
 
 	import background from '$lib/imgs/backgrounds/img24.jpg';
 	import logo from '$lib/imgs/logo/white.png';
-	import Facebook from '$lib/imgs/logo/Facebook.png';
+	// import Facebook from '$lib/imgs/logo/Facebook.png';
 	import Google from '$lib/imgs/logo/Google.svg';
 </script>
 
@@ -177,13 +177,13 @@
 						alt="Login with Google"
 					/></button
 				>
-				<button on:click={facebookLogin} class=""
+				<!-- <button on:click={facebookLogin} class=""
 					><img
 						src={Facebook}
 						class="w-[40px] object-contain aspect-square"
 						alt="Login with Facebook"
 					/></button
-				>
+				> -->
 			</div>
 
 			<p>Not registered? <a href="/register" class="text-brand underline">Create an account</a></p>
