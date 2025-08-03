@@ -26,11 +26,16 @@ interface Order {
 	};
 	notes: string;
 	status:
-		| 'pending_payment'
+		| 'payment_pending'
+		| 'payment_success'
 		| 'payment_failed'
-		| 'awaiting_films'
+		| 'payment_cancelled'
+		| 'payment_expired'
+		| 'processing_awaiting_items'
+		| 'processing_studio'
+		| 'ready_pickup'
+		| 'dispatched'
 		| 'completed'
-		| 'cancelled'
 		| 'refunded';
 	maya_checkoutId?: string;
 	name: string;
