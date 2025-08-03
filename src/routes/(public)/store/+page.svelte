@@ -171,9 +171,9 @@
 			</p>
 		</div>
 
-		<div class="flex flex-wrap justify-start gap-x-30 gap-y-10 py-10">
+		<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-10 py-10">
 			{#if filteredProducts.length === 0}
-				<div class="w-full flex flex-col items-center justify-center py-20">
+				<div class="col-span-full flex flex-col items-center justify-center py-20">
 					<p class="text-lg text-gray-600 mb-2">No products found</p>
 					{#if searchTerm || selectedCategory !== 'All'}
 						<p class="text-sm text-gray-500">Try adjusting your search or filter criteria</p>
@@ -182,10 +182,9 @@
 			{:else}
 				{#each filteredProducts as product}
 					<div
-						class="px-5 py-2.5 items-center self-stretch bg-[#fafafa] rounded-2xl
-					flex flex-col relative"
+						class="px-2 py-2 items-center bg-[#fafafa] rounded-xl flex flex-col relative w-full"
 					>
-						<div class="image-2 flex items-center justify-center relative bg-[#FAFAFA]">
+						<div class="image-2 flex items-center justify-center relative bg-[#FAFAFA] pt-3">
 							<a href={`/store/${product.id}`}>
 								{#if product.imageUrl}
 									<img src={product.imageUrl} alt={product.name} class="product-img" />
@@ -200,16 +199,16 @@
 								>
 							{/if}
 						</div>
-						<div class="flex flex-col flex-1 justify-between items-center py-10 w-full min-h-[160px]">
+						<div class="flex flex-col flex-1 justify-between items-center py-3 w-full min-h-[100px]">
 							<div class="w-full">
 								<p class="product-2-description">{product.category}</p>
 								<p class="product-2-font truncate-name">
 									<a href={`/store/${product.id}`} class="hover:text-amber-400">{product.name}</a>
 								</p>
 							</div>
-							<div class="w-full flex flex-col items-center mt-4">
-								<p class="text-sm text-gray-600 mt-2">₱{product.price.toFixed(2)}</p>
-								<p class="text-xs text-gray-500 mt-1">Stock: {product.stock}</p>
+							<div class="w-full flex flex-col items-center mt-1">
+								<p class="text-sm text-gray-600">₱{product.price.toFixed(2)}</p>
+								<p class="text-xs text-gray-500 mt-0.5">Stock: {product.stock}</p>
 							</div>
 						</div>
 					</div>
@@ -243,11 +242,11 @@
 		color: var(--Global-black, #000);
 		text-align: center;
 		font-family: 'Space Grotesk';
-		font-size: 16px;
+		font-size: 14px;
 		font-style: normal;
 		font-weight: 700;
-		line-height: 24px;
-		letter-spacing: 1px;
+		line-height: 20px;
+		letter-spacing: 0.5px;
 	}
 
 	.product-2-description {
@@ -255,16 +254,17 @@
 		color: var(--Gray-5, #e0e0e0);
 		text-align: center;
 		font-family: 'Space Grotesk';
-		font-size: 10px;
+		font-size: 9px;
 		font-style: normal;
 		font-weight: 600;
-		line-height: 16px;
+		line-height: 14px;
 		text-transform: uppercase;
 	}
 
 	.image-2 {
-		height: 120px;
-		width: 180px;
+		height: 80px;
+		width: 100%;
+		max-width: 120px;
 		background-color: #fafafa;
 		margin: 0 auto;
 		display: flex;
@@ -281,7 +281,7 @@
 	}
 
 	.truncate-name {
-		max-width: 180px;
+		max-width: 100%;
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;
