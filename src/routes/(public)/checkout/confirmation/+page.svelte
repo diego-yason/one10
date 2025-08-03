@@ -165,7 +165,7 @@
 					<hr>
 					<div class="flex flex-row px-20 py-10 justify-between">
 						<p class="font-details">Email</p>
-						<p class="email">JuanDELACRUZ@gmaIl.com</p>
+						<p class="email">Juandelacruz@gmaIl.com</p>
 					</div>
 					<hr>
 				</div>
