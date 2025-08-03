@@ -32,7 +32,7 @@
 <div class="flex items-center flex-col space-y-24 min-h-screen py-12">
 	<h1 class="title">Frequently Asked Questions</h1>
 
-	<div class="flex flex-col space-y-5">
+	<div class="flex flex-col space-y-5 w-full max-w-4xl">
 		{#each faqs as faq, i}
 			<div class="container bg-white" on:click={() => open(i)}>
 				<div class="flex items-center justify-between">
