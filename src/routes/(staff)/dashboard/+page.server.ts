@@ -3,6 +3,12 @@ import type { PageServerLoad } from './$types';
 import { admin, adminDb } from '$lib/server/firebase';
 
 export const load: PageServerLoad = async () => {
+	return {
+		pending: 0,
+		paid: 0,
+		completed: 0
+	};
+
 	const ordersCollection = adminDb.collection('orders');
 
 	const pendingArray: Promise<unknown>[] = [];
