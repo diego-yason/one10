@@ -14,9 +14,17 @@
 	<div class="bg-[#F2C94C] text-black p-8 rounded-2xl my-10 shadow-xl">
 		<h2 class="text-4xl pb-2">{id}</h2>
 		{#each items as item}
-			<p>{item.name}</p>
+			<p class="font-semibold">{item.name}</p>
 			{#each Object.keys(item.details).map( ([key, value]) => ({ name: key, price: value }) ) as { name, price }}
-				<p class="pl-4">{detailName[name as keyof typeof detailName]} - {price}</p>
+				{@const detail = detailName?.[name as keyof typeof detailName]}
+				{#if detail}
+					<p class="pl-4">
+						{detail?.name}
+						{#if 'values' in detail && detail.values[price as keyof typeof detail.values]}
+							<span>- {detail?.values[price as keyof typeof detail.values]}</span>
+						{/if}
+					</p>
+				{/if}
 			{/each}
 			{#each item.addons ?? [] as addon}
 				<p class="pl-4">{addon.name} - {addon.price}</p>
