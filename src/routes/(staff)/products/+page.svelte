@@ -16,12 +16,22 @@
 	let showConfirmModal = false;
 	let productToDelete: Product | null = null;
 	let selectedCategory = 'All';
+	let sortBy = 'name-asc';
 	const categories = [
 		'All',
 		'Non-Film',
 		'Film 35mm',
 		'Film 120mm',
 		'Simple Use - Disposable Camera'
+	];
+
+	const sortOptions = [
+		{ value: 'name-asc', label: 'Name A-Z' },
+		{ value: 'name-desc', label: 'Name Z-A' },
+		{ value: 'price-high', label: 'Price High to Low' },
+		{ value: 'price-low', label: 'Price Low to High' },
+		{ value: 'stock-high', label: 'Stock High to Low' },
+		{ value: 'stock-low', label: 'Stock Low to High' }
 	];
 
 	// Form data for adding/editing products
@@ -174,12 +184,31 @@
 		}
 	}
 
-	// Filter products based on search term
-	$: filteredProducts = $products.filter(
-		(product) =>
-			(selectedCategory === 'All' || product.category === selectedCategory) &&
-			product.itemCode.toLowerCase().includes(searchTerm.toLowerCase())
-	);
+	// Filter products based on search term and sort them
+	$: filteredProducts = $products
+		.filter(
+			(product) =>
+				(selectedCategory === 'All' || product.category === selectedCategory) &&
+				product.itemCode.toLowerCase().includes(searchTerm.toLowerCase())
+		)
+		.sort((a, b) => {
+			switch (sortBy) {
+				case 'name-asc':
+					return a.name.localeCompare(b.name);
+				case 'name-desc':
+					return b.name.localeCompare(a.name);
+				case 'price-high':
+					return b.price - a.price;
+				case 'price-low':
+					return a.price - b.price;
+				case 'stock-high':
+					return b.stock - a.stock;
+				case 'stock-low':
+					return a.stock - b.stock;
+				default:
+					return 0;
+			}
+		});
 </script>
 
 <div class="flex flex-col space-y-6">
@@ -199,6 +228,16 @@
 			>
 				{#each categories as category}
 					<option value={category}>{category}</option>
+				{/each}
+			</select>
+			<label for="sort-filter" class="text-sm font-semibold ml-2 mr-2 mb-0">Sort by</label>
+			<select
+				id="sort-filter"
+				bind:value={sortBy}
+				class="px-5 py-3 rounded-lg bg-white border-0 text-sm w-44"
+			>
+				{#each sortOptions as option}
+					<option value={option.value}>{option.label}</option>
 				{/each}
 			</select>
 		</div>
