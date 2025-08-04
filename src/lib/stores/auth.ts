@@ -29,7 +29,7 @@ if (browser) {
 
 		// staff only for now
 		if (newUser && !newUser.email?.endsWith('@one10studiolab.com')) {
-			// return auth.signOut();
+			return auth.signOut();
 		}
 
 		// expire any existing session cookie
