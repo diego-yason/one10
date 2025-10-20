@@ -6,6 +6,9 @@ import tailwindcss from '@tailwindcss/vite';
 export default defineConfig({
 	plugins: [tailwindcss(), sveltekit()],
 	test: {
+        coverage: {
+            reporter: ['text', 'json', 'html'],
+        },
 		projects: [
 			{
 				extends: './vite.config.ts',
