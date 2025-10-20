@@ -1,4 +1,4 @@
-test-results
+# Misc
 node_modules
 
 # Output
@@ -23,3 +23,7 @@ firebaseServiceKey.json
 # Vite
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Testing
+test-results
+coverage
