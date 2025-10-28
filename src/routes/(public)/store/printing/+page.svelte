@@ -1,8 +1,4 @@
 <script lang="ts">
-	import { user } from '$lib/stores/auth';
-</script>
-
-<!-- <script lang="ts">
 	import { user, isStaff } from '$lib/stores/auth';
 	import { printingSchema, validateField } from '$lib/validation';
 	import { cart, showToast, add } from '$lib/stores/cart';
@@ -18,6 +14,8 @@
 
 	let errorMessages: string[] = [];
 	let fieldErrors: Record<string, string> = {};
+
+	import background from "$lib/imgs/backgrounds/img9.jpg";
 
 	// Real-time validation function
 	function handleFieldChange(field: string, value: string) {
@@ -51,13 +49,13 @@
 			return;
 		}
 
-		const error = validateField(printingSchema, field as keyof typeof printingSchema.shape, value);
-		if (error) {
-			fieldErrors = { ...fieldErrors, [field]: error };
-		} else {
-			const { [field]: _, ...rest } = fieldErrors;
-			fieldErrors = rest;
-		}
+		// const error = validateField(printingSchema, field as keyof typeof printingSchema.shape, value);
+		// if (error) {
+		// 	fieldErrors = { ...fieldErrors, [field]: error };
+		// } else {
+		// 	const { [field]: _, ...rest } = fieldErrors;
+		// 	fieldErrors = rest;
+		// }
 	}
 
 	const handleSubmit = (e: SubmitEvent) => {
@@ -114,9 +112,9 @@
 	<div class="flex flex-col items-start mb-12">
 		<h2 class="font-spaceGrotesk font-bold text-7xl mb-8">Printing</h2>
 		<img
-			src="https://placehold.co/350x250"
-			alt="35mm Film"
-			class="rounded-lg w-[350px] h-[250px] object-cover bg-white mb-8"
+			src={background || 'https://placehold.co/350x250'}
+			alt="Printing"
+			class="rounded-lg w-[350px] h-[250px] object-cover bg-white"
 		/>
 	</div>
 	<h2 class="font-spaceGrotesk font-bold text-5xl mb-2">3R to 8R Printing</h2>
@@ -133,39 +131,46 @@
 
 	<form on:submit={handleSubmit} class="w-full flex flex-col gap-6">
 		<div>
-			<label class="block font-bold mb-2 text-sm">PHOTO SIZE*</label>
+			<label class="block font-bold mb-2 text-sm" for="photoSize">PHOTO SIZE*</label>
 			<select
 				class="w-full px-4 py-2 rounded border border-gray-300 bg-white {fieldErrors.photoSize
 					? 'border-2 border-red-500'
 					: ''}"
+				id="photoSize"
 				bind:value={photoSize}
 				on:change={(e) => handleFieldChange('photoSize', e.currentTarget.value)}
 			>
 				<option value="">Choose a photo size</option>
-				<option value="option1">Option 1</option>
-				<option value="option2">Option 2</option>
-				<option value="option3">Option 3</option>
+				<option value="3R">3R</option>
+				<option value="4R">4R</option>
+				<option value="5R">5R</option>
+				<option value="6R">6R</option>
+				<option value="7R">7R</option>
+				<option value="8R">8R</option>
 			</select>
 			{#if fieldErrors.photoSize}
 				<p class="text-red-500 text-sm mt-1">{fieldErrors.photoSize}</p>
 			{/if}
 		</div>
 		<div>
-			<label class="block font-bold mb-2 text-sm">TOTAL # OF PHOTOS TO BE PRINTED*</label>
+			<label class="block font-bold mb-2 text-sm" for="totalPhotos">TOTAL # OF PHOTOS TO BE PRINTED*</label>
+			<!--TODO: Bound this input-->
 			<input
-				type="text"
+				type="number"
+				id="totalPhotos"
 				class="w-full px-4 py-2 rounded border border-gray-300 bg-white {fieldErrors.totalPhotos
 					? 'border-2 border-red-500'
 					: ''}"
 				placeholder="Enter total number of photos"
 				bind:value={totalPhotos}
 				on:input={(e) => handleFieldChange('totalPhotos', e.currentTarget.value)}
+
 			/>
 			{#if fieldErrors.totalPhotos}
 				<p class="text-red-500 text-sm mt-1">{fieldErrors.totalPhotos}</p>
 			{/if}
 		</div>
-		<div>
+		<!-- <div>
 			<label class="block font-bold mb-2 text-sm">ACCESS TO YOUR PHOTOS*</label>
 			<select
 				class="w-full px-4 py-2 rounded border border-gray-300 bg-white {fieldErrors.accessPhotos
@@ -182,9 +187,9 @@
 			{#if fieldErrors.accessPhotos}
 				<p class="text-red-500 text-sm mt-1">{fieldErrors.accessPhotos}</p>
 			{/if}
-		</div>
+		</div> -->
 		<div>
-			<label class="block font-bold mb-2 text-sm"
+			<!-- <label class="block font-bold mb-2 text-sm"
 				>LINK TO YOUR PHOTOS (IGNORE IF SENDING A FLASH DRIVE)</label
 			>
 			<input
@@ -192,14 +197,15 @@
 				class="w-full px-4 py-2 rounded border border-gray-300 bg-white"
 				placeholder="Paste the link your photos"
 				bind:value={linkPhotos}
-			/>
+			/> -->
 		</div>
 		<div class="mt-4">
-			<label class="block font-bold mb-2 text-sm">MODE OF DELIVERY FOR DROP-OFF*</label>
+			<label class="block font-bold mb-2 text-sm" for="dropoffMode">MODE OF DELIVERY FOR DROP-OFF*</label>
 			<div class="flex flex-col gap-2">
 				<label class="text-sm">
 					<input
 						type="radio"
+						id="dropoffMode"
 						name="dropoff"
 						value="same-day"
 						bind:group={dropoffMode}
@@ -263,11 +269,12 @@
 			{/if}
 		</div>
 		<div class="mt-4">
-			<label class="block font-bold mb-2 text-sm">MODE OF DELIVERY FOR PICK-UP*</label>
+			<label class="block font-bold mb-2 text-sm" for="pickupMode">MODE OF DELIVERY FOR PICK-UP*</label>
 			<div class="flex flex-col gap-2">
 				<label class="text-sm">
 					<input
 						type="radio"
+						id="pickupMode"
 						name="pickup"
 						value="same-day"
 						bind:group={pickupMode}
@@ -338,7 +345,6 @@
 				title={$user ? "Staff users cannot add items to cart" : ""}
 				>Add to cart</button
 			>
-			>
 		</div>
 	</form>
 </div>
@@ -382,4 +388,4 @@
 			>Register / Log in</a
 		>
 	</div>
-{/if} -->
+{/if} 
