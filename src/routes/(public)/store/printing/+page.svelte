@@ -1,12 +1,11 @@
 <script lang="ts">
-	import { user } from '$lib/stores/auth';
-</script>
-
-<!-- <script lang="ts">
 	import { user, isStaff } from '$lib/stores/auth';
 	import { printingSchema, validateField } from '$lib/validation';
 	import { cart, showToast, add } from '$lib/stores/cart';
-
+	import ImageUploader from '$lib/components/ImageUploader.svelte';
+	/**
+	 * TODO: add the ImageUploader component, collect resulting uploadIds and attach these to the cart item when the user "Add to cart" / "Order".
+	*/
 	let photoSize = '';
 	let totalPhotos = '';
 	let accessPhotos = '';
@@ -330,6 +329,13 @@
 				<p class="text-red-500 text-sm mt-1">{fieldErrors.pickupMode}</p>
 			{/if}
 		</div>
+
+		<ImageUploader 
+			onComplete = {()=>{}}
+			onError = {()=>{}}
+			onUploaded = {()=>{}}
+		/>
+
 		<div class="flex gap-4 mt-6 items-center">
 			<button 
 				type="submit" 
@@ -338,7 +344,7 @@
 				title={$user ? "Staff users cannot add items to cart" : ""}
 				>Add to cart</button
 			>
-			>
+			
 		</div>
 	</form>
 </div>
@@ -382,4 +388,4 @@
 			>Register / Log in</a
 		>
 	</div>
-{/if} -->
+{/if} 

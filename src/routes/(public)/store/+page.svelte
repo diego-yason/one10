@@ -94,20 +94,20 @@
 					<p class="text-sm">from P200</p>
 				</div>
 			</a>
-			<!-- <a
-				href="/store/printing"
-				class="products flex flex-col cursor-pointer shadow-lg min-w-[260px] max-w-[340px] bg-white rounded-2xl overflow-hidden"
-			>
-				<img
-					src="https://placehold.co/350x250"
-					alt="3R - 8R Printing"
-					class="w-full h-36 object-cover"
-				/>
-				<div class="bg-amber-300 flex flex-col items-center justify-center rounded-b-2xl pt-2 pb-2">
-					<p class="font-bold underline text-base mb-1">3R - 8R Printing</p>
-					<p class="text-sm">from P8.00</p>
-				</div>
-			</a> -->
+				<a
+					href="/store/printing"
+					class="products flex flex-col cursor-pointer shadow-lg min-w-[260px] max-w-[340px] bg-white rounded-2xl overflow-hidden"
+				>
+					<img
+						src="https://placehold.co/350x250"
+						alt="3R - 8R Printing"
+						class="w-full h-36 object-cover"
+					/>
+					<div class="bg-amber-300 flex flex-col items-center justify-center rounded-b-2xl pt-2 pb-2">
+						<p class="font-bold underline text-base mb-1">3R - 8R Printing</p>
+						<p class="text-sm">from P8.00</p>
+					</div>
+				</a>
 		</div>
 	</div>
 </div>

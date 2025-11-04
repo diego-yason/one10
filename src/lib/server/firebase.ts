@@ -1,6 +1,6 @@
 import firebase from 'firebase-admin';
 import type { ServiceAccount } from 'firebase-admin/app';
-
+// TODO: ensure existing admin init exposes admin.firestore() and admin.storage().bucket() utilities for these helpers.
 import {
 	firebase_admin_type,
 	firebase_admin_project_id,

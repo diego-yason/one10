@@ -99,6 +99,7 @@ export const film120mmSchema = z.object({
 	scanOption: z.string().min(1, "Please select a scan/process option."),
 });
 
+// TODO: src/lib/validation/printing.ts — (if not present) zod schema for printing item options: size enum, quantity, cropMode (crop|fit), required fields.
 export const printingSchema = z.object({
 	photoSize: z.string().min(1, "Please select a photo size."),
 	totalPhotos: z.string().min(1, "Please enter the total number of photos."),

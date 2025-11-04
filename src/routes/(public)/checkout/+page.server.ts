@@ -10,6 +10,10 @@ import { checkoutSchema } from './schema';
 
 import { adminDb } from '$lib/server/firebase';
 
+/**
+ * TODO: ensure cart items for printing contain uploadIds: string[] plus printing options summary. When creating the server order (before redirecting to payment), include uploadIds in the order document or in the PayMaya metadata so the payment webhook can reference them.
+ */
+
 export const actions = {
 	create: async ({ fetch, request }) => {
 		const formData = await request.formData();
