@@ -1,14 +1,14 @@
 <!-- Temporary Form Fields -->
 <script lang="ts">
 	import { user, isStaff } from '$lib/stores/auth';
-	import { printingSchema, validateField } from '$lib/validation';
+	import { printingSchema} from './schema';
 	import { cart, showToast, add } from '$lib/stores/cart';
 	import background from "$lib/imgs/backgrounds/img9.jpg";
 	import { fade } from "svelte/transition";
 
-	let pickupMode = '';
-	let pickupOther = '';
-
+	// Field states
+	let pickupMode = $state("");
+	let pickupOther = $state("");
 	let uploadedImages: {
 		id: number;
 		file: File;
@@ -18,14 +18,18 @@
 		size: string;
 		price: number;
 	}[] = $state([]);
+	let total = $state(0);
+
+	// Clear other field when chosen
+	$effect(() => {
+		if (pickupMode === "other")
+			pickupOther = "";
+	});
 
 	let errorMessages: string[] = [];
-
 	let fieldErrors: Record<string, string> = {};
 
-	let total = $state(0);
 	let nextId = 1;
-
 	// Handle file upload
 	function handleFileUpload(event: Event) {
 		const files = (event.target as HTMLInputElement).files;
@@ -87,87 +91,6 @@
 			0
 		);
 	}
-
-	// Real-time validation function
-	function handleFieldChange(field: string, value: string) {
-		// if (errorMessages.length > 0) {
-		// 	errorMessages = [];
-		// }
-
-		// if (['dropoffOther', 'pickupOther', 'dropoffMode', 'pickupMode'].includes(field)) {
-		// 	const result = printingSchema.safeParse({
-		// 		photoSize,
-		// 		totalPhotos,
-		// 		accessPhotos,
-		// 		linkPhotos,
-		// 		dropoffMode: field === 'dropoffMode' ? value : dropoffMode,
-		// 		dropoffOther: field === 'dropoffOther' ? value : dropoffOther,
-		// 		pickupMode: field === 'pickupMode' ? value : pickupMode,
-		// 		pickupOther: field === 'pickupOther' ? value : pickupOther
-		// 	});
-		// 	let errors: Record<string, string> = {};
-		// 	if (!result.success) {
-		// 		result.error.errors.forEach((error) => {
-		// 			const f = error.path[0] as string;
-		// 			errors[f] = error.message;
-		// 		});
-		// 	}
-		// 	fieldErrors = { ...fieldErrors, ...errors };
-		// 	if (value) {
-		// 		const { [field]: _, ...rest } = fieldErrors;
-		// 		fieldErrors = rest;
-		// 	}
-		// 	return;
-		// }
-
-		// const error = validateField(printingSchema, field as keyof typeof printingSchema.shape, value);
-		// if (error) {
-		// 	fieldErrors = { ...fieldErrors, [field]: error };
-		// } else {
-		// 	const { [field]: _, ...rest } = fieldErrors;
-		// 	fieldErrors = rest;
-		// }
-	}
-
-	const handleSubmit = (e: SubmitEvent) => {
-		e.preventDefault();
-		errorMessages = [];
-		fieldErrors = {};
-
-		// const result = printingSchema.safeParse({
-		// 	photoSize,
-		// 	totalPhotos,
-		// 	accessPhotos,
-		// 	linkPhotos,
-		// 	dropoffMode,
-		// 	dropoffOther,
-		// 	pickupMode,
-		// 	pickupOther
-		// });
-
-		// if (!result.success) {
-		// 	if (result.error && Array.isArray(result.error.errors)) {
-		// 		result.error.errors.forEach((error) => {
-		// 			const field = error.path[0] as string;
-		// 			fieldErrors[field] = error.message;
-		// 		});
-		// 	} else {
-		// 		errorMessages = ['Please fill in all required fields.'];
-		// 	}
-		// 	return;
-		// }
-
-		// const qty = parseInt(totalPhotos) || 1;
-		// add({
-		// 	id: 'printing',
-		// 	name: 'Printing',
-		// 	price: 8 * qty,
-		// 	quantity: 1,
-		// 	details: result.data,
-		// 	imageUrl: 'https://placehold.co/350x250'
-		// });
-		// showToast('Added to cart!');
-	};
 </script>
 
 <div class="px-30">
@@ -190,6 +113,7 @@
 	</div>
 	<h2 class="font-spaceGrotesk font-bold text-5xl mb-2">3R to 8R Printing</h2>
 	<p class="text-gray-400 text-2xl mb-8">P8</p>
+
 	{#if errorMessages.length}
 		<div class="bg-red-500/10 border border-red-500 text-red-500 p-3 mb-5 rounded">
 			<ul>
@@ -200,7 +124,7 @@
 		</div>
 	{/if}
 
-	<form on:submit={handleSubmit} class="w-full flex flex-col gap-6">
+	<form method="POST" class="w-full flex flex-col gap-6">
 	<!-- Upload field -->
 		<div>
 			<label class="block font-bold mb-2 text-sm" for="upload">UPLOAD YOUR PHOTOS*</label>
@@ -208,7 +132,7 @@
 				type="file"
 				id="upload"
 				multiple
-				on:change={handleFileUpload}
+				onchange={handleFileUpload}
 				class="w-full px-4 py-2 border rounded bg-white"
 				accept="image/*"
 			/>
@@ -234,13 +158,13 @@
 							<button
 								type="button"
 								class="bg-gray-200 px-2 rounded font-bold"
-								on:click={() => decreaseCopies(i)}
+								onclick={() => decreaseCopies(i)}
 							>-</button>
 							<span class="font-bold w-4 text-center">{img.copies}</span>
 							<button
 								type="button"
 								class="bg-gray-200 px-2 rounded font-bold"
-								on:click={() => increaseCopies(i)}
+								onclick={() => increaseCopies(i)}
 							>+</button>
 						</div>
 
@@ -252,7 +176,7 @@
 							<select
 								class="bg-yellow-300 font-semibold rounded-l-lg px-3 py-1 border-r-2 border-black focus:outline-none"
 								bind:value={img.size}
-								on:change={(e) => changeSize(i, e)}
+								onchange={(e) => changeSize(i, e)}
 							>
 								<option value="3R">3R</option>
 								<option value="4R">4R</option>
@@ -269,7 +193,7 @@
 						<!-- Delete -->
 						<button
 							class="text-red-500 font-bold text-lg ml-3 hover:text-red-700"
-							on:click={() => removeImage(i)}
+							onclick={() => removeImage(i)}
 						>
 							🗑
 						</button>
@@ -292,10 +216,6 @@
 						name="pickup"
 						value="same-day"
 						bind:group={pickupMode}
-						on:change={(e) => {
-							handleFieldChange('pickupMode', e.currentTarget.value);
-							pickupOther = '';
-						}}
 					/> SAME DAY COURIER (LALAMOVE, GRAB, MR. SPEEDY, ETC.)
 				</label>
 				<label class="text-sm">
@@ -304,10 +224,6 @@
 						name="pickup"
 						value="courier"
 						bind:group={pickupMode}
-						on:change={(e) => {
-							handleFieldChange('pickupMode', e.currentTarget.value);
-							pickupOther = '';
-						}}
 					/> COURIER (JRS, LBC, J&T, GOGOEXPRESS, ETC.)
 				</label>
 				<label class="text-sm">
@@ -316,10 +232,6 @@
 						name="pickup"
 						value="dropoff"
 						bind:group={pickupMode}
-						on:change={(e) => {
-							handleFieldChange('pickupMode', e.currentTarget.value);
-							pickupOther = '';
-						}}
 					/> DROP-OFF AT LOCATION (ONE10STUDIOLAB, MUNTINLUPA CITY)
 				</label>
 				<label class="text-sm">
@@ -328,7 +240,6 @@
 						name="pickup"
 						value="other"
 						bind:group={pickupMode}
-						on:change={(e) => handleFieldChange('pickupMode', e.currentTarget.value)}
 					/>
 					OTHER:
 					{#if pickupMode === 'other'}
@@ -339,7 +250,6 @@
 								: ''}"
 							placeholder="Specify"
 							bind:value={pickupOther}
-							on:input={(e) => handleFieldChange('pickupOther', e.currentTarget.value)}
 						/>
 						{#if fieldErrors.pickupOther}
 							<p class="text-red-500 text-sm mt-1">{fieldErrors.pickupOther}</p>
@@ -362,6 +272,7 @@
 		</div>
 	</form>
 </div>
+
 <section class="w-full mt-16 flex flex-col md:flex-row">
 	<div
 		class="bg-amber-300 flex-1 flex flex-col justify-center items-start py-16 px-10"
