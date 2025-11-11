@@ -1,53 +1,124 @@
+<!-- Temporary Form Fields -->
 <script lang="ts">
 	import { user, isStaff } from '$lib/stores/auth';
 	import { printingSchema, validateField } from '$lib/validation';
 	import { cart, showToast, add } from '$lib/stores/cart';
+	import background from "$lib/imgs/backgrounds/img9.jpg";
+	import { fade } from "svelte/transition";
 
-	let photoSize = '';
-	let totalPhotos = '';
-	let accessPhotos = '';
-	let linkPhotos = '';
-	let dropoffMode = '';
 	let pickupMode = '';
-	let dropoffOther = '';
 	let pickupOther = '';
 
+	let uploadedImages: {
+		id: number;
+		file: File;
+		name: string;
+		preview: string;
+		copies: number;
+		size: string;
+		price: number;
+	}[] = $state([]);
+
 	let errorMessages: string[] = [];
+
 	let fieldErrors: Record<string, string> = {};
 
-	import background from "$lib/imgs/backgrounds/img9.jpg";
+	let total = $state(0);
+	let nextId = 1;
+
+	// Handle file upload
+	function handleFileUpload(event: Event) {
+		const files = (event.target as HTMLInputElement).files;
+		if (!files) return;
+
+		for (const file of files) {
+			const reader = new FileReader();
+			const id = nextId++;
+
+			reader.onload = (e) => {
+				uploadedImages = [
+					...uploadedImages,
+					{
+						id,
+						file,
+						name: file.name,
+						preview: e.target?.result as string,
+						copies: 1,
+						size: "3R",
+						price: 100 // placeholder
+					},
+				];
+				updateTotal();
+			};
+
+			reader.readAsDataURL(file);
+		}
+
+		// reset input
+		(event.target as HTMLInputElement).value = "";
+	}
+
+	function increaseCopies(index: number) {
+		uploadedImages[index].copies++;
+		updateTotal();
+	}
+
+	function decreaseCopies(index: number) {
+		if (uploadedImages[index].copies > 1) {
+			uploadedImages[index].copies--;
+			updateTotal();
+		}
+	}
+
+	function changeSize(index: number, event: Event) {
+		const size = (event.target as HTMLSelectElement).value;
+		uploadedImages[index].size = size;
+		updateTotal();
+	}
+
+	function removeImage(index: number) {
+		uploadedImages.splice(index, 1);
+		updateTotal();
+	}
+
+	function updateTotal() {
+		total = uploadedImages.reduce(
+			(sum, img) => sum + img.copies * img.price,
+			0
+		);
+	}
 
 	// Real-time validation function
 	function handleFieldChange(field: string, value: string) {
-		if (errorMessages.length > 0) {
-			errorMessages = [];
-		}
+		// if (errorMessages.length > 0) {
+		// 	errorMessages = [];
+		// }
 
-		if (['dropoffOther', 'pickupOther', 'dropoffMode', 'pickupMode'].includes(field)) {
-			const result = printingSchema.safeParse({
-				photoSize,
-				totalPhotos,
-				accessPhotos,
-				linkPhotos,
-				dropoffMode: field === 'dropoffMode' ? value : dropoffMode,
-				dropoffOther: field === 'dropoffOther' ? value : dropoffOther,
-				pickupMode: field === 'pickupMode' ? value : pickupMode,
-				pickupOther: field === 'pickupOther' ? value : pickupOther
-			});
-			let errors: Record<string, string> = {};
-			if (!result.success) {
-				result.error.errors.forEach((error) => {
-					const f = error.path[0] as string;
-					errors[f] = error.message;
-				});
-			}
-			fieldErrors = { ...fieldErrors, ...errors };
-			if (value) {
-				const { [field]: _, ...rest } = fieldErrors;
-				fieldErrors = rest;
-			}
-			return;
-		}
+		// if (['dropoffOther', 'pickupOther', 'dropoffMode', 'pickupMode'].includes(field)) {
+		// 	const result = printingSchema.safeParse({
+		// 		photoSize,
+		// 		totalPhotos,
+		// 		accessPhotos,
+		// 		linkPhotos,
+		// 		dropoffMode: field === 'dropoffMode' ? value : dropoffMode,
+		// 		dropoffOther: field === 'dropoffOther' ? value : dropoffOther,
+		// 		pickupMode: field === 'pickupMode' ? value : pickupMode,
+		// 		pickupOther: field === 'pickupOther' ? value : pickupOther
+		// 	});
+		// 	let errors: Record<string, string> = {};
+		// 	if (!result.success) {
+		// 		result.error.errors.forEach((error) => {
+		// 			const f = error.path[0] as string;
+		// 			errors[f] = error.message;
+		// 		});
+		// 	}
+		// 	fieldErrors = { ...fieldErrors, ...errors };
+		// 	if (value) {
+		// 		const { [field]: _, ...rest } = fieldErrors;
+		// 		fieldErrors = rest;
+		// 	}
+		// 	return;
+		// }
 
 		// const error = validateField(printingSchema, field as keyof typeof printingSchema.shape, value);
 		// if (error) {
@@ -63,39 +134,39 @@
 		errorMessages = [];
 		fieldErrors = {};
 
-		const result = printingSchema.safeParse({
-			photoSize,
-			totalPhotos,
-			accessPhotos,
-			linkPhotos,
-			dropoffMode,
-			dropoffOther,
-			pickupMode,
-			pickupOther
-		});
+		// const result = printingSchema.safeParse({
+		// 	photoSize,
+		// 	totalPhotos,
+		// 	accessPhotos,
+		// 	linkPhotos,
+		// 	dropoffMode,
+		// 	dropoffOther,
+		// 	pickupMode,
+		// 	pickupOther
+		// });
 
-		if (!result.success) {
-			if (result.error && Array.isArray(result.error.errors)) {
-				result.error.errors.forEach((error) => {
-					const field = error.path[0] as string;
-					fieldErrors[field] = error.message;
-				});
-			} else {
-				errorMessages = ['Please fill in all required fields.'];
-			}
-			return;
-		}
+		// if (!result.success) {
+		// 	if (result.error && Array.isArray(result.error.errors)) {
+		// 		result.error.errors.forEach((error) => {
+		// 			const field = error.path[0] as string;
+		// 			fieldErrors[field] = error.message;
+		// 		});
+		// 	} else {
+		// 		errorMessages = ['Please fill in all required fields.'];
+		// 	}
+		// 	return;
+		// }
 
-		const qty = parseInt(totalPhotos) || 1;
-		add({
-			id: 'printing',
-			name: 'Printing',
-			price: 8 * qty,
-			quantity: 1,
-			details: result.data,
-			imageUrl: 'https://placehold.co/350x250'
-		});
-		showToast('Added to cart!');
+		// const qty = parseInt(totalPhotos) || 1;
+		// add({
+		// 	id: 'printing',
+		// 	name: 'Printing',
+		// 	price: 8 * qty,
+		// 	quantity: 1,
+		// 	details: result.data,
+		// 	imageUrl: 'https://placehold.co/350x250'
+		// });
+		// showToast('Added to cart!');
 	};
 </script>
 
@@ -130,144 +201,87 @@
 	{/if}
 
 	<form on:submit={handleSubmit} class="w-full flex flex-col gap-6">
+	<!-- Upload field -->
 		<div>
-			<label class="block font-bold mb-2 text-sm" for="photoSize">PHOTO SIZE*</label>
-			<select
-				class="w-full px-4 py-2 rounded border border-gray-300 bg-white {fieldErrors.photoSize
-					? 'border-2 border-red-500'
-					: ''}"
-				id="photoSize"
-				bind:value={photoSize}
-				on:change={(e) => handleFieldChange('photoSize', e.currentTarget.value)}
-			>
-				<option value="">Choose a photo size</option>
-				<option value="3R">3R</option>
-				<option value="4R">4R</option>
-				<option value="5R">5R</option>
-				<option value="6R">6R</option>
-				<option value="7R">7R</option>
-				<option value="8R">8R</option>
-			</select>
-			{#if fieldErrors.photoSize}
-				<p class="text-red-500 text-sm mt-1">{fieldErrors.photoSize}</p>
-			{/if}
-		</div>
-		<div>
-			<label class="block font-bold mb-2 text-sm" for="totalPhotos">TOTAL # OF PHOTOS TO BE PRINTED*</label>
-			<!--TODO: Bound this input-->
+			<label class="block font-bold mb-2 text-sm" for="upload">UPLOAD YOUR PHOTOS*</label>
 			<input
-				type="number"
-				id="totalPhotos"
-				class="w-full px-4 py-2 rounded border border-gray-300 bg-white {fieldErrors.totalPhotos
-					? 'border-2 border-red-500'
-					: ''}"
-				placeholder="Enter total number of photos"
-				bind:value={totalPhotos}
-				on:input={(e) => handleFieldChange('totalPhotos', e.currentTarget.value)}
-
+				type="file"
+				id="upload"
+				multiple
+				on:change={handleFileUpload}
+				class="w-full px-4 py-2 border rounded bg-white"
+				accept="image/*"
 			/>
-			{#if fieldErrors.totalPhotos}
-				<p class="text-red-500 text-sm mt-1">{fieldErrors.totalPhotos}</p>
-			{/if}
 		</div>
-		<!-- <div>
-			<label class="block font-bold mb-2 text-sm">ACCESS TO YOUR PHOTOS*</label>
-			<select
-				class="w-full px-4 py-2 rounded border border-gray-300 bg-white {fieldErrors.accessPhotos
-					? 'border-2 border-red-500'
-					: ''}"
-				bind:value={accessPhotos}
-				on:change={(e) => handleFieldChange('accessPhotos', e.currentTarget.value)}
-			>
-				<option value="">Select how to access your photos</option>
-				<option value="option1">Option 1</option>
-				<option value="option2">Option 2</option>
-				<option value="option3">Option 3</option>
-			</select>
-			{#if fieldErrors.accessPhotos}
-				<p class="text-red-500 text-sm mt-1">{fieldErrors.accessPhotos}</p>
-			{/if}
-		</div> -->
-		<div>
-			<!-- <label class="block font-bold mb-2 text-sm"
-				>LINK TO YOUR PHOTOS (IGNORE IF SENDING A FLASH DRIVE)</label
-			>
-			<input
-				type="text"
-				class="w-full px-4 py-2 rounded border border-gray-300 bg-white"
-				placeholder="Paste the link your photos"
-				bind:value={linkPhotos}
-			/> -->
-		</div>
-		<div class="mt-4">
-			<label class="block font-bold mb-2 text-sm" for="dropoffMode">MODE OF DELIVERY FOR DROP-OFF*</label>
-			<div class="flex flex-col gap-2">
-				<label class="text-sm">
-					<input
-						type="radio"
-						id="dropoffMode"
-						name="dropoff"
-						value="same-day"
-						bind:group={dropoffMode}
-						on:change={(e) => {
-							handleFieldChange('dropoffMode', e.currentTarget.value);
-							dropoffOther = '';
-						}}
-					/> SAME DAY COURIER (LALAMOVE, GRAB, MR. SPEEDY, ETC.)
-				</label>
-				<label class="text-sm">
-					<input
-						type="radio"
-						name="dropoff"
-						value="courier"
-						bind:group={dropoffMode}
-						on:change={(e) => {
-							handleFieldChange('dropoffMode', e.currentTarget.value);
-							dropoffOther = '';
-						}}
-					/> COURIER (JRS, LBC, J&T, GOGOEXPRESS, ETC.)
-				</label>
-				<label class="text-sm">
-					<input
-						type="radio"
-						name="dropoff"
-						value="dropoff"
-						bind:group={dropoffMode}
-						on:change={(e) => {
-							handleFieldChange('dropoffMode', e.currentTarget.value);
-							dropoffOther = '';
-						}}
-					/> DROP-OFF AT LOCATION (ONE10STUDIOLAB, MUNTINLUPA CITY)
-				</label>
-				<label class="text-sm">
-					<input
-						type="radio"
-						name="dropoff"
-						value="other"
-						bind:group={dropoffMode}
-						on:change={(e) => handleFieldChange('dropoffMode', e.currentTarget.value)}
-					/>
-					OTHER:
-					{#if dropoffMode === 'other'}
-						<input
-							type="text"
-							class="ml-2 px-2 py-1 rounded border border-gray-300 bg-white inline-block w-40 {fieldErrors.dropoffOther
-								? 'border-2 border-red-500'
-								: ''}"
-							placeholder="Specify"
-							bind:value={dropoffOther}
-							on:input={(e) => handleFieldChange('dropoffOther', e.currentTarget.value)}
+		{#if uploadedImages.length > 0}
+		<section class="bg-gray-50 p-6 rounded-lg shadow-md">
+			<h3 class="text-2xl font-bold mb-4">Preview & Adjustments</h3>
+			<div class="space-y-4">
+				{#each uploadedImages as img, i (img.id)}
+					<div
+						class="flex items-center gap-4 bg-white p-3 rounded-lg border border-gray-200 shadow-sm"
+						transition:fade
+					>
+						<!-- Thumbnail -->
+						<img
+							src={img.preview}
+							alt={img.name}
+							class="w-16 h-16 object-cover rounded"
 						/>
-						{#if fieldErrors.dropoffOther}
-							<p class="text-red-500 text-sm mt-1">{fieldErrors.dropoffOther}</p>
-						{/if}
-					{/if}
-				</label>
+
+						<!-- Copies control -->
+						<div class="flex items-center gap-2">
+							<button
+								type="button"
+								class="bg-gray-200 px-2 rounded font-bold"
+								on:click={() => decreaseCopies(i)}
+							>-</button>
+							<span class="font-bold w-4 text-center">{img.copies}</span>
+							<button
+								type="button"
+								class="bg-gray-200 px-2 rounded font-bold"
+								on:click={() => increaseCopies(i)}
+							>+</button>
+						</div>
+
+						<!-- File name -->
+						<p class="flex-1 truncate">{img.name}</p>
+
+						<!-- Size dropdown -->
+						<div class="flex items-center">
+							<select
+								class="bg-yellow-300 font-semibold rounded-l-lg px-3 py-1 border-r-2 border-black focus:outline-none"
+								bind:value={img.size}
+								on:change={(e) => changeSize(i, e)}
+							>
+								<option value="3R">3R</option>
+								<option value="4R">4R</option>
+								<option value="5R">5R</option>
+								<option value="6R">6R</option>
+								<option value="7R">7R</option>
+								<option value="8R">8R</option>
+							</select>
+							<div class="bg-yellow-300 rounded-r-lg px-3 py-1 font-semibold">
+								₱{img.price.toFixed(2)}
+							</div>
+						</div>
+
+						<!-- Delete -->
+						<button
+							class="text-red-500 font-bold text-lg ml-3 hover:text-red-700"
+							on:click={() => removeImage(i)}
+						>
+							🗑
+						</button>
+					</div>
+				{/each}
 			</div>
-			{#if fieldErrors.dropoffMode}
-				<p class="text-red-500 text-sm mt-1">{fieldErrors.dropoffMode}</p>
-			{/if}
-		</div>
+
+			<div class="text-right font-bold text-xl mt-6">
+				TOTAL: ₱{total.toFixed(2)}
+			</div>
+		</section>
+		{/if}
 		<div class="mt-4">
 			<label class="block font-bold mb-2 text-sm" for="pickupMode">MODE OF DELIVERY FOR PICK-UP*</label>
 			<div class="flex flex-col gap-2">
@@ -348,7 +362,6 @@
 		</div>
 	</form>
 </div>
-
 <section class="w-full mt-16 flex flex-col md:flex-row">
 	<div
 		class="bg-amber-300 flex-1 flex flex-col justify-center items-start py-16 px-10"
