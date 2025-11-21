@@ -1,7 +1,7 @@
-<!-- Temporary Form Fields -->
+<!--Temporary Form Fields-->
 <script lang="ts">
 	import { user, isStaff } from '$lib/stores/auth';
-	import { printingSchema} from './schema';
+	import type { UploadSchema } from './schema';
 	import { cart, showToast, add } from '$lib/stores/cart';
 	import background from "$lib/imgs/backgrounds/img9.jpg";
 	import { fade } from "svelte/transition";
@@ -9,15 +9,7 @@
 	// Field states
 	let pickupMode = $state("");
 	let pickupOther = $state("");
-	let uploadedImages: {
-		id: number;
-		file: File;
-		name: string;
-		preview: string;
-		copies: number;
-		size: string;
-		price: number;
-	}[] = $state([]);
+	let uploadedImages : UploadSchema[] = $state([]);
 	let total = $state(0);
 
 	// Clear other field when chosen
@@ -49,7 +41,8 @@
 						preview: e.target?.result as string,
 						copies: 1,
 						size: "3R",
-						price: 100 // placeholder
+						price: 100, // placeholder
+						fitMode: "fit" // placeholder
 					},
 				];
 				updateTotal();
@@ -85,11 +78,53 @@
 		updateTotal();
 	}
 
+	function changeFitMode(index: number, e: Event) {
+		const value = (e.target as HTMLSelectElement).value;
+		uploadedImages[index].fitMode = value;
+		uploadedImages = [...uploadedImages]; // ensure reactivity
+	}
+
 	function updateTotal() {
 		total = uploadedImages.reduce(
 			(sum, img) => sum + img.copies * img.price,
 			0
 		);
+	}
+
+	async function handleSubmit(e: SubmitEvent) {
+		try {
+			e.preventDefault();
+
+			const formData = new FormData();
+
+			formData.append("pickupMode", pickupMode);
+			formData.append("pickupOther", pickupOther);
+
+			for (const img of uploadedImages) {
+				formData.append("files", img.file);
+				formData.append("meta", JSON.stringify({
+					id: img.id,
+					name: img.name,
+					preview: img.preview,
+					copies: img.copies,
+					size: img.size,
+					price: img.price,
+					fitMode: img.fitMode
+				}));
+			}
+
+			const request = {
+				"method": "POST",
+				"body": formData
+			}
+
+			const response = await fetch("/store/printing", request);
+
+		}
+		catch (err) {
+			console.log("Error in submitting", err);
+		}
+
 	}
 </script>
 
@@ -124,7 +159,7 @@
 		</div>
 	{/if}
 
-	<form method="POST" class="w-full flex flex-col gap-6">
+	<form onsubmit={handleSubmit} class="w-full flex flex-col gap-6">
 	<!-- Upload field -->
 		<div>
 			<label class="block font-bold mb-2 text-sm" for="upload">UPLOAD YOUR PHOTOS*</label>
@@ -190,6 +225,20 @@
 							</div>
 						</div>
 
+						<div class="flex items-center gap-3 ml-20">
+							<label class="font-semibold" for="fitMode">Print Mode:</label>
+							<select
+								id="fitMode"
+								class="border rounded px-2 py-1 bg-white"
+								bind:value={img.fitMode}
+								onchange={(e) => changeFitMode(i, e)}
+							>
+
+								<option value="crop">Crop to Fit</option>
+								<option value="fit">Fit on Page</option>
+							</select>
+						</div>
+
 						<!-- Delete -->
 						<button
 							class="text-red-500 font-bold text-lg ml-3 hover:text-red-700"
@@ -213,7 +262,7 @@
 					<input
 						type="radio"
 						id="pickupMode"
-						name="pickup"
+						name="pickupMode"
 						value="same-day"
 						bind:group={pickupMode}
 					/> SAME DAY COURIER (LALAMOVE, GRAB, MR. SPEEDY, ETC.)
@@ -221,7 +270,7 @@
 				<label class="text-sm">
 					<input
 						type="radio"
-						name="pickup"
+						name="pickupMode"
 						value="courier"
 						bind:group={pickupMode}
 					/> COURIER (JRS, LBC, J&T, GOGOEXPRESS, ETC.)
@@ -229,7 +278,7 @@
 				<label class="text-sm">
 					<input
 						type="radio"
-						name="pickup"
+						name="pickupMode"
 						value="dropoff"
 						bind:group={pickupMode}
 					/> DROP-OFF AT LOCATION (ONE10STUDIOLAB, MUNTINLUPA CITY)
@@ -237,7 +286,7 @@
 				<label class="text-sm">
 					<input
 						type="radio"
-						name="pickup"
+						name="pickupMode"
 						value="other"
 						bind:group={pickupMode}
 					/>
@@ -261,7 +310,7 @@
 				<p class="text-red-500 text-sm mt-1">{fieldErrors.pickupMode}</p>
 			{/if}
 		</div>
-		<div class="flex gap-4 mt-6 items-center">
+		<div class="flex gap-4 mt-6 items-center" style="cursor: pointer">
 			<button 
 				type="submit" 
 				class="bg-amber-300 rounded-4xl px-8 py-2 font-bold text-black disabled:opacity-50"
