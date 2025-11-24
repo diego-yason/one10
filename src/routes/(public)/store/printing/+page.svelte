@@ -201,6 +201,7 @@
 							<span class="font-bold w-4 text-center">{img.copies}</span>
 							<button
 								type="button"
+								data-testid={"qty-plus-" + img.id}
 								class="bg-gray-200 px-2 rounded font-bold"
 								onclick={() => increaseCopies(i)}
 							>+</button>
