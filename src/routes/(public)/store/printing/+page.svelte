@@ -317,8 +317,9 @@
 			{/if}
 		</div>
 		<div class="flex gap-4 mt-6 items-center" style="cursor: pointer">
-			<button 
-				type="submit" 
+			<button
+                data-testid={"add-to-cart"}
+				type="submit"
 				class="bg-amber-300 rounded-4xl px-8 py-2 font-bold text-black disabled:opacity-50"
 				disabled={!!$user}
 				title={$user ? "Staff users cannot add items to cart" : ""}
@@ -367,4 +368,4 @@
 			>Register / Log in</a
 		>
 	</div>
-{/if} 
+{/if}
