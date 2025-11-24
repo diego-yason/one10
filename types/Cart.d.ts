@@ -26,3 +26,7 @@ export interface CartItem {
 		price: number;
 	}[];
 }
+
+export interface PhotoCartItem {
+	
+}

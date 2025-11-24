@@ -94,7 +94,7 @@
 					<p class="text-sm">from P200</p>
 				</div>
 			</a>
-			<!-- <a
+			<a
 				href="/store/printing"
 				class="products flex flex-col cursor-pointer shadow-lg min-w-[260px] max-w-[340px] bg-white rounded-2xl overflow-hidden"
 			>
@@ -107,7 +107,7 @@
 					<p class="font-bold underline text-base mb-1">3R - 8R Printing</p>
 					<p class="text-sm">from P8.00</p>
 				</div>
-			</a> -->
+			</a>
 		</div>
 	</div>
 </div>
