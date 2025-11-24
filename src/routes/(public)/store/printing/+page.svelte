@@ -164,6 +164,7 @@
 		<div>
 			<label class="block font-bold mb-2 text-sm" for="upload">UPLOAD YOUR PHOTOS*</label>
 			<input
+				data-testid="file-input"
 				type="file"
 				id="upload"
 				multiple
@@ -178,6 +179,7 @@
 			<div class="space-y-4">
 				{#each uploadedImages as img, i (img.id)}
 					<div
+						data-testid="photo-entry"
 						class="flex items-center gap-4 bg-white p-3 rounded-lg border border-gray-200 shadow-sm"
 						transition:fade
 					>
@@ -191,6 +193,7 @@
 						<!-- Copies control -->
 						<div class="flex items-center gap-2">
 							<button
+								data-testid={"qty-minus-" + img.id}
 								type="button"
 								class="bg-gray-200 px-2 rounded font-bold"
 								onclick={() => decreaseCopies(i)}
@@ -209,6 +212,7 @@
 						<!-- Size dropdown -->
 						<div class="flex items-center">
 							<select
+								data-testid={"size-select-" + img.id}
 								class="bg-yellow-300 font-semibold rounded-l-lg px-3 py-1 border-r-2 border-black focus:outline-none"
 								bind:value={img.size}
 								onchange={(e) => changeSize(i, e)}
@@ -241,6 +245,7 @@
 
 						<!-- Delete -->
 						<button
+							data-testid={"delete-" + img.id}
 							class="text-red-500 font-bold text-lg ml-3 hover:text-red-700"
 							onclick={() => removeImage(i)}
 						>
@@ -250,7 +255,7 @@
 				{/each}
 			</div>
 
-			<div class="text-right font-bold text-xl mt-6">
+			<div data-testid="total-price" class="text-right font-bold text-xl mt-6">
 				TOTAL: ₱{total.toFixed(2)}
 			</div>
 		</section>
