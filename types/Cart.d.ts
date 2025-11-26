@@ -1,3 +1,4 @@
+import { LocalImageFile } from "$types/LocalImage";
 export interface CartItem {
 	details: {
 		[key: string]:
@@ -10,7 +11,7 @@ export interface CartItem {
 	};
 	id: string;
 	/** for local reference only */
-	imageUrl: string;
+	imageFile?: LocalImageFile[];
 	/** for local reference only */
 	name: string;
 	/** for local reference only */

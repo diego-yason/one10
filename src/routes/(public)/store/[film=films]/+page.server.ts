@@ -1,8 +1,8 @@
-import { filmOrderSchema, addonNames } from './schema';
+import { process, pushProcess, scan } from '$lib/references/filmDevPrices.json';
+import type { CartItem } from '$types/Cart';
 import { fail } from '@sveltejs/kit';
 import type { z } from 'zod';
-import type { CartItem } from '$types/Cart';
-import { process, pushProcess, scan } from '$lib/references/filmDevPrices.json';
+import { addonNames, filmOrderSchema } from './schema';
 
 export const actions = {
 	default: async ({ request, params }) => {
@@ -53,7 +53,6 @@ export const actions = {
 			quantity: data.quantity,
 			notes: data.notes ?? '',
 			details: data.details,
-			imageUrl: `https://placehold.co/350x250`,
 			name: `Film Development (${params.film}): ${data.details.brand}`,
 			price: process[data.details.process] ?? 0,
 			addons:

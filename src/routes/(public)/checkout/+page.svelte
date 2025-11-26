@@ -194,7 +194,7 @@
 			{#each $cart as item}
 				<div class="flex gap-4 items-center px-4 w-full">
 					<img
-						src={item.imageUrl}
+						src={item.imageFile}
 						class="flex-1 max-w-[100px] h-auto object-contain self-start"
 						alt={item.name}
 					/>

@@ -1,3 +1,4 @@
+import { ServerImageFile } from '$types/firebase/ImageFile';
 import { Timestamp } from 'firebase-admin/firestore';
 
 interface Order {
@@ -41,4 +42,5 @@ interface Order {
 	name: string;
 	email: string;
 	phone: string;
+	files: ServerImageFile[];
 }

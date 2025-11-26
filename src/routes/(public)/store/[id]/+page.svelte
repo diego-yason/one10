@@ -1,6 +1,6 @@
 <script lang="ts">
-	import { add, showToast } from '$lib/stores/cart';
 	import { user } from '$lib/stores/auth';
+	import { add, showToast } from '$lib/stores/cart';
 	import type { FirebaseProduct } from '$types/firebase/Products';
 
 	let { data } = $props();
@@ -17,7 +17,7 @@
 			quantity,
 			// TODO: blank data
 			details: {},
-			imageUrl: product.imageUrl
+			imageFile: product.imageUrl
 		});
 		showToast('Added to cart!');
 	}

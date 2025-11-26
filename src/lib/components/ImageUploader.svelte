@@ -1,13 +1,13 @@
 <script lang="ts">
   import imageCompression from "browser-image-compression";
-  import { uploadTempImage } from "$lib/services/storage";
+  //import { uploadTempImage } from "$lib/services/storage";
   import { user } from "$lib/stores/auth"; // assumes writable store { uid, ... }
 
   // --- Props ---
-  export let accept = "image/*";
+  export let accept = "image/png, image/jpeg, image/jpg";
   export let maxFiles = 10;
 
-  export let onUploaded: (result: any) => void;
+  export let onUploaded: (f: File[]) => void;
   export let onError: (error: any) => void;
   export let onComplete: (data: { count: number }) => void;
 
@@ -15,11 +15,6 @@
   type UploadItem = {
     file: File;
     preview: string;
-    progress: number;
-    uploaded: boolean;
-    uploading: boolean;
-    uploadId?: string;
-    meta?: any;
     error?: string;
   };
 
@@ -34,9 +29,6 @@
     files = selected.map((file) => ({
       file,
       preview: URL.createObjectURL(file),
-      progress: 0,
-      uploaded: false,
-      uploading: false,
     }));
   }
 
@@ -62,36 +54,17 @@
     }
 
     isUploading = true;
-
+    const compressed_files: File[] = [];
     for (const item of files) {
       try {
-        item.uploading = true;
         const compressed = await compressImage(item.file);
-
-        const printingOptions = {
-          size: "4x6",
-          quantity: 1,
-          cropMode: "fit",
-        };
-
-        const result: any = await uploadTempImage(
-          compressed,
-          u.uid,
-          printingOptions,
-          (p) => (item.progress = p)
-        );
-
-        item.uploadId = result.uploadId;
-        item.meta = result.meta;
-        item.uploaded = true;
-        item.uploading = false;
-        onUploaded?.(result);
+        compressed_files.push(compressed)
       } catch (err: any) {
-        item.error = err?.message || "Upload failed";
-        item.uploading = false;
         onError?.(item.error);
       }
     }
+
+    onUploaded?.(compressed_files);
 
     isUploading = false;
     onComplete?.({ count: files.length });
@@ -125,29 +98,8 @@
             class="w-full h-40 object-cover rounded-lg"
           />
 
-          {#if item.uploading}
-            <div class="w-full bg-gray-200 rounded-full h-2.5">
-              <div
-                class="bg-blue-600 h-2.5 rounded-full transition-all"
-                style="width: {item.progress}%"
-              ></div>
-            </div>
-            <p class="text-sm text-gray-500">{item.progress}%</p>
-          {:else if item.uploaded}
-            <p class="text-green-600 font-medium">Uploaded ✓</p>
-          {:else if item.error}
-            <p class="text-red-500">{item.error}</p>
-          {/if}
         </div>
       {/each}
     </div>
-
-    <button
-      class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded-lg shadow disabled:opacity-50"
-      on:click={startUploads}
-      disabled={isUploading}
-    >
-      {isUploading ? "Uploading..." : "Start Uploads"}
-    </button>
   {/if}
 </div>

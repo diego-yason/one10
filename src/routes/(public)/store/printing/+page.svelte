@@ -1,8 +1,10 @@
 <script lang="ts">
-	import { user, isStaff } from '$lib/stores/auth';
-	import { printingSchema, validateField } from '$lib/validation';
-	import { cart, showToast, add } from '$lib/stores/cart';
 	import ImageUploader from '$lib/components/ImageUploader.svelte';
+	import { isStaff, user } from '$lib/stores/auth';
+	import { add, cart, showToast } from '$lib/stores/cart';
+	import { addPhoto, exportPhotos, photoprintStore } from '$lib/stores/image';
+	import { printingSchema, validateField } from '$lib/validation';
+
 	/**
 	 * TODO: add the ImageUploader component, collect resulting uploadIds and attach these to the cart item when the user "Add to cart" / "Order".
 	*/
@@ -59,6 +61,17 @@
 		}
 	}
 
+	function handleFiles(files: File[]) {
+
+    const newPhotos = files.map(file => ({
+      file,
+      id: crypto.randomUUID(),
+      previewUrl: URL.createObjectURL(file)
+    }));
+
+    photoprintStore.update(p => [...p, ...newPhotos]);
+  }
+
 	const handleSubmit = (e: SubmitEvent) => {
 		e.preventDefault();
 		errorMessages = [];
@@ -94,7 +107,7 @@
 			price: 8 * qty,
 			quantity: 1,
 			details: result.data,
-			imageUrl: 'https://placehold.co/350x250'
+			imageFile: exportPhotos(),
 		});
 		showToast('Added to cart!');
 	};
@@ -330,11 +343,11 @@
 			{/if}
 		</div>
 
-		<ImageUploader 
-			onComplete = {()=>{}}
-			onError = {()=>{}}
-			onUploaded = {()=>{}}
-		/>
+		<ImageUploader
+			onUploaded = {handleFiles}
+			onError = {() => {}}
+			onComplete = {() => {}}
+			/>
 
 		<div class="flex gap-4 mt-6 items-center">
 			<button 
