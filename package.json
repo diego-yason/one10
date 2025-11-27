@@ -13,7 +13,7 @@
 		"format": "prettier --write .",
 		"lint": "prettier --check . && eslint .",
 		"test:unit": "vitest",
-        "test:coverage": "vitest run --coverage",
+		"test:coverage": "vitest run --coverage",
 		"test": "npm run test:unit -- --run && npm run test:e2e",
 		"test:e2e": "playwright test"
 	},
@@ -46,6 +46,7 @@
 		"@tailwindcss/vite": "^4.1.11",
 		"firebase": "^11.10.0",
 		"firebase-admin": "^13.4.0",
+		"jszip": "^3.10.1",
 		"lodash": "^4.17.21",
 		"quill": "^2.0.3",
 		"svelte-firekit": "^0.1.7",
