@@ -28,6 +28,7 @@
 	verifyCart();
 	setInterval(verifyCart, 1000 * 60 * 5); // Verify cart every 5 minutes while in page
 
+	// TODO: update for photoprinting
 	cart.subscribe((cart) => {
 		total = cart.reduce(
 			(sum, item) =>
@@ -50,6 +51,7 @@
 	}
 
 	import CartItem from './CartItem.svelte';
+	import PhotoCartItem from './PhotoCartItem.svelte';
 
 	let hideDev = $state(false);
 </script>
@@ -102,6 +104,9 @@
 	{:else}
 		{#each $cart as item, i (item.id + '-' + i)}
 			{#key item.quantity}
+				{#if item.details?.type === "print"}
+					<PhotoCartItem {i} {item}></PhotoCartItem>
+				{/if}
 				<CartItem {...item} {updateQuantity} {removeItem} {i}></CartItem>
 			{/key}
 		{/each}

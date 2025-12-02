@@ -5,13 +5,19 @@
 	import { cart, showToast, add } from '$lib/stores/cart';
 	import background from "$lib/imgs/backgrounds/img9.jpg";
 	import { fade } from "svelte/transition";
+	import { enhance } from "$app/forms"
+	import type { CartItem } from '$types/Cart';
+	import { v4 as uuidv4 } from "uuid";
 
 	// Field states
+	
+	type UploadType = UploadSchema & {preview: string};
 	let pickupMode = $state("");
 	let pickupOther = $state("");
-	let uploadedImages : UploadSchema[] = $state([]);
+	let uploadedImages : UploadType[] = $state([]);
 	let total = $state(0);
-
+	let isSubmitting = $state(false);
+	const BASE_PRICE = 100;
 	// Clear other field when chosen
 	$effect(() => {
 		if (pickupMode === "other")
@@ -21,7 +27,6 @@
 	let errorMessages: string[] = [];
 	let fieldErrors: Record<string, string> = {};
 
-	let nextId = 1;
 	// Handle file upload
 	function handleFileUpload(event: Event) {
 		const files = (event.target as HTMLInputElement).files;
@@ -29,7 +34,7 @@
 
 		for (const file of files) {
 			const reader = new FileReader();
-			const id = nextId++;
+			const id = uuidv4();
 
 			reader.onload = (e) => {
 				uploadedImages = [
@@ -41,7 +46,7 @@
 						preview: e.target?.result as string,
 						copies: 1,
 						size: "3R",
-						price: 100, // placeholder
+						price: BASE_PRICE, // placeholder
 						fitMode: "fit" // placeholder
 					},
 				];
@@ -91,21 +96,22 @@
 		);
 	}
 
-	async function handleSubmit(e: SubmitEvent) {
+	async function handleSubmit(e : SubmitEvent) {
+		e.preventDefault();
+
 		try {
-			e.preventDefault();
-
+			isSubmitting = true;
 			const formData = new FormData();
-
+		
 			formData.append("pickupMode", pickupMode);
 			formData.append("pickupOther", pickupOther);
-
+			formData.append("total", String(total));
+			formData.append("basePrice", String(BASE_PRICE));
 			for (const img of uploadedImages) {
 				formData.append("files", img.file);
 				formData.append("meta", JSON.stringify({
 					id: img.id,
 					name: img.name,
-					preview: img.preview,
 					copies: img.copies,
 					size: img.size,
 					price: img.price,
@@ -113,16 +119,44 @@
 				}));
 			}
 
-			const request = {
-				"method": "POST",
-				"body": formData
+			// Use enhance's built-in form action submission
+			const response = await fetch(window.location.pathname, {
+				method: "POST",
+				body: formData,
+				headers: {
+					'x-sveltekit-action': 'true'
+				}
+			});
+			
+			const result = await response.json();
+			console.log("Response ", result);
+			if (result?.type === "success" && result?.data?.item) {
+				const item = result.data.item;
+				
+				// // Re-attach previews
+				// if (item.details?.uploadedImages) {
+				// 	item.details.uploadedImages = item.details.uploadedImages.map((img: any) => ({
+				// 		...img,
+				// 		preview: previewMap.get(img.id) || ''
+				// 	}));
+				// }
+				
+				add(item as CartItem);
+				showToast('Added to cart!');
+				uploadedImages = [];
+				total = 0;
+				(e.target as HTMLFormElement).reset();
+			} else {
+				showToast('There was an error adding to cart.');
+				console.log("Result:", result);
 			}
-
-			const response = await fetch("/store/printing", request);
 
 		}
 		catch (err) {
 			console.log("Error in submitting", err);
+		}
+		finally {
+			isSubmitting = false;
 		}
 
 	}
@@ -159,7 +193,12 @@
 		</div>
 	{/if}
 
-	<form onsubmit={handleSubmit} class="w-full flex flex-col gap-6">
+	<form 
+		class="w-full flex flex-col gap-6"
+		method="POST"
+		onsubmit={handleSubmit}
+		enctype="multipart/form-data"
+	>
 	<!-- Upload field -->
 		<div>
 			<label class="block font-bold mb-2 text-sm" for="upload">UPLOAD YOUR PHOTOS*</label>

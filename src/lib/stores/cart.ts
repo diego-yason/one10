@@ -6,6 +6,7 @@ import type { CartItem } from '$types/Cart';
 import { writable } from 'svelte/store';
 import _ from 'lodash';
 
+
 export const cart = writable<CartItem[]>([]);
 
 let cartStatic: CartItem[];
@@ -38,8 +39,9 @@ if (browser) cart.subscribe((data) => localStorage.setItem('cart', JSON.stringif
 export function add(item: CartItem) {
 	cart.update((items) => {
 		// If item with same id/type/details exists, increase quantity
+	
 		const idx = items.findIndex(
-			(i) => i.id === item.id && _.isEqual(i.details, item.details) && item.notes === i.notes
+			(i) =>  i.id === item.id && _.isEqual(i.details, item.details) && item.notes === i.notes
 		);
 		if (idx !== -1) {
 			items[idx].quantity += item.quantity;
@@ -47,6 +49,7 @@ export function add(item: CartItem) {
 		}
 		const newItems = [...items, item];
 		return newItems;
+	
 	});
 }
 

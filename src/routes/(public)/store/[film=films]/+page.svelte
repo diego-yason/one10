@@ -74,6 +74,7 @@
 		class="w-full flex flex-col gap-6 mt-8"
 		use:enhance={() => {
 			return async ({ result, formElement }) => {
+				console.log(result);
 				if (result?.type === 'success') {
 					add(result.data!.item as unknown as CartItem);
 					showToast('Added to cart!');
