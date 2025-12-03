@@ -2,6 +2,7 @@
 	import { cart } from "$lib/stores/cart";
 	import { onMount } from "svelte";
 	import { getImage } from "$lib/db/cartImages";
+	import { PICKUP_MAP	} from "$public/store/printing/schema"
 	import ImageGalleryModal from "./ImageGalleryModal.svelte";
 
 	let {
@@ -134,9 +135,13 @@
 						</div>
 
 						<div class="font-semibold">
-							P{img.copies * img.price}.00
+							P{(img.copies * img.price).toFixed(2)}
 						</div>
 					</div>
+					<div>
+						Pick Up: {details.pickupMode !== "other" ? PICKUP_MAP[String(details.pickupMode)] : details.pickupOther}
+					</div>
+
 				{/each}
 			</div>
 
@@ -151,7 +156,7 @@
 			</div>
 
 			<div class="mt-6 font-bold text-lg">
-				TOTAL: P{totalPrice}.00
+				TOTAL: P{totalPrice.toFixed(2)}
 			</div>
 		</div>
 

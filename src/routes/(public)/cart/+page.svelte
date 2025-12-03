@@ -117,7 +117,7 @@
 				<div>
 					<h3 class="flex space-x-4 items-center">
 						<span class="font-normal text-2xl">Total</span>
-						<span class="bg-amber-400 px-3 py-2 rounded-xl text-xl">P{total}</span>
+						<span class="bg-amber-400 px-3 py-2 rounded-xl text-xl">P{total.toFixed(2)}</span>
 					</h3>
 				</div>
 				<div class="flex gap-4">

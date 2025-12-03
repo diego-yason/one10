@@ -293,7 +293,7 @@
 											{img.copies} × {img.size}
 										</div>
 										<div class="font-semibold">
-											P{Number(img.copies) * Number(img.price)}.00
+											P{(Number(img.copies) * Number(img.price)).toFixed(2)}
 										</div>
 									</div>
 								{/each}
@@ -362,13 +362,13 @@
 											{img.copies} × {img.size}
 										</div>
 										<div class="font-semibold">
-											P{Number(img.copies) * Number(img.price)}.00
+											P{(Number(img.copies) * Number(img.price)).toFixed(2)}
 										</div>
 									</div>
 								{/each}
 								<p class="Qty">QTY: {item.quantity}</p>
 							</div>
-							<p class="self-end flex-1 text-right">P{getTotalPrice(item).toLocaleString()}</p>
+							<p class="self-end flex-1 text-right">P{getTotalPrice(item).toFixed(2).toLocaleString()}</p>
 						</div>
 					{:else}
 						<div class="flex gap-4 items-center px-4 w-full">
@@ -381,7 +381,7 @@
 								<p class="font-openSans font-bold">{item.name}</p>
 								<p class="Qty">QTY: {item.quantity}</p>
 							</div>
-							<p class="self-end flex-1 text-right">P{getTotalPrice(item).toLocaleString()}</p>
+							<p class="self-end flex-1 text-right">P{getTotalPrice(item).toFixed(2).toLocaleString()}</p>
 						</div>
 					{/if}	
 				{/each}
@@ -390,7 +390,7 @@
 			<div class="flex justify-between pt-15">
 				<h1 class="total">Total</h1>
 				<p class="total">
-					P{$cart.reduce((total, item) => total + getTotalPrice(item), 0).toLocaleString()}
+					P{$cart.reduce((total, item) => total + getTotalPrice(item), 0).toFixed(2).toLocaleString()}
 				</p>
 			</div>
 			<p class="italic">

@@ -59,7 +59,7 @@ export const actions = {
 
       // Build cart item using serializable metadata only
       const cartItem : CartItem = {
-        id: String(uuidv4()),
+        id: String(uuidv4()), // TODO-diego
         details: {
           total: data.total,
           basePrice: data.basePrice,

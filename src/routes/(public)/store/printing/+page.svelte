@@ -22,14 +22,20 @@
     import { browser } from '$app/environment';
 
     export const ssr = false;
+	
+	// Base price for images
+	const BASE_PRICE = 100;
 
     type UploadType = UploadSchema & {preview: string};
+
+	// States
     let pickupMode = $state("");
     let pickupOther = $state("");
     let uploadedImages : UploadType[] = $state([]);
     let total = $state(0);
     let isSubmitting = $state(false);
-    const BASE_PRICE = 100;
+
+	let fileInput: HTMLInputElement;
 
     interface Issue {
         [key: string]: string
@@ -240,17 +246,7 @@
 		}}
 	>
 	<!-- Upload field -->
-		<div>
-			<label class="block font-bold mb-2 text-sm" for="upload">UPLOAD YOUR PHOTOS*</label>
-			<input
-				type="file"
-				id="upload"
-				multiple
-				onchange={handleFileUpload}
-				class="w-full px-4 py-2 border rounded bg-white"
-				accept="image/*"
-			/>
-		</div>
+		<label class="block font-bold mb-2 text-sm" for="upload">UPLOAD YOUR PHOTOS*</label>
 		{#if uploadedImages.length > 0}
 		<section class="bg-gray-50 p-6 rounded-lg shadow-md">
 			<h3 class="text-2xl font-bold mb-4">Preview & Adjustments</h3>
@@ -320,6 +316,7 @@
 
 						<!-- Delete -->
 						<button
+							type="button"
 							class="text-red-500 font-bold text-lg ml-3 hover:text-red-700"
 							onclick={() => removeImage(i)}
 						>
@@ -334,6 +331,25 @@
 			</div>
 		</section>
 		{/if}
+		<!-- Hidden actual file input -->
+		<input
+			type="file"
+			id="upload"
+			multiple
+			accept="image/*"
+			onchange={handleFileUpload}
+			class="hidden"
+			bind:this={fileInput}
+		/>
+
+		<!-- Visible Upload button -->
+		<button
+			type="button"
+			class="w-40 px-4 py-2 bg-yellow-300 font-bold rounded-md border border-black hover:bg-yellow-400"
+			onclick={() => fileInput.click()}
+		>
+		Upload Images
+		</button>
 		<div class="mt-4">
 			<label class="block font-bold mb-2 text-sm" for="pickupMode">MODE OF DELIVERY FOR PICK-UP*</label>
 			<div class="flex flex-col gap-2">
