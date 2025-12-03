@@ -2,7 +2,7 @@
 
 <script lang="ts">
     import { user, isStaff } from '$lib/stores/auth';
-    import type { UploadSchema } from './schema';
+    import { type UploadSchema, PRICE_PER_SIZE } from './schema';
     import { cart, showToast, add } from '$lib/stores/cart';
     import background from "$lib/imgs/backgrounds/img9.jpg";
     import { fade } from "svelte/transition";
@@ -22,9 +22,9 @@
     import { browser } from '$app/environment';
 
     export const ssr = false;
-	
+
 	// Base price for images
-	const BASE_PRICE = 100;
+	
 
     type UploadType = UploadSchema & {preview: string};
 
@@ -32,8 +32,9 @@
     let pickupMode = $state("");
     let pickupOther = $state("");
     let uploadedImages : UploadType[] = $state([]);
-    let total = $state(0);
-    let isSubmitting = $state(false);
+    let basePrice = $state(0);
+	let total = $state(0);
+	let isSubmitting = $state(false);
 
 	let fileInput: HTMLInputElement;
 
@@ -104,6 +105,7 @@
         for (const file of files) {
             const id = uuidv4();	
             await saveImage(id, file);
+			basePrice = PRICE_PER_SIZE["3R"];
 
             const preview = await readAsDataURL(file);
             uploadedImages = [
@@ -115,7 +117,7 @@
                     preview,
                     copies: 1,
                     size: "3R",
-                    price: BASE_PRICE,
+                    price: basePrice,
                     fitMode: "fit"
                 },
             ];
@@ -140,7 +142,9 @@
 
     function changeSize(index: number, event: Event) {
         const size = (event.target as HTMLSelectElement).value;
+		basePrice = PRICE_PER_SIZE[size];
         uploadedImages[index].size = size;
+		uploadedImages[index].price = PRICE_PER_SIZE[size];
         updateTotal();
     }
 
@@ -205,7 +209,7 @@
 			formData.append("pickupMode", pickupMode);
 			formData.set("pickupOther", pickupOther);
 			formData.append("total", String(total));
-			formData.append("basePrice", String(BASE_PRICE));
+			formData.append("basePrice", String(basePrice));
 
 			for (const img of uploadedImages) {
 				formData.append("files", img.file);
@@ -335,6 +339,7 @@
 		<input
 			type="file"
 			id="upload"
+			data-testId="upload"
 			multiple
 			accept="image/*"
 			onchange={handleFileUpload}

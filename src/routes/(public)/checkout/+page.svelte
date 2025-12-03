@@ -6,6 +6,7 @@
 	import { getImage, clearImages, clearFormState } from '$lib/db/cartImages';
 	import { onMount } from 'svelte';
 	import ImageGalleryModal from '$public/cart/ImageGalleryModal.svelte';
+	import type { imgMeta } from '$public/store/printing/schema';
 
 	let email = $state('');
 	let fullName = $state('');
@@ -22,10 +23,6 @@
 
 	let { data, form }: PageProps = $props();
 
-	// for photo printing
-	interface imgMeta {
-		[key: string]: unknown
-	}
 
 	interface ImageData {
 		url: string;

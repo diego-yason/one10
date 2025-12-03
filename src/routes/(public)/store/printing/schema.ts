@@ -5,11 +5,26 @@ const FIT_MODES = ["fit", "crop"];
 const PICKUP_MODES = ["same-day", "courier", "dropoff", "other"];
 const SIZE = ["3R", "4R", "5R", "6R", "7R", "8R"];
 
+export const PRICE_PER_SIZE : {[key: string]: number}  = {
+  "3R": 100,
+  "4R": 200,
+  "5R": 300,
+  "6R": 400,
+  "7R": 500,
+  "8R": 700
+}
+
 export const PICKUP_MAP : {[key: string]: string} = {
   "same-day": "SAME DAY COURIER (LALAMOVE, GRAB, MR. SPEEDY, ETC.)",
   "courier": "COURIER (JRS, LBC, J&T, GOGOEXPRESS, ETC.)",
   "dropoff": "DROP-OFF AT LOCATION (ONE10STUDIOLAB, MUNTINLUPA CITY)"
 };
+
+export interface imgMeta {
+  [key: string]: unknown
+}
+
+	// for photo printing
 
 export const uploadSchema = z.object({
     id: z.string(),
@@ -17,7 +32,7 @@ export const uploadSchema = z.object({
       return value instanceof Blob && value.size <= (MAX_FILE_SIZE * 1024 * 1024);
     }, "File too large."),
     name: z.string({message: "File name is invalid."}),
-    copies: z.number().min(1, "Copies cannot be less than zero."),
+    copies: z.number().min(1, "Copies cannot be less than one."),
     size: z.string().min(1, "Print size is required.").refine((size) => SIZE.includes(size), {message: "Print size is invalid."}),
     fitMode: z.string().min(1, "Fit mode is required.").refine((fitMode) => FIT_MODES.includes(fitMode), {message: "Fit mode is invalid."}), 
     price: z.number().min(0, "Price cannot be negative.")
