@@ -24,7 +24,12 @@ export const printingSchema = z.object({
   .min(1, "Please upload a photo."),
   pickupMode: z.string().min(1, "Pickup mode is required."),
   pickupOther: z.string().optional()
-});
+}).refine((data) => {
+  if (data.pickupMode === "other" && data.pickupOther?.length === 0)
+    return false;
+  else
+    return true;
+}, { message: "Pickup mode is required" });
 
 
 export type PrintingFormData = z.infer<typeof printingSchema>;

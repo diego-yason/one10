@@ -72,6 +72,10 @@ export async function verifyCart(cart: CartItem[]): Promise<boolean> {
 	)) as CartItem[];
 
 	console.log('Cart verified');
+	console.log('Old cart: ', cart);
+	console.log('New cart: ', newCart);
+
+
 
 	return _.isEqual(cart, newCart);
 }

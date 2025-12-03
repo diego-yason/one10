@@ -6,7 +6,6 @@ import type { CartItem } from '$types/Cart';
 import { writable } from 'svelte/store';
 import _ from 'lodash';
 
-
 export const cart = writable<CartItem[]>([]);
 
 let cartStatic: CartItem[];
@@ -39,9 +38,8 @@ if (browser) cart.subscribe((data) => localStorage.setItem('cart', JSON.stringif
 export function add(item: CartItem) {
 	cart.update((items) => {
 		// If item with same id/type/details exists, increase quantity
-	
 		const idx = items.findIndex(
-			(i) =>  i.id === item.id && _.isEqual(i.details, item.details) && item.notes === i.notes
+			(i) => i.id === item.id && _.isEqual(i.details, item.details) && item.notes === i.notes
 		);
 		if (idx !== -1) {
 			items[idx].quantity += item.quantity;
@@ -49,7 +47,6 @@ export function add(item: CartItem) {
 		}
 		const newItems = [...items, item];
 		return newItems;
-	
 	});
 }
 
@@ -85,12 +82,15 @@ export function showToast(message: string) {
 
 import { process, pushProcess, scan } from '$lib/references/filmDevPrices.json';
 // verify with server, and ensure no items with zero quantity
-export async function verifyCart(): Promise<boolean> {
+export async function  verifyCart(): Promise<boolean> {
 	// return; //disable for now
 	const tempCart = Object.create(cartStatic) as CartItem[];
 
 	const promises = tempCart.map(async (item) => {
 		// NOTE: this method of checking if it is a service is NOT compatible with printing, for future purposes.
+		if (item.details.type === "print") // Fix this, bruteforce way of verifying for services.
+			return item;
+
 		if (item.id.startsWith('dev-')) {
 			// For services, we don't need to check availability
 			if (item.quantity <= 0) {

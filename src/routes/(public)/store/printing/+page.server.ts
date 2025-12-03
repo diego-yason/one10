@@ -1,4 +1,5 @@
 /* duplicate block removed */
+import { browser } from "$app/environment";
 import { ZodError } from 'zod';
 import type { PageServerLoad } from './$types'; 
 import { printingSchema } from './schema';
@@ -6,7 +7,6 @@ import type { PrintingFormData, UploadSchema } from './schema';
 import { error, fail } from '@sveltejs/kit';
 import { v4 as uuidv4 } from "uuid";
 import type { CartItem } from '$types/Cart';
-import { json } from "@sveltejs/kit";
 
 export const actions = {
   default: async ({ request }) => {
@@ -24,12 +24,14 @@ export const actions = {
       console.log(`File ${i}: ${file.name}, Size: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
     });
 
-    const uploadedImages = files.map((file, i) => ({
-      ...metas[i],
-      file
-    }));
+    // TODO: figure out a way to send images and make them persist (local storage before checkout or upload to firebase)
+    const uploadedImages = files.map((file, i) => {
+      return {
+        ...metas[i],
+        file
+      }
+    });
 
-    console.log(uploadedImages[0]);  
     // for (let i=1; i < uploadedImages.length; i++) {
     //   console.log("Img", (uploadedImages[i].file.size / 1024 / 1024).toFixed(2))
     // }
@@ -48,31 +50,33 @@ export const actions = {
       if (!success) {
         throw error
       }
-  
-      const uploadedImagesForReturn = data.uploadedImages.map((img) => {
+      
+      // Send only the metas (especiall the id) to get the images stored elsewhere.
+      const imgMetas = data.uploadedImages.map((img) => {
         const { file, ...rest } = img as any;
         return rest;
       });
+
       // Build cart item using serializable metadata only
       const cartItem : CartItem = {
-        id: uuidv4(),
+        id: String(uuidv4()),
         details: {
-          total: total,
+          total: data.total,
           basePrice: data.basePrice,
           type: "print",
-          //uploadedImages: uploadedImagesForReturn,
+          uploadedImages: imgMetas, // Store meta in the cart item with id
           pickupMode: data.pickupMode,
           pickupOther: data.pickupOther
         },
-        name:"image",
-        imageUrl: "/", 
-        quantity: 1, // 1 instance
+        name:"image", // A little bruteforce
+        imageUrl: "/", // A little bruteforce 
+        quantity: 1, // 1 instance, multiple images
         price: data.total
       } 
       console.log("success", cartItem);
       
       
-      return json({ success, item: cartItem });
+      return { success, item: cartItem };
     } 
     catch (error) {
       if (error instanceof ZodError) {

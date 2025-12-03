@@ -2,6 +2,8 @@
 	import { dev } from '$app/environment';
 	import { user } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
+	import CartItem from './CartItem.svelte';
+	import PhotoCartItem from './PhotoCartItem.svelte';
 	import {
 		cart,
 		clear,
@@ -31,11 +33,12 @@
 	// TODO: update for photoprinting
 	cart.subscribe((cart) => {
 		total = cart.reduce(
-			(sum, item) =>
-				sum +
-				(item.price + (item.addons?.reduce((acc, addon) => acc + addon.price, 0) ?? 0)) *
-					item.quantity,
-			0
+			(sum, item) => {
+				if (item) {
+					return sum + (item?.price + (item?.addons?.reduce((acc, addon) => acc + addon.price, 0) ?? 0)) * item?.quantity;
+				}
+				return 0;
+			}, 0
 		);
 	});
 
@@ -49,9 +52,6 @@
 	function removeItem(index: number) {
 		remove(index);
 	}
-
-	import CartItem from './CartItem.svelte';
-	import PhotoCartItem from './PhotoCartItem.svelte';
 
 	let hideDev = $state(false);
 </script>
@@ -102,12 +102,13 @@
 			</a>
 		</div>
 	{:else}
-		{#each $cart as item, i (item.id + '-' + i)}
-			{#key item.quantity}
-				{#if item.details?.type === "print"}
+		{#each $cart as item, i (item?.id + '-' + i)}
+			{#key item?.quantity}
+				{#if item?.details?.type === "print"}
 					<PhotoCartItem {i} {item}></PhotoCartItem>
+				{:else}
+					<CartItem {...item} {updateQuantity} {removeItem} {i}></CartItem>
 				{/if}
-				<CartItem {...item} {updateQuantity} {removeItem} {i}></CartItem>
 			{/key}
 		{/each}
 		<div class="border-1 rounded-lg my-auto p-3 font-bold">

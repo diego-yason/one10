@@ -1,166 +1,163 @@
-<!--Temporary Form Fields-->
+<!--Temporary fields-->
+
 <script lang="ts">
-	import { user, isStaff } from '$lib/stores/auth';
-	import type { UploadSchema } from './schema';
-	import { cart, showToast, add } from '$lib/stores/cart';
-	import background from "$lib/imgs/backgrounds/img9.jpg";
-	import { fade } from "svelte/transition";
-	import { enhance } from "$app/forms"
-	import type { CartItem } from '$types/Cart';
-	import { v4 as uuidv4 } from "uuid";
+    import { user, isStaff } from '$lib/stores/auth';
+    import type { UploadSchema } from './schema';
+    import { cart, showToast, add } from '$lib/stores/cart';
+    import background from "$lib/imgs/backgrounds/img9.jpg";
+    import { fade } from "svelte/transition";
+    import { enhance } from "$app/forms"
+    import type { CartItem } from '$types/Cart';
+    import { v4 as uuidv4 } from "uuid";
+    import { 
+        clearImages, 
+        deleteImage, 
+        saveImage, 
+        getImage,
+        saveFormState,
+        getFormState,
+        clearFormState 
+    } from '$lib/db/cartImages';
+    import { onMount } from 'svelte';
+    import { browser } from '$app/environment';
 
-	// Field states
-	
-	type UploadType = UploadSchema & {preview: string};
-	let pickupMode = $state("");
-	let pickupOther = $state("");
-	let uploadedImages : UploadType[] = $state([]);
-	let total = $state(0);
-	let isSubmitting = $state(false);
-	const BASE_PRICE = 100;
-	// Clear other field when chosen
-	$effect(() => {
-		if (pickupMode === "other")
-			pickupOther = "";
-	});
+    export const ssr = false;
 
-	let errorMessages: string[] = [];
-	let fieldErrors: Record<string, string> = {};
+    type UploadType = UploadSchema & {preview: string};
+    let pickupMode = $state("");
+    let pickupOther = $state("");
+    let uploadedImages : UploadType[] = $state([]);
+    let total = $state(0);
+    let isSubmitting = $state(false);
+    const BASE_PRICE = 100;
 
-	// Handle file upload
-	function handleFileUpload(event: Event) {
-		const files = (event.target as HTMLInputElement).files;
-		if (!files) return;
+    interface Issue {
+        [key: string]: string
+    }
 
-		for (const file of files) {
-			const reader = new FileReader();
-			const id = uuidv4();
+    let errorMessages: string[] = [];
+    let fieldErrors: Record<string, string> = {};
 
-			reader.onload = (e) => {
-				uploadedImages = [
-					...uploadedImages,
-					{
-						id,
-						file,
-						name: file.name,
-						preview: e.target?.result as string,
-						copies: 1,
-						size: "3R",
-						price: BASE_PRICE, // placeholder
-						fitMode: "fit" // placeholder
-					},
-				];
-				updateTotal();
-			};
+    onMount(async () => {
+        // Restore form state from IndexedDB
+        const savedState = await getFormState();
+        if (savedState) {
+            pickupMode = savedState.pickupMode || "";
+            pickupOther = savedState.pickupOther || "";
+            total = savedState.total || 0;
 
-			reader.readAsDataURL(file);
-		}
+            // Restore images with their File objects and previews
+            const restoredImages = await Promise.all(
+                savedState.uploadedImages.map(async (img: any) => {
+                    const file = await getImage(img.id);
+                    if (!file) return null;
 
-		// reset input
-		(event.target as HTMLInputElement).value = "";
-	}
+                    const preview = await readAsDataURL(file);
+                    return {
+                        ...img,
+                        file,
+                        preview
+                    };
+                })
+            );
 
-	function increaseCopies(index: number) {
-		uploadedImages[index].copies++;
-		updateTotal();
-	}
+            uploadedImages = restoredImages.filter(Boolean) as UploadType[];
+        }
+    });
 
-	function decreaseCopies(index: number) {
-		if (uploadedImages[index].copies > 1) {
-			uploadedImages[index].copies--;
-			updateTotal();
-		}
-	}
+    // Auto-save state whenever it changes
+    $effect(() => {
+        if (browser) {
+            saveFormState({
+                uploadedImages,
+                pickupMode,
+                pickupOther,
+                total
+            });
+        }
+    });
 
-	function changeSize(index: number, event: Event) {
-		const size = (event.target as HTMLSelectElement).value;
-		uploadedImages[index].size = size;
-		updateTotal();
-	}
+    $effect(() => {
+        if (pickupMode !== "other") {
+            pickupOther = "";
+        }
+    });
 
-	function removeImage(index: number) {
-		uploadedImages.splice(index, 1);
-		updateTotal();
-	}
+    function readAsDataURL(file: File): Promise<string> {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target?.result as string);
+            reader.readAsDataURL(file);
+        });
+    }
 
-	function changeFitMode(index: number, e: Event) {
-		const value = (e.target as HTMLSelectElement).value;
-		uploadedImages[index].fitMode = value;
-		uploadedImages = [...uploadedImages]; // ensure reactivity
-	}
+    async function handleFileUpload(event: Event) {
+        const files = (event.target as HTMLInputElement).files;
+        if (!files) return;
 
-	function updateTotal() {
-		total = uploadedImages.reduce(
-			(sum, img) => sum + img.copies * img.price,
-			0
-		);
-	}
+        for (const file of files) {
+            const id = uuidv4();	
+            await saveImage(id, file);
 
-	async function handleSubmit(e : SubmitEvent) {
-		e.preventDefault();
+            const preview = await readAsDataURL(file);
+            uploadedImages = [
+                ...uploadedImages,
+                {
+                    id,
+                    file,
+                    name: file.name,
+                    preview,
+                    copies: 1,
+                    size: "3R",
+                    price: BASE_PRICE,
+                    fitMode: "fit"
+                },
+            ];
 
-		try {
-			isSubmitting = true;
-			const formData = new FormData();
-		
-			formData.append("pickupMode", pickupMode);
-			formData.append("pickupOther", pickupOther);
-			formData.append("total", String(total));
-			formData.append("basePrice", String(BASE_PRICE));
-			for (const img of uploadedImages) {
-				formData.append("files", img.file);
-				formData.append("meta", JSON.stringify({
-					id: img.id,
-					name: img.name,
-					copies: img.copies,
-					size: img.size,
-					price: img.price,
-					fitMode: img.fitMode
-				}));
-			}
+            updateTotal();
+        }
 
-			// Use enhance's built-in form action submission
-			const response = await fetch(window.location.pathname, {
-				method: "POST",
-				body: formData,
-				headers: {
-					'x-sveltekit-action': 'true'
-				}
-			});
-			
-			const result = await response.json();
-			console.log("Response ", result);
-			if (result?.type === "success" && result?.data?.item) {
-				const item = result.data.item;
-				
-				// // Re-attach previews
-				// if (item.details?.uploadedImages) {
-				// 	item.details.uploadedImages = item.details.uploadedImages.map((img: any) => ({
-				// 		...img,
-				// 		preview: previewMap.get(img.id) || ''
-				// 	}));
-				// }
-				
-				add(item as CartItem);
-				showToast('Added to cart!');
-				uploadedImages = [];
-				total = 0;
-				(e.target as HTMLFormElement).reset();
-			} else {
-				showToast('There was an error adding to cart.');
-				console.log("Result:", result);
-			}
+        (event.target as HTMLInputElement).value = "";
+    }
 
-		}
-		catch (err) {
-			console.log("Error in submitting", err);
-		}
-		finally {
-			isSubmitting = false;
-		}
+    function increaseCopies(index: number) {
+        uploadedImages[index].copies++;
+        updateTotal();
+    }
 
-	}
+    function decreaseCopies(index: number) {
+        if (uploadedImages[index].copies > 1) {
+            uploadedImages[index].copies--;
+            updateTotal();
+        }
+    }
+
+    function changeSize(index: number, event: Event) {
+        const size = (event.target as HTMLSelectElement).value;
+        uploadedImages[index].size = size;
+        updateTotal();
+    }
+
+    async function removeImage(index: number) {
+        await deleteImage(uploadedImages[index].id); 
+        uploadedImages.splice(index, 1);
+        updateTotal();
+    }
+
+    function changeFitMode(index: number, e: Event) {
+        const value = (e.target as HTMLSelectElement).value;
+        uploadedImages[index].fitMode = value;
+        uploadedImages = [...uploadedImages];
+    }
+
+    function updateTotal() {
+        total = uploadedImages.reduce(
+            (sum, img) => sum + img.copies * img.price,
+            0
+        );
+    }
 </script>
+
 
 <div class="px-30">
 	<a href="/store" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors">
@@ -196,8 +193,51 @@
 	<form 
 		class="w-full flex flex-col gap-6"
 		method="POST"
-		onsubmit={handleSubmit}
 		enctype="multipart/form-data"
+		use:enhance={async ({formData}) => {
+			isSubmitting = true;
+			formData.append("pickupMode", pickupMode);
+			formData.set("pickupOther", pickupOther);
+			formData.append("total", String(total));
+			formData.append("basePrice", String(BASE_PRICE));
+
+			for (const img of uploadedImages) {
+				formData.append("files", img.file);
+				formData.append("meta", JSON.stringify({
+					id: img.id,
+					name: img.name,
+					copies: img.copies,
+					size: img.size,
+					price: img.price,
+					fitMode: img.fitMode
+				}));
+			}
+
+			return async ({result, update}) => {
+				isSubmitting = false;
+				update({reset: true});
+				
+				if (result?.type === "success") {
+					const data = result.data!.item;
+					add(data as unknown as CartItem);
+					showToast('Added to cart!');
+					
+					// await clearImages();
+					// await clearFormState();
+					
+					uploadedImages = [];
+					total = 0;
+					pickupMode = "";
+					pickupOther = "";
+				} 
+				else if (result?.type === "failure") {
+					const issues = result.data!.issues as Issue;
+					for (let key in issues) {
+						showToast(issues[key]);
+					}
+				}
+			}
+		}}
 	>
 	<!-- Upload field -->
 		<div>
