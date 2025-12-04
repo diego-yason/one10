@@ -1,8 +1,8 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { actions } from "$public/store/printing/+page.server";
 import type { imgMeta } from "$public/store/printing/schema";
 
-function createMockRequest(data: {
+function createMockRequestEvent(data: {
     files: File[],
     metas: any[],
     total: number
@@ -11,25 +11,55 @@ function createMockRequest(data: {
     pickupOther?: string
 }) {
     const formData = new FormData();
-    data.files.forEach(f => formData.append("files", f));
+    
+    data.files.forEach(f => {
+        const file = new File([f], f.name, { type: f.type || "image/jpeg" });
+        formData.append("files", file);
+    });
+    
     data.metas.forEach(m => formData.append("meta", JSON.stringify(m)));
-
     formData.append("total", String(data.total));
     formData.append("basePrice", String(data.basePrice));
     formData.append("pickupMode", data.pickupMode);
     formData.append("pickupOther", data.pickupOther ?? "");
 
-    return new Request("http://localhost/store/printing/", {
+    // Create a mock request that returns formData immediately
+    const request = {
+        formData: vi.fn().mockResolvedValue(formData),
         method: "POST",
-        body: formData
-    });
+        url: "http://localhost/store/printing",
+        headers: new Headers(),
+    } as any;
+
+    return {
+        request,
+        cookies: {
+            get: () => undefined,
+            set: () => {},
+            delete: () => {},
+            serialize: () => "",
+        } as any,
+        fetch: global.fetch,
+        getClientAddress: () => "127.0.0.1",
+        locals: {},
+        params: {},
+        platform: undefined,
+        route: { id: "/store/printing" },
+        setHeaders: () => {},
+        url: new URL("http://localhost/store/printing"),
+        isDataRequest: false,
+        isSubRequest: false,
+    } as any;
 }
 
 describe("printing action", () => {
 
     it("accepts a valid print order", async () => {
-        const request = createMockRequest({
-            files: [new File(["data"], "test.jpg", { type: "image/jpeg" })],
+        const fileContent = new Uint8Array(1024);
+        const testFile = new File([fileContent], "test.jpg", { type: "image/jpeg" });
+
+        const event = createMockRequestEvent({
+            files: [testFile],
             metas: [{
                 id: "abc",
                 name: "test.jpg",
@@ -43,23 +73,29 @@ describe("printing action", () => {
             pickupMode: "same-day"
         });
 
-        const response = await actions.default({ request });
+        const response = await actions.default(event);
 
-        if (response) {
-             if ('status' in response) {
-                expect.fail('Expected success but got failure');
-            } else {
-                expect(response.success).toBe(true);
-                expect(response.item).toBeDefined();
-                expect(response.item.details.uploadedImages as imgMeta[]).toBe(1);
-            }
+        if (!response) {
+            expect.fail('Expected a response but got undefined');
+            return;
         }
 
+        if ('status' in response) {
+            console.error("Failure response:", response.data);
+            expect.fail(`Expected success but got failure: ${JSON.stringify(response.data)}`);
+        } else {
+            expect(response.success).toBe(true);
+            expect(response.item).toBeDefined();
+            expect((response.item.details.uploadedImages as imgMeta[]).length).toBe(1);
+        }
     });
 
     it("fails validation on bad metadata", async () => {
-        const request = createMockRequest({
-            files: [new File(["data"], "test.jpg", { type: "image/jpeg" })],
+        const fileContent = new Uint8Array(1024);
+        const testFile = new File([fileContent], "test.jpg", { type: "image/jpeg" });
+
+        const event = createMockRequestEvent({
+            files: [testFile],
             metas: [{
                 id: "abc",
                 name: "test.jpg",
@@ -73,23 +109,28 @@ describe("printing action", () => {
             pickupMode: "same-day"
         });
 
-        const response = await actions.default({ request });
+        const response = await actions.default(event);
 
-        // If using fail(400, { ... }), check for status
-        if (response) {
-            if ('status' in response) {
-                expect(response.status).toBe(400);
-                expect(response.data.error).toBe(true);
-                expect(response.data.issues).toBeDefined();
-            } else {
-                expect.fail('Expected failure but got success');
-            }
+        if (!response) {
+            expect.fail('Expected a response but got undefined');
+            return;
+        }
+
+        if ('status' in response) {
+            expect(response.status).toBe(400);
+            expect(response.data.error).toBe(true);
+            expect(response.data.issues).toBeDefined();
+        } else {
+            expect.fail('Expected failure but got success');
         }
     });
 
     it("rejects when pickup mode is 'other' but no value provided", async () => {
-        const request = createMockRequest({
-            files: [new File(["data"], "test.jpg", { type: "image/jpeg" })],
+        const fileContent = new Uint8Array(1024);
+        const testFile = new File([fileContent], "test.jpg", { type: "image/jpeg" });
+
+        const event = createMockRequestEvent({
+            files: [testFile],
             metas: [{
                 id: "abc",
                 name: "test.jpg",
@@ -101,19 +142,22 @@ describe("printing action", () => {
             total: 10,
             basePrice: 10,
             pickupMode: "other",
-            pickupOther: "" // Empty when 'other' is selected
+            pickupOther: ""
         });
 
-        const response = await actions.default({ request });
-        // If using fail(400, { ... }), check for status
-        if (response) {
-            if ('status' in response) {
-                expect(response.status).toBe(400);
-                expect(response.data.error).toBe(true);
-                expect(response.data.issues).toBeDefined();
-            } else {
-                expect.fail('Expected failure but got success');
-            }
+        const response = await actions.default(event);
+
+        if (!response) {
+            expect.fail('Expected a response but got undefined');
+            return;
+        }
+
+        if ('status' in response) {
+            expect(response.status).toBe(400);
+            expect(response.data.error).toBe(true);
+            expect(response.data.issues).toBeDefined();
+        } else {
+            expect.fail('Expected failure but got success');
         }
     });
 });

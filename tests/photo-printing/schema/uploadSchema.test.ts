@@ -25,7 +25,7 @@ describe("uploadSchema", () => {
         
         const big = new File([bigArray], "big.jpg", { type: "image/jpeg" });
 
-        const result = uploadSchema.safeParse({
+        const data = {
             id: "1",
             file: big,
             name: "big.jpg",
@@ -33,8 +33,9 @@ describe("uploadSchema", () => {
             size: "3R",
             fitMode: "fit",
             price: 10
-        });
+        };
 
+        const result = uploadSchema.safeParse(data);
         expect(result.success).toBe(false);
     });
 

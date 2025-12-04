@@ -1,4 +1,3 @@
-/* duplicate block removed */
 import { browser } from "$app/environment";
 import { ZodError } from 'zod';
 import type { PageServerLoad } from './$types'; 
@@ -24,17 +23,12 @@ export const actions = {
       console.log(`File ${i}: ${file.name}, Size: ${(file.size / 1024 / 1024).toFixed(2)} MB`);
     });
 
-    // TODO: figure out a way to send images and make them persist (local storage before checkout or upload to firebase)
     const uploadedImages = files.map((file, i) => {
       return {
         ...metas[i],
         file
       }
     });
-
-    // for (let i=1; i < uploadedImages.length; i++) {
-    //   console.log("Img", (uploadedImages[i].file.size / 1024 / 1024).toFixed(2))
-    // }
     
     const combined = { // Reconstructed form data
       basePrice: basePrice,
@@ -51,7 +45,7 @@ export const actions = {
         throw error
       }
       
-      // Send only the metas (especiall the id) to get the images stored elsewhere.
+      // Send only the metas (especially the id) to get the images stored elsewhere.
       const imgMetas = data.uploadedImages.map((img) => {
         const { file, ...rest } = img as any;
         return rest;
