@@ -1,132 +1,173 @@
-<!--Temporary Form Fields-->
+<!--Temporary fields-->
+
 <script lang="ts">
-	import { user, isStaff } from '$lib/stores/auth';
-	import type { UploadSchema } from './schema';
-	import { cart, showToast, add } from '$lib/stores/cart';
-	import background from "$lib/imgs/backgrounds/img9.jpg";
-	import { fade } from "svelte/transition";
+    import { user, isStaff } from '$lib/stores/auth';
+    import { type UploadSchema, PRICE_PER_SIZE } from './schema';
+    import { cart, showToast, add } from '$lib/stores/cart';
+    import background from "$lib/imgs/backgrounds/img9.jpg";
+    import { fade } from "svelte/transition";
+    import { enhance } from "$app/forms"
+    import type { CartItem } from '$types/Cart';
+    import { v4 as uuidv4 } from "uuid";
+    import { 
+        clearImages, 
+        deleteImage, 
+        saveImage, 
+        getImage,
+        saveFormState,
+        getFormState,
+        clearFormState 
+    } from '$lib/db/cartImages';
+    import { onMount } from 'svelte';
+    import { browser } from '$app/environment';
 
-	// Field states
-	let pickupMode = $state("");
-	let pickupOther = $state("");
-	let uploadedImages : UploadSchema[] = $state([]);
+    export const ssr = false;
+
+	// Base price for images
+	
+
+    type UploadType = UploadSchema & {preview: string};
+
+	// States
+    let pickupMode = $state("");
+    let pickupOther = $state("");
+    let uploadedImages : UploadType[] = $state([]);
+    let basePrice = $state(0);
 	let total = $state(0);
+	let isSubmitting = $state(false);
 
-	// Clear other field when chosen
-	$effect(() => {
-		if (pickupMode === "other")
-			pickupOther = "";
-	});
+	let fileInput: HTMLInputElement;
 
-	let errorMessages: string[] = [];
-	let fieldErrors: Record<string, string> = {};
+    interface Issue {
+        [key: string]: string
+    }
 
-	let nextId = 1;
-	// Handle file upload
-	function handleFileUpload(event: Event) {
-		const files = (event.target as HTMLInputElement).files;
-		if (!files) return;
+    let errorMessages: string[] = [];
+    let fieldErrors: Record<string, string> = {};
 
-		for (const file of files) {
-			const reader = new FileReader();
-			const id = nextId++;
+    onMount(async () => {
+        // Restore form state from IndexedDB
+        const savedState = await getFormState();
+        if (savedState) {
+            pickupMode = savedState.pickupMode || "";
+            pickupOther = savedState.pickupOther || "";
+            total = savedState.total || 0;
 
-			reader.onload = (e) => {
-				uploadedImages = [
-					...uploadedImages,
-					{
-						id,
-						file,
-						name: file.name,
-						preview: e.target?.result as string,
-						copies: 1,
-						size: "3R",
-						price: 100, // placeholder
-						fitMode: "fit" // placeholder
-					},
-				];
-				updateTotal();
-			};
+            // Restore images with their File objects and previews
+            const restoredImages = await Promise.all(
+                savedState.uploadedImages.map(async (img: any) => {
+                    const file = await getImage(img.id);
+                    if (!file) return null;
 
-			reader.readAsDataURL(file);
-		}
+                    const preview = await readAsDataURL(file);
+                    return {
+                        ...img,
+                        file,
+                        preview
+                    };
+                })
+            );
 
-		// reset input
-		(event.target as HTMLInputElement).value = "";
-	}
+            uploadedImages = restoredImages.filter(Boolean) as UploadType[];
+        }
+    });
 
-	function increaseCopies(index: number) {
-		uploadedImages[index].copies++;
-		updateTotal();
-	}
+    // Auto-save state whenever it changes
+    $effect(() => {
+        if (browser) {
+            saveFormState({
+                uploadedImages,
+                pickupMode,
+                pickupOther,
+                total
+            });
+        }
+    });
 
-	function decreaseCopies(index: number) {
-		if (uploadedImages[index].copies > 1) {
-			uploadedImages[index].copies--;
-			updateTotal();
-		}
-	}
+    $effect(() => {
+        if (pickupMode !== "other") {
+            pickupOther = "";
+        }
+    });
 
-	function changeSize(index: number, event: Event) {
-		const size = (event.target as HTMLSelectElement).value;
-		uploadedImages[index].size = size;
-		updateTotal();
-	}
+    function readAsDataURL(file: File): Promise<string> {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target?.result as string);
+            reader.readAsDataURL(file);
+        });
+    }
 
-	function removeImage(index: number) {
-		uploadedImages.splice(index, 1);
-		updateTotal();
-	}
+    async function handleFileUpload(event: Event) {
+        const files = (event.target as HTMLInputElement).files;
+        if (!files) return;
 
-	function changeFitMode(index: number, e: Event) {
-		const value = (e.target as HTMLSelectElement).value;
-		uploadedImages[index].fitMode = value;
-		uploadedImages = [...uploadedImages]; // ensure reactivity
-	}
+        for (const file of files) {
+            const id = uuidv4();	
+            await saveImage(id, file);
+			basePrice = PRICE_PER_SIZE["3R"];
 
-	function updateTotal() {
-		total = uploadedImages.reduce(
-			(sum, img) => sum + img.copies * img.price,
-			0
-		);
-	}
+            const preview = await readAsDataURL(file);
+            uploadedImages = [
+                ...uploadedImages,
+                {
+                    id,
+                    file,
+                    name: file.name,
+                    preview,
+                    copies: 1,
+                    size: "3R",
+                    price: basePrice,
+                    fitMode: "fit"
+                },
+            ];
 
-	async function handleSubmit(e: SubmitEvent) {
-		try {
-			e.preventDefault();
+            updateTotal();
+        }
 
-			const formData = new FormData();
+        (event.target as HTMLInputElement).value = "";
+    }
 
-			formData.append("pickupMode", pickupMode);
-			formData.append("pickupOther", pickupOther);
+    function increaseCopies(index: number) {
+        uploadedImages[index].copies++;
+        updateTotal();
+    }
 
-			for (const img of uploadedImages) {
-				formData.append("files", img.file);
-				formData.append("meta", JSON.stringify({
-					id: img.id,
-					name: img.name,
-					preview: img.preview,
-					copies: img.copies,
-					size: img.size,
-					price: img.price,
-					fitMode: img.fitMode
-				}));
-			}
+    function decreaseCopies(index: number) {
+        if (uploadedImages[index].copies > 1) {
+            uploadedImages[index].copies--;
+            updateTotal();
+        }
+    }
 
-			const request = {
-				"method": "POST",
-				"body": formData
-			}
+    function changeSize(index: number, event: Event) {
+        const size = (event.target as HTMLSelectElement).value;
+		basePrice = PRICE_PER_SIZE[size];
+        uploadedImages[index].size = size;
+		uploadedImages[index].price = PRICE_PER_SIZE[size];
+        updateTotal();
+    }
 
-			const response = await fetch("/store/printing", request);
+    async function removeImage(index: number) {
+        await deleteImage(uploadedImages[index].id); 
+        uploadedImages.splice(index, 1);
+        updateTotal();
+    }
 
-		}
-		catch (err) {
-			console.log("Error in submitting", err);
-		}
+    function changeFitMode(index: number, e: Event) {
+        const value = (e.target as HTMLSelectElement).value;
+        uploadedImages[index].fitMode = value;
+        uploadedImages = [...uploadedImages];
+    }
 
-	}
+    function updateTotal() {
+        total = uploadedImages.reduce(
+            (sum, img) => sum + img.copies * img.price,
+            0
+        );
+    }
 </script>
+
 
 <div class="px-30">
 	<a href="/store" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors">
@@ -159,20 +200,57 @@
 		</div>
 	{/if}
 
-	<form onsubmit={handleSubmit} class="w-full flex flex-col gap-6">
+	<form 
+		class="w-full flex flex-col gap-6"
+		method="POST"
+		enctype="multipart/form-data"
+		use:enhance={async ({formData}) => {
+			isSubmitting = true;
+			formData.append("pickupMode", pickupMode);
+			formData.set("pickupOther", pickupOther);
+			formData.append("total", String(total));
+			formData.append("basePrice", String(basePrice));
+
+			for (const img of uploadedImages) {
+				formData.append("files", img.file);
+				formData.append("meta", JSON.stringify({
+					id: img.id,
+					name: img.name,
+					copies: img.copies,
+					size: img.size,
+					price: img.price,
+					fitMode: img.fitMode
+				}));
+			}
+
+			return async ({result, update}) => {
+				isSubmitting = false;
+				update({reset: true});
+				
+				if (result?.type === "success") {
+					const data = result.data!.item;
+					add(data as unknown as CartItem);
+					showToast('Added to cart!');
+					
+					// await clearImages();
+					// await clearFormState();
+					
+					uploadedImages = [];
+					total = 0;
+					pickupMode = "";
+					pickupOther = "";
+				} 
+				else if (result?.type === "failure") {
+					const issues = result.data!.issues as Issue;
+					for (let key in issues) {
+						showToast(issues[key]);
+					}
+				}
+			}
+		}}
+	>
 	<!-- Upload field -->
-		<div>
-			<label class="block font-bold mb-2 text-sm" for="upload">UPLOAD YOUR PHOTOS*</label>
-			<input
-				data-testid="file-input"
-				type="file"
-				id="upload"
-				multiple
-				onchange={handleFileUpload}
-				class="w-full px-4 py-2 border rounded bg-white"
-				accept="image/*"
-			/>
-		</div>
+		<label class="block font-bold mb-2 text-sm" for="upload">UPLOAD YOUR PHOTOS*</label>
 		{#if uploadedImages.length > 0}
 		<section class="bg-gray-50 p-6 rounded-lg shadow-md">
 			<h3 class="text-2xl font-bold mb-4">Preview & Adjustments</h3>
@@ -246,7 +324,7 @@
 
 						<!-- Delete -->
 						<button
-							data-testid={"delete-" + img.id}
+							type="button"
 							class="text-red-500 font-bold text-lg ml-3 hover:text-red-700"
 							onclick={() => removeImage(i)}
 						>
@@ -261,6 +339,26 @@
 			</div>
 		</section>
 		{/if}
+		<!-- Hidden actual file input -->
+		<input
+			type="file"
+			id="upload"
+			data-testId="upload"
+			multiple
+			accept="image/*"
+			onchange={handleFileUpload}
+			class="hidden"
+			bind:this={fileInput}
+		/>
+
+		<!-- Visible Upload button -->
+		<button
+			type="button"
+			class="w-40 px-4 py-2 bg-yellow-300 font-bold rounded-md border border-black hover:bg-yellow-400"
+			onclick={() => fileInput.click()}
+		>
+		Upload Images
+		</button>
 		<div class="mt-4">
 			<label class="block font-bold mb-2 text-sm" for="pickupMode">MODE OF DELIVERY FOR PICK-UP*</label>
 			<div class="flex flex-col gap-2">

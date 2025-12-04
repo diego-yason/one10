@@ -39,6 +39,7 @@ export const actions = {
 		// verify
 		console.log('calling verify cart');
 		const isCartValid = await verifyCart(data);
+		console.log(isCartValid);
 		if (!isCartValid) return redirect(303, '/cart?invalid-cart');
 
 		let grandTotal = 0;
