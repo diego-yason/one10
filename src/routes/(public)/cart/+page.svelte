@@ -18,6 +18,8 @@
 
 	import background1 from '$lib/imgs/backgrounds/img086.jpg';
 
+	import {} from 'firebase/storage';
+
 	// Redirect logged-in users (staff) to home page
 	$effect(() => {
 		if ($user) {
@@ -32,14 +34,16 @@
 
 	// TODO: update for photoprinting
 	cart.subscribe((cart) => {
-		total = cart.reduce(
-			(sum, item) => {
-				if (item) {
-					return sum + (item?.price + (item?.addons?.reduce((acc, addon) => acc + addon.price, 0) ?? 0)) * item?.quantity;
-				}
-				return 0;
-			}, 0
-		);
+		total = cart.reduce((sum, item) => {
+			if (item) {
+				return (
+					sum +
+					(item?.price + (item?.addons?.reduce((acc, addon) => acc + addon.price, 0) ?? 0)) *
+						item?.quantity
+				);
+			}
+			return 0;
+		}, 0);
 	});
 
 	onMount(() => {
@@ -90,7 +94,6 @@
 
 <h2 class="text-gray-800 px-32 font-spaceGrotesk text-7xl font-bold text-left w-3/4 h-30">Cart</h2>
 <div class="flex flex-col px-32 pb-24 space-y-6">
-
 	{#if $cart.length === 0}
 		<div class="flex flex-col bg-gray-200 rounded-lg items-center justify-center py-20">
 			<p class="text-lg mb-4 font-bold">Your cart is empty.</p>
@@ -104,7 +107,7 @@
 	{:else}
 		{#each $cart as item, i (item?.id + '-' + i)}
 			{#key item?.quantity}
-				{#if item?.details?.type === "print"}
+				{#if item?.details?.type === 'print'}
 					<PhotoCartItem {i} {item}></PhotoCartItem>
 				{:else}
 					<CartItem {...item} {updateQuantity} {removeItem} {i}></CartItem>

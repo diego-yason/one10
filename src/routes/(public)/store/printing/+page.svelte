@@ -357,14 +357,14 @@
 			bind:this={fileInput}
 		/>
 
-		<!-- Visible Upload button -->
 		<button
 			type="button"
-			class="w-40 px-4 py-2 bg-yellow-300 font-bold rounded-md border border-black hover:bg-yellow-400"
+			class="w-40 px-4 py-2 bg-yellow-300 font-bold rounded-md hover:bg-yellow-400"
 			onclick={() => fileInput.click()}
 		>
 			Upload Images
 		</button>
+
 		<div class="mt-4">
 			<label class="block font-bold mb-2 text-sm" for="pickupMode"
 				>MODE OF DELIVERY FOR PICK-UP*</label
