@@ -10,7 +10,7 @@ import { checkoutSchema } from './schema';
 
 import { adminDb } from '$lib/server/firebase';
 
-const getAuthHeader = () => `Basic ${Buffer.from(PUBLIC_MAYA_KEY).toString('base64')}`;
+const getAuthHeader = () => `Basic ${Buffer.from(`${PUBLIC_MAYA_KEY}:`).toString('base64')}`;
 
 export const actions = {
 	create: async ({ fetch, request }) => {
@@ -151,7 +151,8 @@ export const actions = {
 				// update product quantities
 				await Promise.all(
 					items.map(async (item) => {
-						if (item.code == 'printing') return; // skip printing items
+						if (item.code == 'printing' || item.code.startsWith('dev-')) return; // skip printing items
+
 						const productDoc = await adminDb
 							.collection('products')
 							.where('itemCode', '==', item.code)
