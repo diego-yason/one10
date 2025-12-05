@@ -10,7 +10,7 @@ import { checkoutSchema } from './schema';
 
 import { adminDb } from '$lib/server/firebase';
 
-const getAuthHeader = () => `Basic ${Buffer.from(PUBLIC_MAYA_KEY).toString('base64')}`;
+const getAuthHeader = () => `Basic ${Buffer.from(`${PUBLIC_MAYA_KEY}:`).toString('base64')}`;
 
 export const actions = {
 	create: async ({ fetch, request }) => {
@@ -115,17 +115,23 @@ export const actions = {
 						value: grandTotal,
 						currency: 'PHP'
 					},
-					items,
+					items: items.map(({ name, quantity, code, amount, totalAmount }) => ({
+						name,
+						quantity,
+						code,
+						amount,
+						totalAmount
+					})),
 					requestReferenceNumber: record.id,
 					redirectUrl: {
-						success: PUBLIC_BASE_URL + 'checkout/callback/?order=' + record.id,
-						failure: PUBLIC_BASE_URL + 'checkout/callback/?order=' + record.id,
-						cancel: PUBLIC_BASE_URL + 'checkout/callback/?order=' + record.id
+						success: PUBLIC_BASE_URL + '/checkout/success?order=' + record.id,
+						failure: PUBLIC_BASE_URL + '/checkout/failed?order=' + record.id,
+						cancel: PUBLIC_BASE_URL + '/checkout/failed?order=' + record.id
 					}
 				}),
 				signal: controller.signal
 			});
-
+			console.log(checkoutRes);
 			// Clear connection timeout once response starts
 			clearTimeout(connectionTimeout);
 
@@ -146,10 +152,12 @@ export const actions = {
 				await adminDb.collection('orders').doc(record.id).update({
 					maya_checkoutId: checkoutId
 				});
-				
+
 				// update product quantities
 				await Promise.all(
 					items.map(async (item) => {
+						if (item.code == 'printing' || item.code.startsWith('dev-')) return; // skip printing items
+
 						const productDoc = await adminDb
 							.collection('products')
 							.where('itemCode', '==', item.code)
@@ -185,12 +193,12 @@ export const actions = {
 
 		const orderDoc = await adminDb.collection('orders').where('id', '==', orderId).get();
 		if (orderDoc.empty) return fail(404, { error: 'Order not found' });
-		
-        const orderData = orderDoc.docs[0].data() as Order;
 
-        if(orderData.status === 'paid' || orderData.status === 'payment_success') {
-            return fail(400, { error: 'Order already paid' });
-        }
+		const orderData = orderDoc.docs[0].data() as Order;
+
+		if (orderData.status === 'paid' || orderData.status === 'payment_success') {
+			return fail(400, { error: 'Order already paid' });
+		}
 
 		const mayaCheckoutRes = await fetch(`${PUBLIC_MAYA_URL}/checkout/v1/checkouts`, {
 			method: 'POST',
