@@ -3,6 +3,7 @@
 	import background1 from '$lib/imgs/backgrounds/img039.jpg';
 	import background2 from '$lib/imgs/backgrounds/img60.jpg';
 	import background3 from '$lib/imgs/backgrounds/img61.jpg';
+	import background4 from '$lib/imgs/backgrounds/img9.jpg';
 
 	let { data } = $props();
 	let { products } = $derived(data);
@@ -99,7 +100,7 @@
 				class="products flex flex-col cursor-pointer shadow-lg min-w-[260px] max-w-[340px] bg-white rounded-2xl overflow-hidden"
 			>
 				<img
-					src="https://placehold.co/350x250"
+					src={background4 || 'https://placehold.co/350x250'}
 					alt="3R - 8R Printing"
 					class="w-full h-36 object-cover"
 				/>
