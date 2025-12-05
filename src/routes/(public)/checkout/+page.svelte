@@ -199,11 +199,11 @@
 		return async ({ result }) => {
 			// Upload photos to firebase
 			disabled = false;
-			console.log(result);
+			// console.log(result);
 
-			// TODO: remove this (for testing only)
-			await clearImages();
-			await clearFormState();
+			// // TODO: remove this (for testing only)
+			// await clearImages();
+			// await clearFormState();
 			if (result.type === 'success') {
 				await clearImages();
 				await clearFormState();
