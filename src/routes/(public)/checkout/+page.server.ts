@@ -41,6 +41,7 @@ export const actions = {
 		// verify
 		console.log('calling verify cart');
 		const isCartValid = await verifyCart(data);
+		console.log(isCartValid);
 		if (!isCartValid) return redirect(303, '/cart?invalid-cart');
 
 		let grandTotal = 0;
@@ -92,17 +93,17 @@ export const actions = {
 
 		const record = await adminDb.collection('orders').add(order);
 
-		// Create timeout controller for connection and response timeouts
-		const controller = new AbortController();
-		const connectionTimeout = setTimeout(() => {
-			controller.abort();
-		}, 10000); // 10s connection timeout as per Maya guidelines
-
-		const responseTimeout = setTimeout(() => {
-			controller.abort();
-		}, 60000); // 60s response timeout as per Maya guidelines
-
 		try {
+			// Create timeout controller for connection and response timeouts
+			const controller = new AbortController();
+			const connectionTimeout = setTimeout(() => {
+				controller.abort();
+			}, 10000); // 10s connection timeout as per Maya guidelines
+
+			const responseTimeout = setTimeout(() => {
+				controller.abort();
+			}, 60000); // 60s response timeout as per Maya guidelines
+
 			const checkoutRes = await fetch(`${PUBLIC_MAYA_URL}/checkout/v1/checkouts`, {
 				method: 'POST',
 				headers: {
@@ -131,24 +132,18 @@ export const actions = {
 				}),
 				signal: controller.signal
 			});
-			console.log(checkoutRes);
 			// Clear connection timeout once response starts
 			clearTimeout(connectionTimeout);
 
-			// eslint-disable-next-line no-var
-			var {
-				checkoutId,
-				redirectUrl
-			}: {
-				checkoutId: string;
-				redirectUrl: string;
-			} = await checkoutRes.json();
-			// Clear response timeout on success
+			if (!checkoutRes.ok) {
+				console.error(await checkoutRes.text());
+				return fail(500, { message: 'Payment provider rejected the request' });
+			}
+
+			const { checkoutId, redirectUrl } = await checkoutRes.json();
 			clearTimeout(responseTimeout);
 
-			console.log('Successfully created checkout:', checkoutId);
 			if (redirectUrl) {
-				// update order with checkoutId
 				await adminDb.collection('orders').doc(record.id).update({
 					maya_checkoutId: checkoutId
 				});
@@ -169,16 +164,9 @@ export const actions = {
 					})
 				);
 
-				return {
-					success: true,
-					redirectUrl
-				};
+				return { success: true, redirectUrl };
 			}
 		} catch (error) {
-			// Clear any remaining timeouts
-			clearTimeout(connectionTimeout);
-			clearTimeout(responseTimeout);
-
 			console.error('Checkout error:', error);
 			return fail(500, { message: 'An internal error occurred.' });
 		}
