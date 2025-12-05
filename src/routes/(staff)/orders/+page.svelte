@@ -3,6 +3,8 @@
 	import type { Order } from '$types/firebase/Orders';
 	import Modal from '$lib/components/Modal.svelte';
 	import { enhance } from '$app/forms';
+	import { downloadImagesRequest } from "$lib/utils/downloadImagesRequest";
+
 
 	let { data }: PageProps = $props();
 	let { orders } = $derived(data);
@@ -129,6 +131,10 @@
 
 		return filtered;
 	});
+
+	function handleDownload(item) {
+		downloadImagesRequest(item);
+	}
 </script>
 
 <div class="flex flex-col space-y-6">
@@ -287,6 +293,7 @@
 						</div>
 					{/if}
 				</div>
+				
 			</div>
 
 			<div class="bg-white rounded-lg p-4 space-y-3">
@@ -311,6 +318,7 @@
 				</div>
 			</div>
 
+			<!-- List of order items -->
 			<div class="bg-white rounded-lg p-4 space-y-3">
 				<h3 class="font-bold text-lg text-gray-800 border-b pb-2">Order Items</h3>
 				<div class="space-y-4">
@@ -343,6 +351,16 @@
 											</div>
 										{/each}
 									</div>
+									<!-- TODO: Change this to === once I know what the type for a photo print is -->
+									{#if item.details?.type === "print"}
+										<button 
+											class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
+											type="button"
+											onclick={() => handleDownload(item)}
+										>
+											Download Image Order
+										</button>
+									{/if}
 								</div>
 							{/if}
 
@@ -369,6 +387,7 @@
 						</div>
 					{/each}
 				</div>
+				
 			</div>
 
 			{#if selectedOrder.notes}

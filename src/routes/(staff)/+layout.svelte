@@ -1,7 +1,7 @@
 <script>
 	import { page } from '$app/stores';
 	import { goto } from '$app/navigation';
-	import { user, isStaff } from '$lib/stores/auth';
+	// import { user, isStaff } from '$lib/stores/auth';
 	import { onMount } from 'svelte';
 
 	function returnToNormalView() {

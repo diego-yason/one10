@@ -41,6 +41,7 @@ export const actions = {
 		// verify
 		console.log('calling verify cart');
 		const isCartValid = await verifyCart(data);
+		console.log(isCartValid);
 		if (!isCartValid) return redirect(303, '/cart?invalid-cart');
 
 		let grandTotal = 0;
@@ -93,6 +94,16 @@ export const actions = {
 		const record = await adminDb.collection('orders').add(order);
 
 		try {
+			// Create timeout controller for connection and response timeouts
+			const controller = new AbortController();
+			const connectionTimeout = setTimeout(() => {
+				controller.abort();
+			}, 10000); // 10s connection timeout as per Maya guidelines
+
+			const responseTimeout = setTimeout(() => {
+				controller.abort();
+			}, 60000); // 60s response timeout as per Maya guidelines
+
 			const checkoutRes = await fetch(`${PUBLIC_MAYA_URL}/checkout/v1/checkouts`, {
 				method: 'POST',
 				headers: {
@@ -101,16 +112,28 @@ export const actions = {
 					Accept: 'application/json'
 				},
 				body: JSON.stringify({
-					totalAmount: { value: grandTotal, currency: 'PHP' },
-					items,
+					totalAmount: {
+						value: grandTotal,
+						currency: 'PHP'
+					},
+					items: items.map(({ name, quantity, code, amount, totalAmount }) => ({
+						name,
+						quantity,
+						code,
+						amount,
+						totalAmount
+					})),
 					requestReferenceNumber: record.id,
 					redirectUrl: {
-						success: `${PUBLIC_BASE_URL}/checkout/success?orderId=${record.id}`,
-						failure: `${PUBLIC_BASE_URL}/checkout/failed?orderId=${record.id}`,
-						cancel: `${PUBLIC_BASE_URL}/checkout/failed?orderId=${record.id}`
+						success: PUBLIC_BASE_URL + '/checkout/success?order=' + record.id,
+						failure: PUBLIC_BASE_URL + '/checkout/failed?order=' + record.id,
+						cancel: PUBLIC_BASE_URL + '/checkout/failed?order=' + record.id
 					}
-				})
+				}),
+				signal: controller.signal
 			});
+			// Clear connection timeout once response starts
+			clearTimeout(connectionTimeout);
 
 			if (!checkoutRes.ok) {
 				console.error(await checkoutRes.text());
@@ -118,20 +141,27 @@ export const actions = {
 			}
 
 			const { checkoutId, redirectUrl } = await checkoutRes.json();
+			clearTimeout(responseTimeout);
 
 			if (redirectUrl) {
 				await adminDb.collection('orders').doc(record.id).update({
 					maya_checkoutId: checkoutId
 				});
-				
-				await Promise.all(items.map(async (item) => {
-					const productDoc = await adminDb.collection('products').where('itemCode', '==', item.code).get();
-					if (!productDoc.empty) {
+
+				// update product quantities
+				await Promise.all(
+					items.map(async (item) => {
+						if (item.code == 'printing') return; // skip printing items
+						const productDoc = await adminDb
+							.collection('products')
+							.where('itemCode', '==', item.code)
+							.get();
+						console.log(item.code);
 						await productDoc.docs[0].ref.update({
 							stock: (productDoc.docs[0].data().stock ?? 0) - item.quantity
 						});
-					}
-				}));
+					})
+				);
 
 				return { success: true, redirectUrl };
 			}
@@ -150,12 +180,12 @@ export const actions = {
 
 		const orderDoc = await adminDb.collection('orders').where('id', '==', orderId).get();
 		if (orderDoc.empty) return fail(404, { error: 'Order not found' });
-		
-        const orderData = orderDoc.docs[0].data() as Order;
 
-        if(orderData.status === 'paid' || orderData.status === 'payment_success') {
-            return fail(400, { error: 'Order already paid' });
-        }
+		const orderData = orderDoc.docs[0].data() as Order;
+
+		if (orderData.status === 'paid' || orderData.status === 'payment_success') {
+			return fail(400, { error: 'Order already paid' });
+		}
 
 		const mayaCheckoutRes = await fetch(`${PUBLIC_MAYA_URL}/checkout/v1/checkouts`, {
 			method: 'POST',

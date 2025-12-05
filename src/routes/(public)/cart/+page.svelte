@@ -2,6 +2,8 @@
 	import { dev } from '$app/environment';
 	import { user } from '$lib/stores/auth';
 	import { goto } from '$app/navigation';
+	import CartItem from './CartItem.svelte';
+	import PhotoCartItem from './PhotoCartItem.svelte';
 	import {
 		cart,
 		clear,
@@ -16,6 +18,8 @@
 
 	import background1 from '$lib/imgs/backgrounds/img086.jpg';
 
+	import {} from 'firebase/storage';
+
 	// Redirect logged-in users (staff) to home page
 	$effect(() => {
 		if ($user) {
@@ -28,14 +32,18 @@
 	verifyCart();
 	setInterval(verifyCart, 1000 * 60 * 5); // Verify cart every 5 minutes while in page
 
+	// TODO: update for photoprinting
 	cart.subscribe((cart) => {
-		total = cart.reduce(
-			(sum, item) =>
-				sum +
-				(item.price + (item.addons?.reduce((acc, addon) => acc + addon.price, 0) ?? 0)) *
-					item.quantity,
-			0
-		);
+		total = cart.reduce((sum, item) => {
+			if (item) {
+				return (
+					sum +
+					(item?.price + (item?.addons?.reduce((acc, addon) => acc + addon.price, 0) ?? 0)) *
+						item?.quantity
+				);
+			}
+			return 0;
+		}, 0);
 	});
 
 	onMount(() => {
@@ -48,8 +56,6 @@
 	function removeItem(index: number) {
 		remove(index);
 	}
-
-	import CartItem from './CartItem.svelte';
 
 	let hideDev = $state(false);
 </script>
@@ -88,7 +94,6 @@
 
 <h2 class="text-gray-800 px-32 font-spaceGrotesk text-7xl font-bold text-left w-3/4 h-30">Cart</h2>
 <div class="flex flex-col px-32 pb-24 space-y-6">
-
 	{#if $cart.length === 0}
 		<div class="flex flex-col bg-gray-200 rounded-lg items-center justify-center py-20">
 			<p class="text-lg mb-4 font-bold">Your cart is empty.</p>
@@ -100,9 +105,13 @@
 			</a>
 		</div>
 	{:else}
-		{#each $cart as item, i (item.id + '-' + i)}
-			{#key item.quantity}
-				<CartItem {...item} {updateQuantity} {removeItem} {i}></CartItem>
+		{#each $cart as item, i (item?.id + '-' + i)}
+			{#key item?.quantity}
+				{#if item?.details?.type === 'print'}
+					<PhotoCartItem {i} {item}></PhotoCartItem>
+				{:else}
+					<CartItem {...item} {updateQuantity} {removeItem} {i}></CartItem>
+				{/if}
 			{/key}
 		{/each}
 		<div class="border-1 rounded-lg my-auto p-3 font-bold">
@@ -111,7 +120,7 @@
 				<div>
 					<h3 class="flex space-x-4 items-center">
 						<span class="font-normal text-2xl">Total</span>
-						<span class="bg-amber-400 px-3 py-2 rounded-xl text-xl">P{total}</span>
+						<span class="bg-amber-400 px-3 py-2 rounded-xl text-xl">P{total.toFixed(2)}</span>
 					</h3>
 				</div>
 				<div class="flex gap-4">
