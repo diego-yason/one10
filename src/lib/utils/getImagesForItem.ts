@@ -1,21 +1,20 @@
 // src/lib/utils/getImagesForItem.ts
 
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
-import { db } from '$lib/services/firebase'; // Assuming you have a Firebase DB instance
-import { doc, getDoc } from 'firebase/firestore';
+// Firestore imports are removed as the metadata array is passed directly
+// import { db, doc, getDoc } from '$lib/services/firebase'; 
 
 // Define the expected structure for the images array
 interface ImageReference {
-    id: string; 
+    id: string; // The UUID
+    name: string; // The original filename (e.g., "myphoto.PNG")
 }
 
-// NOTE: This implementation is an assumption based on common Firebase/Firestore setups.
-export async function getImagesForItem(orderItemId: string): Promise<{ url: string, name: string }[]> {
+// 🎯 The function now accepts the metadata array directly.
+export async function getImagesForItem(metadata: ImageReference[]): Promise<{ url: string, name: string }[]> {
     
-    const metadata: any[] = await fetchMetadataForItem(orderItemId); // You must implement this
-
     if (!metadata || metadata.length === 0) {
-        console.warn(`No image metadata found for item ID: ${orderItemId}`);
+        console.warn(`No image metadata received for retrieval.`);
         return [];
     }
 
@@ -23,34 +22,33 @@ export async function getImagesForItem(orderItemId: string): Promise<{ url: stri
     const imageURLs: { url: string, name: string }[] = [];
 
     for (const meta of metadata) {
-        // The file name in Firebase Storage is assumed to be the unique ID + its extension.
-        // The original logic suggested 'id' is a UUID. Assuming 'meta.id.jpg' is the file name.
         
-        // This is a CRITICAL assumption: You need to know the file extension.
-        // If the extension is stored in the metadata, use it. E.g., const ext = meta.ext;
+        // 1. Determine the file extension from the original filename (meta.name)
+        const parts = meta.name.split('.');
+        // Use the extension if available, otherwise assume 'jpeg' (based on your uploads)
+        const fileExtension = parts.length > 1 ? parts.pop() : 'jpeg'; 
         
-        const storageRef = ref(storage, `uploads/images/${meta.id}`); // Adjust path as needed
+        // 2. CRITICAL CHANGE: CONSTRUCT THE STORAGE PATH WITH ONLY THE UUID (meta.id)
+        // The file in storage is named: photo_print_orders/b2dd85bf-d7b9-402d-9390-a3687e2054a0
+        const storagePath = `photo_print_orders/${meta.id}`; 
+        const storageRef = ref(storage, storagePath); 
         
         try {
             const url = await getDownloadURL(storageRef);
+            
             imageURLs.push({
                 url: url,
-                // Use a proper file name for the backend zipper to use
-                name: `${meta.id}.jpg` // <<< Adjust extension (.jpg, .png) as per your storage
+                // Use the determined extension for the final zip file name (e.g., UUID.jpeg)
+                // This ensures the staff member gets a usable file extension!
+                name: `${meta.id}.${fileExtension}` 
             });
         } catch (e) {
-            console.error(`Failed to get download URL for image ID ${meta.id}`, e);
+            // Log the UUID and the path that failed for easier debugging
+            console.error(`Failed to get download URL for UUID: ${meta.id} at path: ${storagePath}`, e);
         }
     }
 
     return imageURLs;
 }
 
-// NOTE: You must implement this function to fetch the metadata array from your database.
-async function fetchMetadataForItem(orderItemId: string): Promise<any[]> {
-    // 1. Query your database for the order that contains orderItemId.
-    // 2. Find the item within the order.
-    // 3. Return the array of item.details.uploadedImages.
-    
-    return []; // Placeholder: Implement this logic
-}
+// 🚫 The fetchMetadataForItem function is no longer needed here.
