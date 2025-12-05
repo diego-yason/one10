@@ -1,6 +1,6 @@
+import { Buffer } from 'node:buffer';
 import type { Actions } from './$types';
 import { PUBLIC_MAYA_KEY, PUBLIC_BASE_URL, PUBLIC_MAYA_URL } from '$env/static/public';
-import { dev } from '$app/environment';
 import { fail, redirect } from '@sveltejs/kit';
 import { verifyCart } from '$lib/server/verifyCart';
 import type { CartItem } from '$types/Cart';
@@ -9,6 +9,8 @@ import type { Order } from '$types/firebase/Orders';
 import { checkoutSchema } from './schema';
 
 import { adminDb } from '$lib/server/firebase';
+
+const getAuthHeader = () => `Basic ${Buffer.from(PUBLIC_MAYA_KEY).toString('base64')}`;
 
 export const actions = {
 	create: async ({ fetch, request }) => {
@@ -91,22 +93,11 @@ export const actions = {
 
 		const record = await adminDb.collection('orders').add(order);
 
-		// Create timeout controller for connection and response timeouts
-		const controller = new AbortController();
-		const connectionTimeout = setTimeout(() => {
-			controller.abort();
-		}, 10000); // 10s connection timeout as per Maya guidelines
-
-		const responseTimeout = setTimeout(() => {
-			controller.abort();
-		}, 60000); // 60s response timeout as per Maya guidelines
-
 		try {
-			// make checkout request
 			const checkoutRes = await fetch(`${PUBLIC_MAYA_URL}/checkout/v1/checkouts`, {
 				method: 'POST',
 				headers: {
-					Authorization: `Basic ${Buffer.from(PUBLIC_MAYA_KEY).toString('base64')}`,
+					Authorization: getAuthHeader(),
 					'Content-Type': 'application/json',
 					Accept: 'application/json'
 				},
@@ -128,26 +119,19 @@ export const actions = {
 						failure: PUBLIC_BASE_URL + '/checkout/callback/?order=' + record.id,
 						cancel: PUBLIC_BASE_URL + '/checkout/callback/?order=' + record.id
 					}
-				}),
-				signal: controller.signal
+				})
 			});
 			// Clear connection timeout once response starts
 			clearTimeout(connectionTimeout);
 
-			// eslint-disable-next-line no-var
-			var {
-				checkoutId,
-				redirectUrl
-			}: {
-				checkoutId: string;
-				redirectUrl: string;
-			} = await checkoutRes.json();
-			// Clear response timeout on success
-			clearTimeout(responseTimeout);
+			if (!checkoutRes.ok) {
+				console.error(await checkoutRes.text());
+				return fail(500, { message: 'Payment provider rejected the request' });
+			}
 
-			console.log('Successfully created checkout:', checkoutId);
+			const { checkoutId, redirectUrl } = await checkoutRes.json();
+
 			if (redirectUrl) {
-				// update order with checkoutId
 				await adminDb.collection('orders').doc(record.id).update({
 					maya_checkoutId: checkoutId
 				});
@@ -167,30 +151,15 @@ export const actions = {
 					})
 				);
 
-				return {
-					success: true,
-					redirectUrl
-				};
+				return { success: true, redirectUrl };
 			}
 		} catch (error) {
-			// Clear any remaining timeouts
-			clearTimeout(connectionTimeout);
-			clearTimeout(responseTimeout);
-
 			console.error('Checkout error:', error);
-
-			if (error instanceof Error && error.name === 'AbortError') {
-				return fail(503, {
-					message: 'Request timed out. Please try again later.'
-				});
-			}
-			return fail(500, {
-				message: 'An error occurred while processing your request. Please try again later.'
-			});
+			return fail(500, { message: 'An internal error occurred.' });
 		}
-
 		return fail(500);
 	},
+
 	getPayment: async ({ fetch, request }) => {
 		const formData = await request.formData();
 		const orderId = formData.get('orderId') as string;
@@ -199,37 +168,17 @@ export const actions = {
 
 		const orderDoc = await adminDb.collection('orders').where('id', '==', orderId).get();
 		if (orderDoc.empty) return fail(404, { error: 'Order not found' });
+
 		const orderData = orderDoc.docs[0].data() as Order;
 
-		let status;
-		if (!(orderData.status === 'payment_pending' || !orderData.maya_checkoutId))
-			status = (
-				await (
-					await fetch(`${PUBLIC_MAYA_URL}/payments/v1/payments/${orderData.maya_checkoutId}/status`)
-				).json()
-			).status;
+		if (orderData.status === 'payment_success') {
+			return fail(400, { error: 'Order already paid' });
+		}
 
-		const statuses = [
-			'PENDING_TOKEN',
-			'PENDING_PAYMENT',
-			'FOR_AUTHENTICATION',
-			'AUTHENTICATING',
-			'AUTH_NOT_ENROLLED',
-			'AUTH_FAILED',
-			'PAYMENT_FAILED',
-			'AUTHORIZED',
-			'PAYMENT_EXPIRED',
-			'PAYMENT_CANCELLED',
-			'PAYMENT_INVALID'
-		];
-
-		if (!statuses.includes(status)) return fail(400, { error: 'There is no payment to be made.' });
-
-		// generate new checkout link
 		const mayaCheckoutRes = await fetch(`${PUBLIC_MAYA_URL}/checkout/v1/checkouts`, {
 			method: 'POST',
 			headers: {
-				Authorization: `Basic ${Buffer.from(PUBLIC_MAYA_KEY).toString('base64')}`,
+				Authorization: getAuthHeader(),
 				'Content-Type': 'application/json',
 				Accept: 'application/json'
 			},
@@ -241,24 +190,19 @@ export const actions = {
 				items: orderData.items,
 				requestReferenceNumber: orderData.id,
 				redirectUrl: {
-					success: PUBLIC_BASE_URL + 'checkout/callback/?order=' + orderData.id,
-					failure: PUBLIC_BASE_URL + 'checkout/callback/?order=' + orderData.id,
-					cancel: PUBLIC_BASE_URL + 'checkout/callback/?order=' + orderData.id
+					success: `${PUBLIC_BASE_URL}/checkout/success?orderId=${orderData.id}`,
+					failure: `${PUBLIC_BASE_URL}/checkout/failed?orderId=${orderData.id}`,
+					cancel: `${PUBLIC_BASE_URL}/checkout/failed?orderId=${orderData.id}`
 				}
 			})
 		});
 
 		if (!mayaCheckoutRes.ok) {
-			const errorData = await mayaCheckoutRes.json();
-			console.error('Maya checkout error:', errorData);
-			return fail(500, { error: 'Failed to create Maya checkout link' });
+			console.error('Maya re-checkout error:', await mayaCheckoutRes.text());
+			return fail(500, { error: 'Failed to create payment link' });
 		}
 
 		const { checkoutId, redirectUrl } = await mayaCheckoutRes.json();
-		if (!checkoutId || !redirectUrl) {
-			console.error('Maya checkout response missing data:', { checkoutId, redirectUrl });
-			return fail(500, { error: 'Invalid response from Maya checkout' });
-		}
 
 		// update order with new checkoutId
 		await adminDb.collection('orders').doc(orderDoc.docs[0].id).update({
