@@ -352,7 +352,7 @@
 										{/each}
 									</div>
 									<!-- TODO: Change this to === once I know what the type for a photo print is -->
-									{#if item.details?.type != "photo-print"}
+									{#if item.details?.type === "print"}
 										<button 
 											class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition-colors"
 											type="button"

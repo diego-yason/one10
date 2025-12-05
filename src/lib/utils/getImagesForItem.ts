@@ -1,56 +1,62 @@
 // src/lib/utils/getImagesForItem.ts
 
 import { getStorage, ref, getDownloadURL } from 'firebase/storage';
-import { db } from '$lib/services/firebase'; // Assuming you have a Firebase DB instance
-import { doc, getDoc } from 'firebase/firestore';
 
-// Define the expected structure for the images array
+// 1. Define the full structure of the image metadata passed in.
 interface ImageReference {
     id: string; 
+    name: string;
+    copies: number; // Added: Required for +server.ts
+    fitMode: string; // Added: Required for +server.ts
+    size: string; // Added: Required for +server.ts
+    price: number;
+    // Add any other fields you want to pass through
 }
 
-// NOTE: This implementation is an assumption based on common Firebase/Firestore setups.
-export async function getImagesForItem(orderItemId: string): Promise<{ url: string, name: string }[]> {
-    
-    const metadata: any[] = await fetchMetadataForItem(orderItemId); // You must implement this
+// 2. Define the new return type that includes the necessary fields
+// This is the data structure that will be sent to the /api/zip-images endpoint
+interface ZippableImage extends ImageReference {
+    url: string; // The generated download URL
+    name: string; // The generated filename (UUID.ext)
+}
 
+
+// 🎯 CHANGE: Update the function signature to use the full ZippableImage type for its promise
+export async function getImagesForItem(metadata: ImageReference[]): Promise<ZippableImage[]> {
+    
     if (!metadata || metadata.length === 0) {
-        console.warn(`No image metadata found for item ID: ${orderItemId}`);
+        console.warn(`No image metadata received for retrieval.`);
         return [];
     }
 
     const storage = getStorage();
-    const imageURLs: { url: string, name: string }[] = [];
+    const imageURLs: ZippableImage[] = [];
 
     for (const meta of metadata) {
-        // The file name in Firebase Storage is assumed to be the unique ID + its extension.
-        // The original logic suggested 'id' is a UUID. Assuming 'meta.id.jpg' is the file name.
         
-        // This is a CRITICAL assumption: You need to know the file extension.
-        // If the extension is stored in the metadata, use it. E.g., const ext = meta.ext;
+        // 1. Determine the file extension from the original filename (meta.name)
+        const parts = meta.name.split('.');
+        // Use the extension if available, otherwise assume 'jpeg' (based on your uploads)
+        const fileExtension = parts.length > 1 ? parts.pop() : 'jpeg'; 
         
-        const storageRef = ref(storage, `uploads/images/${meta.id}`); // Adjust path as needed
+        // 2. CONSTRUCT THE STORAGE PATH (Uses UUID only, based on your storage images)
+        const storagePath = `photo_print_orders/${meta.id}`; 
+        const storageRef = ref(storage, storagePath); 
         
         try {
             const url = await getDownloadURL(storageRef);
+            
             imageURLs.push({
+                // Pass all original metadata fields through
+                ...meta, 
                 url: url,
-                // Use a proper file name for the backend zipper to use
-                name: `${meta.id}.jpg` // <<< Adjust extension (.jpg, .png) as per your storage
+                // Use the determined extension for the final zip file name
+                name: `${meta.id}.${fileExtension}` 
             });
         } catch (e) {
-            console.error(`Failed to get download URL for image ID ${meta.id}`, e);
+            console.error(`Failed to get download URL for UUID: ${meta.id} at path: ${storagePath}`, e);
         }
     }
 
     return imageURLs;
-}
-
-// NOTE: You must implement this function to fetch the metadata array from your database.
-async function fetchMetadataForItem(orderItemId: string): Promise<any[]> {
-    // 1. Query your database for the order that contains orderItemId.
-    // 2. Find the item within the order.
-    // 3. Return the array of item.details.uploadedImages.
-    
-    return []; // Placeholder: Implement this logic
 }
