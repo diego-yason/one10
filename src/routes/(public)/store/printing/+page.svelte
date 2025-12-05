@@ -165,6 +165,21 @@
             0
         );
     }
+
+	function handleManualCopiesInput(img: any) {
+		// 1. Ensure the value is treated as a number
+		let value = Number(img.copies); 
+		
+		// 2. Perform the auto-correction logic
+		if (isNaN(value) || value < 1) {
+			img.copies = 1; // Force the model value back to 1
+		} else {
+			img.copies = value;
+		}
+		
+		// 3. Update the total price
+		updateTotal();
+	}
 </script>
 
 
@@ -287,7 +302,7 @@
 								min="1"
 								class="hidden"
 								bind:value={img.copies}
-								oninput={updateTotal}
+								oninput={() => handleManualCopiesInput(img)}
 							/>
 
 							<!-- File name -->
