@@ -52,125 +52,126 @@
 			pickupOther = savedState.pickupOther || '';
 			total = savedState.total || 0;
 
-			// Restore images with their File objects and previews
-			const restoredImages = await Promise.all(
-				savedState.uploadedImages.map(async (img: any) => {
-					const file = await getImage(img.id);
-					if (!file) return null;
+            // Restore images with their File objects and previews
+            const restoredImages = await Promise.all(
+                savedState.uploadedImages.map(async (img: any) => {
+                    const file = await getImage(img.id);
+                    if (!file) return null;
 
-					const preview = await readAsDataURL(file);
-					return {
-						...img,
-						file,
-						preview
-					};
-				})
-			);
+                    const preview = await readAsDataURL(file);
+                    return {
+                        ...img,
+                        file,
+                        preview
+                    };
+                })
+            );
 
-			uploadedImages = restoredImages.filter(Boolean) as UploadType[];
-		}
-	});
+            uploadedImages = restoredImages.filter(Boolean) as UploadType[];
+        }
+    });
 
-	// Auto-save state whenever it changes
-	$effect(() => {
-		if (browser) {
-			saveFormState({
-				uploadedImages,
-				pickupMode,
-				pickupOther,
-				total
-			});
-		}
-	});
+    // Auto-save state whenever it changes
+    $effect(() => {
+        if (browser) {
+            saveFormState({
+                uploadedImages,
+                pickupMode,
+                pickupOther,
+                total
+            });
+        }
+    });
 
-	$effect(() => {
-		if (pickupMode !== 'other') {
-			pickupOther = '';
-		}
-	});
+    $effect(() => {
+        if (pickupMode !== "other") {
+            pickupOther = "";
+        }
+    });
 
-	function readAsDataURL(file: File): Promise<string> {
-		return new Promise((resolve) => {
-			const reader = new FileReader();
-			reader.onload = (e) => resolve(e.target?.result as string);
-			reader.readAsDataURL(file);
-		});
-	}
+    function readAsDataURL(file: File): Promise<string> {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => resolve(e.target?.result as string);
+            reader.readAsDataURL(file);
+        });
+    }
 
-	async function handleFileUpload(event: Event) {
-		const files = (event.target as HTMLInputElement).files;
-		if (!files) return;
+    async function handleFileUpload(event: Event) {
+        const files = (event.target as HTMLInputElement).files;
+        if (!files) return;
 
-		for (const file of files) {
-			const id = uuidv4();
-			await saveImage(id, file);
-			basePrice = PRICE_PER_SIZE['3R'];
+        for (const file of files) {
+            const id = uuidv4();	
+            await saveImage(id, file);
+			basePrice = PRICE_PER_SIZE["3R"];
 
-			const preview = await readAsDataURL(file);
-			uploadedImages = [
-				...uploadedImages,
-				{
-					id,
-					file,
-					name: file.name,
-					preview,
-					copies: 1,
-					size: '3R',
-					price: basePrice,
-					fitMode: 'fit'
-				}
-			];
+            const preview = await readAsDataURL(file);
+            uploadedImages = [
+                ...uploadedImages,
+                {
+                    id,
+                    file,
+                    name: file.name,
+                    preview,
+                    copies: 1,
+                    size: "3R",
+                    price: basePrice,
+                    fitMode: "fit"
+                },
+            ];
 
-			updateTotal();
-		}
+            updateTotal();
+        }
 
-		(event.target as HTMLInputElement).value = '';
-	}
+        (event.target as HTMLInputElement).value = "";
+    }
 
-	function increaseCopies(index: number) {
-		uploadedImages[index].copies++;
-		updateTotal();
-	}
+    function increaseCopies(index: number) {
+        uploadedImages[index].copies++;
+        updateTotal();
+    }
 
-	function decreaseCopies(index: number) {
-		if (uploadedImages[index].copies > 1) {
-			uploadedImages[index].copies--;
-			updateTotal();
-		}
-	}
+    function decreaseCopies(index: number) {
+        if (uploadedImages[index].copies > 1) {
+            uploadedImages[index].copies--;
+            updateTotal();
+        }
+    }
 
-	function changeSize(index: number, event: Event) {
-		const size = (event.target as HTMLSelectElement).value;
+    function changeSize(index: number, event: Event) {
+        const size = (event.target as HTMLSelectElement).value;
 		basePrice = PRICE_PER_SIZE[size];
-		uploadedImages[index].size = size;
+        uploadedImages[index].size = size;
 		uploadedImages[index].price = PRICE_PER_SIZE[size];
-		updateTotal();
-	}
+        updateTotal();
+    }
 
-	async function removeImage(index: number) {
-		await deleteImage(uploadedImages[index].id);
-		uploadedImages.splice(index, 1);
-		updateTotal();
-	}
+    async function removeImage(index: number) {
+        await deleteImage(uploadedImages[index].id); 
+        uploadedImages.splice(index, 1);
+        updateTotal();
+    }
 
-	function changeFitMode(index: number, e: Event) {
-		const value = (e.target as HTMLSelectElement).value;
-		uploadedImages[index].fitMode = value;
-		uploadedImages = [...uploadedImages];
-	}
+    function changeFitMode(index: number, e: Event) {
+        const value = (e.target as HTMLSelectElement).value;
+        uploadedImages[index].fitMode = value;
+        uploadedImages = [...uploadedImages];
+    }
 
-	function updateTotal() {
-		total = uploadedImages.reduce((sum, img) => sum + img.copies * img.price, 0);
-	}
+    function updateTotal() {
+        total = uploadedImages.reduce(
+            (sum, img) => sum + img.copies * img.price,
+            0
+        );
+    }
 </script>
 
+
 <div class="px-30">
-	<a
-		href="/store"
-		class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors"
-	>
+	<a href="/store" class="inline-flex items-center gap-2 text-gray-600 hover:text-gray-800 transition-colors">
 		<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+			<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
 		</svg>
 		Back to Store
 	</a>
@@ -198,49 +199,47 @@
 		</div>
 	{/if}
 
-	<form
+	<form 
 		class="w-full flex flex-col gap-6"
 		method="POST"
 		enctype="multipart/form-data"
-		use:enhance={async ({ formData }) => {
+		use:enhance={async ({formData}) => {
 			isSubmitting = true;
-			formData.append('pickupMode', pickupMode);
-			formData.set('pickupOther', pickupOther);
-			formData.append('total', String(total));
-			formData.append('basePrice', String(basePrice));
+			formData.append("pickupMode", pickupMode);
+			formData.set("pickupOther", pickupOther);
+			formData.append("total", String(total));
+			formData.append("basePrice", String(basePrice));
 
 			for (const img of uploadedImages) {
-				formData.append('files', img.file);
-				formData.append(
-					'meta',
-					JSON.stringify({
-						id: img.id,
-						name: img.name,
-						copies: img.copies,
-						size: img.size,
-						price: img.price,
-						fitMode: img.fitMode
-					})
-				);
+				formData.append("files", img.file);
+				formData.append("meta", JSON.stringify({
+					id: img.id,
+					name: img.name,
+					copies: img.copies,
+					size: img.size,
+					price: img.price,
+					fitMode: img.fitMode
+				}));
 			}
 
-			return async ({ result, update }) => {
+			return async ({result, update}) => {
 				isSubmitting = false;
-				update({ reset: true });
-
-				if (result?.type === 'success') {
+				update({reset: true});
+				
+				if (result?.type === "success") {
 					const data = result.data!.item;
 					add(data as unknown as CartItem);
 					showToast('Added to cart!');
-
+					
 					// await clearImages();
 					// await clearFormState();
-
+					
 					uploadedImages = [];
 					total = 0;
-					pickupMode = '';
-					pickupOther = '';
-				} else if (result?.type === 'failure') {
+					pickupMode = "";
+					pickupOther = "";
+				} 
+				else if (result?.type === "failure") {
 					const issues = result.data!.issues as Issue;
 					for (let key in issues) {
 						showToast(issues[key]);
@@ -251,13 +250,12 @@
 	>
 		<!-- Upload field -->
 		<label class="block font-bold mb-2 text-sm" for="upload">UPLOAD YOUR PHOTOS*</label>
-		{#if uploadedImages.length > 0}
-			<section class="bg-gray-50 p-6 rounded-lg shadow-md">
-				<h3 class="text-2xl font-bold mb-4">Preview & Adjustments</h3>
+		<section class="bg-gray-50 p-6 rounded-lg shadow-md">
+			<h3 class="text-2xl font-bold mb-4">Preview & Adjustments</h3>
+			{#if uploadedImages.length > 0}
 				<div class="space-y-4">
 					{#each uploadedImages as img, i (img.id)}
 						<div
-							data-testid="photo-entry"
 							class="flex items-center gap-4 bg-white p-3 rounded-lg border border-gray-200 shadow-sm"
 							transition:fade
 						>
@@ -293,26 +291,27 @@
 
 							<!-- File name -->
 							<p class="flex-1 truncate">{img.name}</p>
+							<!-- File name -->
+							<p class="flex-1 truncate">{img.name}</p>
 
-							<!-- Size dropdown -->
-							<div class="flex items-center">
-								<select
-									data-testid={'size-select-' + img.id}
-									class="bg-yellow-300 font-semibold rounded-l-lg px-3 py-1 border-r-2 border-black focus:outline-none"
-									bind:value={img.size}
-									onchange={(e) => changeSize(i, e)}
-								>
-									<option value="3R">3R</option>
-									<option value="4R">4R</option>
-									<option value="5R">5R</option>
-									<option value="6R">6R</option>
-									<option value="7R">7R</option>
-									<option value="8R">8R</option>
-								</select>
-								<div class="bg-yellow-300 rounded-r-lg px-3 py-1 font-semibold">
-									₱{img.price.toFixed(2)}
-								</div>
+						<!-- Size dropdown -->
+						<div class="flex items-center">
+							<select
+								class="bg-yellow-300 font-semibold rounded-l-lg px-3 py-1 border-r-2 border-black focus:outline-none"
+								bind:value={img.size}
+								onchange={(e) => changeSize(i, e)}
+							>
+								<option value="3R">3R</option>
+								<option value="4R">4R</option>
+								<option value="5R">5R</option>
+								<option value="6R">6R</option>
+								<option value="7R">7R</option>
+								<option value="8R">8R</option>
+							</select>
+							<div class="bg-yellow-300 rounded-r-lg px-3 py-1 font-semibold">
+								₱{img.price.toFixed(2)}
 							</div>
+						</div>
 
 							<div class="flex items-center gap-3 ml-20">
 								<label class="font-semibold" for="fitMode">Print Mode:</label>
@@ -327,24 +326,25 @@
 								</select>
 							</div>
 
-							<!-- Delete -->
-							<button
-								type="button"
-								data-testid={'delete-' + img.id}
+								<!-- Delete -->
+								<button
+									type="button"
+									data-testid={'delete-' + img.id}
 								class="text-red-500 font-bold text-lg ml-3 hover:text-red-700"
-								onclick={() => removeImage(i)}
-							>
-								🗑
-							</button>
-						</div>
-					{/each}
-				</div>
-
+									onclick={() => removeImage(i)}
+								>
+									🗑
+								</button>
+							</div>
+						{/each}
+					</div>
+			{:else}
+				<p>No images uploaded yet.</p>
+			{/if}
 				<div data-testid="total-price" class="text-right font-bold text-xl mt-6">
 					TOTAL: ₱{total.toFixed(2)}
 				</div>
 			</section>
-		{/if}
 		<!-- Hidden actual file input -->
 		<input
 			type="file"
@@ -363,12 +363,10 @@
 			class="w-40 px-4 py-2 bg-yellow-300 font-bold rounded-md border border-black hover:bg-yellow-400"
 			onclick={() => fileInput.click()}
 		>
-			Upload Images
+		Upload Images
 		</button>
 		<div class="mt-4">
-			<label class="block font-bold mb-2 text-sm" for="pickupMode"
-				>MODE OF DELIVERY FOR PICK-UP*</label
-			>
+			<label class="block font-bold mb-2 text-sm" for="pickupMode">MODE OF DELIVERY FOR PICK-UP*</label>
 			<div class="flex flex-col gap-2">
 				<label class="text-sm">
 					<input
@@ -380,15 +378,28 @@
 					/> SAME DAY COURIER (LALAMOVE, GRAB, MR. SPEEDY, ETC.)
 				</label>
 				<label class="text-sm">
-					<input type="radio" name="pickupMode" value="courier" bind:group={pickupMode} /> COURIER (JRS,
-					LBC, J&T, GOGOEXPRESS, ETC.)
+					<input
+						type="radio"
+						name="pickupMode"
+						value="courier"
+						bind:group={pickupMode}
+					/> COURIER (JRS, LBC, J&T, GOGOEXPRESS, ETC.)
 				</label>
 				<label class="text-sm">
-					<input type="radio" name="pickupMode" value="dropoff" bind:group={pickupMode} /> DROP-OFF AT
-					LOCATION (ONE10STUDIOLAB, MUNTINLUPA CITY)
+					<input
+						type="radio"
+						name="pickupMode"
+						value="dropoff"
+						bind:group={pickupMode}
+					/> DROP-OFF AT LOCATION (ONE10STUDIOLAB, MUNTINLUPA CITY)
 				</label>
 				<label class="text-sm">
-					<input type="radio" name="pickupMode" value="other" bind:group={pickupMode} />
+					<input
+						type="radio"
+						name="pickupMode"
+						value="other"
+						bind:group={pickupMode}
+					/>
 					OTHER:
 					{#if pickupMode === 'other'}
 						<input
@@ -415,7 +426,8 @@
 				type="submit"
 				class="bg-amber-300 rounded-4xl px-8 py-2 font-bold text-black disabled:opacity-50"
 				disabled={!!$user}
-				title={$user ? 'Staff users cannot add items to cart' : ''}>Add to cart</button
+				title={$user ? "Staff users cannot add items to cart" : ""}
+				>Add to cart</button
 			>
 		</div>
 	</form>
