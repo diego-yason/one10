@@ -92,6 +92,16 @@ export const actions = {
 
 		const record = await adminDb.collection('orders').add(order);
 
+		// Create timeout controller for connection and response timeouts
+		const controller = new AbortController();
+		const connectionTimeout = setTimeout(() => {
+			controller.abort();
+		}, 10000); // 10s connection timeout as per Maya guidelines
+
+		const responseTimeout = setTimeout(() => {
+			controller.abort();
+		}, 60000); // 60s response timeout as per Maya guidelines
+
 		try {
 			const checkoutRes = await fetch(`${PUBLIC_MAYA_URL}/checkout/v1/checkouts`, {
 				method: 'POST',
@@ -101,41 +111,66 @@ export const actions = {
 					Accept: 'application/json'
 				},
 				body: JSON.stringify({
-					totalAmount: { value: grandTotal, currency: 'PHP' },
+					totalAmount: {
+						value: grandTotal,
+						currency: 'PHP'
+					},
 					items,
 					requestReferenceNumber: record.id,
 					redirectUrl: {
-						success: `${PUBLIC_BASE_URL}/checkout/success?orderId=${record.id}`,
-						failure: `${PUBLIC_BASE_URL}/checkout/failed?orderId=${record.id}`,
-						cancel: `${PUBLIC_BASE_URL}/checkout/failed?orderId=${record.id}`
+						success: PUBLIC_BASE_URL + 'checkout/callback/?order=' + record.id,
+						failure: PUBLIC_BASE_URL + 'checkout/callback/?order=' + record.id,
+						cancel: PUBLIC_BASE_URL + 'checkout/callback/?order=' + record.id
 					}
-				})
+				}),
+				signal: controller.signal
 			});
 
-			if (!checkoutRes.ok) {
-				console.error(await checkoutRes.text());
-				return fail(500, { message: 'Payment provider rejected the request' });
-			}
+			// Clear connection timeout once response starts
+			clearTimeout(connectionTimeout);
 
-			const { checkoutId, redirectUrl } = await checkoutRes.json();
+			// eslint-disable-next-line no-var
+			var {
+				checkoutId,
+				redirectUrl
+			}: {
+				checkoutId: string;
+				redirectUrl: string;
+			} = await checkoutRes.json();
+			// Clear response timeout on success
+			clearTimeout(responseTimeout);
 
+			console.log('Successfully created checkout:', checkoutId);
 			if (redirectUrl) {
+				// update order with checkoutId
 				await adminDb.collection('orders').doc(record.id).update({
 					maya_checkoutId: checkoutId
 				});
 				
-				await Promise.all(items.map(async (item) => {
-					const productDoc = await adminDb.collection('products').where('itemCode', '==', item.code).get();
-					if (!productDoc.empty) {
+				// update product quantities
+				await Promise.all(
+					items.map(async (item) => {
+						const productDoc = await adminDb
+							.collection('products')
+							.where('itemCode', '==', item.code)
+							.get();
+						console.log(item.code);
 						await productDoc.docs[0].ref.update({
 							stock: (productDoc.docs[0].data().stock ?? 0) - item.quantity
 						});
-					}
-				}));
+					})
+				);
 
-				return { success: true, redirectUrl };
+				return {
+					success: true,
+					redirectUrl
+				};
 			}
 		} catch (error) {
+			// Clear any remaining timeouts
+			clearTimeout(connectionTimeout);
+			clearTimeout(responseTimeout);
+
 			console.error('Checkout error:', error);
 			return fail(500, { message: 'An internal error occurred.' });
 		}
