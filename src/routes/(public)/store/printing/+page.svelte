@@ -250,12 +250,13 @@
 	>
 		<!-- Upload field -->
 		<label class="block font-bold mb-2 text-sm" for="upload">UPLOAD YOUR PHOTOS*</label>
-		<section class="bg-gray-50 p-6 rounded-lg shadow-md">
-			<h3 class="text-2xl font-bold mb-4">Preview & Adjustments</h3>
-			{#if uploadedImages.length > 0}
+		{#if uploadedImages.length > 0}
+			<section class="bg-gray-50 p-6 rounded-lg shadow-md">
+				<h3 class="text-2xl font-bold mb-4">Preview & Adjustments</h3>
 				<div class="space-y-4">
 					{#each uploadedImages as img, i (img.id)}
 						<div
+							data-testid="photo-entry"
 							class="flex items-center gap-4 bg-white p-3 rounded-lg border border-gray-200 shadow-sm"
 							transition:fade
 						>
@@ -291,27 +292,26 @@
 
 							<!-- File name -->
 							<p class="flex-1 truncate">{img.name}</p>
-							<!-- File name -->
-							<p class="flex-1 truncate">{img.name}</p>
 
-						<!-- Size dropdown -->
-						<div class="flex items-center">
-							<select
-								class="bg-yellow-300 font-semibold rounded-l-lg px-3 py-1 border-r-2 border-black focus:outline-none"
-								bind:value={img.size}
-								onchange={(e) => changeSize(i, e)}
-							>
-								<option value="3R">3R</option>
-								<option value="4R">4R</option>
-								<option value="5R">5R</option>
-								<option value="6R">6R</option>
-								<option value="7R">7R</option>
-								<option value="8R">8R</option>
-							</select>
-							<div class="bg-yellow-300 rounded-r-lg px-3 py-1 font-semibold">
-								₱{img.price.toFixed(2)}
+							<!-- Size dropdown -->
+							<div class="flex items-center">
+								<select
+									data-testid={'size-select-' + img.id}
+									class="bg-yellow-300 font-semibold rounded-l-lg px-3 py-1 border-r-2 border-black focus:outline-none"
+									bind:value={img.size}
+									onchange={(e) => changeSize(i, e)}
+								>
+									<option value="3R">3R</option>
+									<option value="4R">4R</option>
+									<option value="5R">5R</option>
+									<option value="6R">6R</option>
+									<option value="7R">7R</option>
+									<option value="8R">8R</option>
+								</select>
+								<div class="bg-yellow-300 rounded-r-lg px-3 py-1 font-semibold">
+									₱{img.price.toFixed(2)}
+								</div>
 							</div>
-						</div>
 
 							<div class="flex items-center gap-3 ml-20">
 								<label class="font-semibold" for="fitMode">Print Mode:</label>
@@ -326,25 +326,24 @@
 								</select>
 							</div>
 
-								<!-- Delete -->
-								<button
-									type="button"
-									data-testid={'delete-' + img.id}
+							<!-- Delete -->
+							<button
+								type="button"
+								data-testid={'delete-' + img.id}
 								class="text-red-500 font-bold text-lg ml-3 hover:text-red-700"
-									onclick={() => removeImage(i)}
-								>
-									🗑
-								</button>
-							</div>
-						{/each}
-					</div>
-			{:else}
-				<p>No images uploaded yet.</p>
-			{/if}
+								onclick={() => removeImage(i)}
+							>
+								🗑
+							</button>
+						</div>
+					{/each}
+				</div>
+
 				<div data-testid="total-price" class="text-right font-bold text-xl mt-6">
 					TOTAL: ₱{total.toFixed(2)}
 				</div>
 			</section>
+		{/if}
 		<!-- Hidden actual file input -->
 		<input
 			type="file"

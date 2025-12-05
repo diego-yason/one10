@@ -7,7 +7,7 @@
 	import { onMount } from 'svelte';
 	import ImageGalleryModal from '$public/cart/ImageGalleryModal.svelte';
 	import type { imgMeta } from '$public/store/printing/schema';
-	import { getStorage, ref, uploadBytes } from 'firebase/storage';
+	import { getDownloadURL, getStorage, ref, uploadBytes } from 'firebase/storage';
 
 	let email = $state('');
 	let fullName = $state('');
@@ -129,13 +129,12 @@
 					urls.map(
 						(data, index) =>
 							new Promise<void>(async (resolve, reject) => {
-								if (images[index].uuid) return;
-								const uuid = crypto.randomUUID();
+								const { id: uuid } = images[index];
 								const uploadRef = ref(storage, `photo_print_orders/${uuid}`);
+								if (await getDownloadURL(uploadRef).catch(() => false)) resolve();
 
 								uploadBytes(uploadRef, await fetch(data.url).then((res) => res.blob()))
 									.then(() => {
-										images[index].uuid = uuid;
 										resolve();
 									})
 									.catch((msg) => {
@@ -200,11 +199,11 @@
 		return async ({ result }) => {
 			// Upload photos to firebase
 			disabled = false;
-			console.log(result);
+			// console.log(result);
 
-			// TODO: remove this (for testing only)
-			await clearImages();
-			await clearFormState();
+			// // TODO: remove this (for testing only)
+			// await clearImages();
+			// await clearFormState();
 			if (result.type === 'success') {
 				await clearImages();
 				await clearFormState();

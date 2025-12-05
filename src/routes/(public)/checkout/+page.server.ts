@@ -115,17 +115,22 @@ export const actions = {
 						value: grandTotal,
 						currency: 'PHP'
 					},
-					items,
+					items: items.map(({ name, quantity, code, amount, totalAmount }) => ({
+						name,
+						quantity,
+						code,
+						amount,
+						totalAmount
+					})),
 					requestReferenceNumber: record.id,
 					redirectUrl: {
-						success: PUBLIC_BASE_URL + 'checkout/callback/?order=' + record.id,
-						failure: PUBLIC_BASE_URL + 'checkout/callback/?order=' + record.id,
-						cancel: PUBLIC_BASE_URL + 'checkout/callback/?order=' + record.id
+						success: PUBLIC_BASE_URL + '/checkout/callback/?order=' + record.id,
+						failure: PUBLIC_BASE_URL + '/checkout/callback/?order=' + record.id,
+						cancel: PUBLIC_BASE_URL + '/checkout/callback/?order=' + record.id
 					}
 				}),
 				signal: controller.signal
 			});
-
 			// Clear connection timeout once response starts
 			clearTimeout(connectionTimeout);
 
@@ -150,6 +155,7 @@ export const actions = {
 				// update product quantities
 				await Promise.all(
 					items.map(async (item) => {
+						if (item.code == 'printing') return; // skip printing items
 						const productDoc = await adminDb
 							.collection('products')
 							.where('itemCode', '==', item.code)
