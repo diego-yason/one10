@@ -39,6 +39,10 @@ export async function verifyCart(cart: CartItem[]): Promise<boolean> {
 			return item;
 		}
 
+		if (item.id === 'printing') {
+			return item;
+		}
+
 		const querySnapshot = await adminDb
 			.collection('products')
 			.where('itemCode', '==', item.id)
@@ -74,8 +78,6 @@ export async function verifyCart(cart: CartItem[]): Promise<boolean> {
 	console.log('Cart verified');
 	console.log('Old cart: ', cart);
 	console.log('New cart: ', newCart);
-
-
 
 	return _.isEqual(cart, newCart);
 }

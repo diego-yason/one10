@@ -1,8 +1,8 @@
 import { getImagesForItem } from "$lib/utils/getImagesForItem";
 
-export async function downloadImagesRequest(item) {
+export async function downloadImagesRequest(item:any) {
   // 1. Get all Firebase image URLs for this item
-  const images = await getImagesForItem(item.id);
+  const images = await getImagesForItem(item.details.uploadedImages);
 
   // 2. Send them to backend for renaming and zipping
   const res = await fetch('/api/zip-images', {
